@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<Model>
+	<Diagram Number="A-0" Title="IDEF Executor" CNumber="RB000">
+		<Input Title="Section of disk"/>
+		<Input Title="Section of memory"/>
+		<Control Title="IDEF model's text"/>
+		<Output Title="Group of IDEF ASCII diagrams"/>
+
+		<Box Title="Loads a source XML file" Child="">
+			<Input Title="Section of memory"/>
+			<Control Title="IDEF model's text"/>
+			<Output Title="Loaded IDEF diagram object"/>
+		</Box>
+		<Box Title="Positions a loaded IDEF diagram object">
+			<Input Title="Loaded IDEF diagram object"/>
+			<Control Title="Maximum diagram width"/>
+			<Control Title="Maximum diagram height"/>
+			<Output Title="Positioned IDEF diagram object"/>
+		</Box>
+		<Box Title="Generates a set of LibAvoid connectors">
+			<Input Title="Section of memory"/>
+			<Control Title="Positioned IDEF diagram object"/>
+			<Output Title="Set of LibAvoid connectors"/>
+		</Box>
+		<Box Title="Writes a set of IDEF diagram files.">
+			<Input Title="Section of disk"/>
+			<Control Title="Set of LibAvoid connectors"/>
+			<Control Title="Positioned IDEF diagram object"/>
+			<Output Title="Set of IDEF diagrams"/>
+		</Box>
+
+		<Interface Source="I1" Destination="A1.I1"/>
+	</Diagram>
+</Model>
