@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 #include <libavoid/libavoid.h>
 #include <pugixml.hpp>
 
@@ -14,11 +15,18 @@ namespace TMModeller
 		uint32_t Column;
 	};
 
+    class StubSource
+    {
+    public:
+        std::string StubName;
+    };
+
 	class Stub
 	{
 	public:
 		std::string Name;
 		FilePosition Position;
+        std::vector<Source> Sources;
 	};
 
 	class UMLStub : public Stub
@@ -29,7 +37,6 @@ namespace TMModeller
 	class IDEFStub : public Stub
 	{
 	public:
-		std::string Source;
 	}:
 
 	class IDEFStateStub : public IDEFStub
@@ -218,13 +225,24 @@ namespace TMModeller
 		return NewGlossary;
 	}
 
+    
 	
 	IDEFActivityStub LoadActivityStub(const pugixml::xml_node& InputXMLNode)
 	{
 		IDEFActivityStub NewActivityStub;
+        uint32_t NumStubSources;
 
 		NewActivityStub.Name = InputXMLNode.attrib("Name").as_string();
-		NewActivityStub.Source = InputXMLNode.attrib("Source").as_string();
+        NumStubSources = InputXMLNode.children().size();
+        for (uint32_t StubSourceIndex = 0u; StubSourceIndex < NumStubSources; StubSourceIndex++)
+        {
+            const pugixml::xml_node& StubSourceXMLNode = InputXMLNode.children()[StubSourceIndex];
+            StubSource NewStubSource;
+            
+            NewStubSource.Name = StubSourceXMLNode.attrib("Name").as_string();
+            NewActivityStub.Sources.push_back(NewStubSource);
+        }
+		NewActivityStub.Interface = InputXMLNode.attrib("Interface").as_string();
 		NewActivityStub.FilePosition.Row = 0u;
 		NewActivityStub.FilePosition.Column = 0u;	
 
@@ -451,13 +469,9 @@ namespace TMModeller
 		uint32_t ColumnWidth;
 		uint32_t RowHeight;
 
-		/* 1. Calculate the boxes centers. */
-		/* 1.1. Calculates the number of boxes. */
 		NumBoxes = Diagram.Boxes.size();	
-		/* 1.2. Calculates the column width and row height for the staircase layout. */
 		ColumnWidth = Diagram.Width / NumBoxes;
 		RowHeight = (Diagram.Height - BottomBarHeight) / NumBoxes;
-		/* 1.3. Calculates the centers for each box. */
 		for (uint32_t BoxIndex = 0u; BoxIndex < NumBoxes; BoxIndex++)
 		{
 			IDEFActivityBox& SelectedBox;
@@ -475,13 +489,6 @@ namespace TMModeller
 	{
 		uint32_t NumBoxes;
 
-		/* 1. Selects each box. */
-		/* 1.1. Selects each interface of the box. */
-		/* 1.2. Calculate the number of stubs on the interface */
-		/* 1.3. Adds 1 to that number. */
-		/* 1.4. Selects each stub on the interface. */
-		/* 1.5. Calculates the offset from the interfaces starting position. */
-		/* 1.6. Positions the stub. */
 		NumBoxes = Diagram.Boxes.size();
 		for (uint32_t BoxIndex = 0u; BoxIndex < NumBoxes; BoxIndex++)
 		{
@@ -575,12 +582,6 @@ namespace TMModeller
 
 	void LayoutBoundaryStubs(IDEFActivityDiagram& Diagram)
 	{
-		/* 2. Lays out the stubs on the boundary */
-		/* 2.1. Selects each interface. */
-		/* 2.2. Calculates the number of divisions. */
-		/* 2.3. Calculates the width of of a division. */
-		/* 2.4. Selects each stub. */
-		/* 2.5. Places the stub. */
 		uint8_t NumInputDivisions;
 		uint8_t NumOutputDivisions;
 		uint8_t NumControlDivisions;
@@ -674,9 +675,559 @@ namespace TMModeller
 		LayoutBoundaryStubs(LoadedDiagram);
 	}
 
-	libavoid::ConnEnd PlaceConnectors(IDEFActivityDiagram& LayedoutDiagram)
-	{
-	}
+    /*
+     * Places the libavoid connection ends at each stub on the activity boxes.
+     *
+     * Functional Breakdown:
+     *     1. Creates a map from stub labels to connection ends.
+     *     2. Iterates each box on the diagram.
+     *     3. Creates connection ends for each stub on the boxes.
+     *     4. Adds connection ends to the map along with the stub labels.
+     * Parameters:
+     *     1. LayedoutDiagram - A layed out IDEF activity diagram.
+     * Returns:
+     *     1. A map of stub labels to libavoid connection ends.
+     */
+    std::map<IDEFStub, Avoid::ConnEnd> PlaceBoxStubConnectionEnds(const IDEFActivityDiagram& LayedoutDiagram)
+    {
+        std::map<std::string, Avoid::ConnEnd> InterfaceStubsMap;
+        uint32_t NumActivityBoxes;
+
+        NumActivityBoxes = LayedoutDiagram.Boxes.size();
+        for (uint32_t ActivityBoxIndex = 0u; ActivityBoxIndex < NumActivityBoxes; ActivityBoxIndex++)
+        {
+                const IDEFActivityBox& SelectedBox = LayedoutDiagram.Boxes[ActivityBoxIndex];
+                uint32_t InputInterfaceStubCount;
+                uint32_t ControlInterfaceStubCount;
+                uint32_t OutputInterfaceStubCount;
+                uint32_t MechanismInterfaceStubCount;
+                uint32_t CallInterfaceStubCount;
+                
+                InputInterfaceStubCount = SelectedBox.InputStubs.size();
+                ControlInterfaceStubCount = SelectedBox.ControlStubs.size();
+                OutputInterfaceStubCount = SelectedBox.OutputStubs.size();
+                MechanismInterfaceStubCount = SelectedBox.MechanismStubs.size();
+                CallInterfaceStubCount = SelectedBox.CallStubs.size();
+                for (uint32_t InputStubIndex = 0u; InputStubIndex < InputInterfacesStubCount; InputStubIndex++)
+                {
+                    const IDEFStub& InterfaceInputStub = SelectedBox.InputStubs[InputStubIndex];
+                    Avoid::ConnEnd ConnectionEnd(Avoid::Point(InterfaceInputStub.Position.Column, InterfaceInputStub.Position.Row)); 
+
+                    InterfaceStubsMap.insert(InterfaceInputStub, ConnectionEnd);
+                }
+                for (uint32_t OutputStubIndex = 0u; OutputStubIndex < OutputInterfacesStubCount; OutputStubIndex++)
+                {
+                    const IDEFStub& InterfaceOutputStub = SelectedBox.OutputStubs[OutputStubIndex];
+                    Avoid::ConnEnd ConnectionEnd(Avoid::Point(InterfaceOutputStub.Position.Column, InterfaceOutputStub.Position.Row)); 
+
+                    InterfaceStubsMap.insert(InterfaceOutputstub, ConnectionEnd);
+                }
+                for (uint32_t ControlStubIndex = 0u; ControlStubIndex < ControlInterfacesStubCount; ControlStubIndex++)
+                {
+                    const IDEFStub& InterfaceControlStub = SelectedBox.ControlStubs[ControlStubIndex];
+                    Avoid::ConnEnd ConnectionEnd(Avoid::Point(InterfaceControlStub.Position.Column, InterfaceControlStub.Position.Row)); 
+
+                    InterfaceStubsMap.insert(InterfaceControlStub, ConnectionEnd);
+                }
+                for (uint32_t MechanismStubIndex = 0u; MechanismStubIndex < MechanismInterfacesStubCount; MechanismStubIndex++)
+                {
+                    const IDEFStub& InterfaceMechanismStub = SelectedBox.MechanismStubs[MechanismStubIndex];
+                    Avoid::ConnEnd ConnectionEnd(Avoid::Point(InterfaceMechanismStub.Position.Column, InterfaceMechanismStub.Position.Row)); 
+
+                    InterfaceStubsMap.insert(InterfaceMechanismStub, ConnectionEnd);
+                }
+                for (uint32_t CallStubIndex = 0u; CallStubIndex < CallInterfacesStubCount; CallStubIndex++)
+                {
+                    const IDEFStub& InterfaceCallStub = SelectedBox.CallStubs[CallStubIndex];
+                    Avoid::ConnEnd ConnectionEnd(Avoid::Point(InterfaceCallStub.Position.Column, InterfaceCallStub.Position.Row)); 
+
+                    InterfaceStubsMap.insert(InterfaceCallStub, ConnectionEnd)
+                }
+        }
+
+        return InterfaceStubsMap;
+ 
+    }
+
+    /*
+     * Places libavoid stubs at each parent interface stub.
+     *
+     * Functional Breakdown:
+     *     1. Creates a map from parent stub labels to connection ends.
+     *     2. Iterates each parent interface stub.
+     *     3. Creates connection ends for each parent interface stub;
+     *     4. Adds the connection end and parent interface stub label to the map.
+     * Parameters:
+     *     1. LayedOutDiagram - A layed-out IDEF activity diagram.
+     * Local Variables:
+     *     1. InterfaceStubsMap - A mapping from IDEF activity stub label contents to libavoid connection ends.
+     *     2. InputInterfaceStubCount - The number of input stubs on the parent input interface.
+     *     3. ControlInterfaceStubCount - The number of control stubs on the parent control interface.
+     *     4. OutputInterfaceStubCount - The number of output stubs on the parent output interface.
+     *     5. MechanismInterfaceStubCount - The number of mechanism stubs on the parent mechanism interface.
+     * Returns: 
+     *     1. A map of parent interface stub labels to libavoid connection ends.
+     */
+    std::map<IDEFStub, Avoid::ConnEnd> PlaceBoundaryStubConnectionEnds(const IDEFActivityDiagram& LayedoutDiagram)
+    {
+        std::map<std::string, Avoid::ConnEnd> InterfaceStubsMap;
+        uint32_t InputInterfaceStubCount;
+        uint32_t ControlInterfaceStubCount;
+        uint32_t OutputInterfaceStubCount;
+        uint32_t MechanismInterfaceStubCount;
+        uint32_t CallInterfaceStubCount;
+        
+        InputInterfaceStubCount = LayedoutDiagram.InputInterfaceStubs.size();
+        ControlInterfaceStubCount = LayedoutDiagram.ControlInterfaceStubs.size();
+        OutputInterfaceStubCount = LayedoutDiagram.OutputInterfaceStubs.size();
+        MechanismInterfaceStubCount = LayedoutDiagram.MechanismInterfaceStubs.size();
+        CallInterfaceStubCount = LayedoutDiagram.CallInterfaceStubs.size();
+        for (uint32_t InputStubIndex = 0u; InputStubIndex < InputInterfacesStubCount; InputStubIndex++)
+        {
+            const IDEFStub& InterfaceInputStub = LayedoutDiagram.InputInterfaceStubs[InputStubIndex];
+            Avoid::ConnEnd ConnectionEnd(Avoid::Point(InterfaceInputStub.Position.Column, InterfaceInputStub.Position.Row)); 
+
+            InterfaceStubsMap.insert(InterfaceInputStub, ConnectionEnd);
+        }
+        for (uint32_t OutputStubIndex = 0u; OutputStubIndex < OutputInterfacesStubCount; OutputStubIndex++)
+        {
+            const IDEFStub& InterfaceOutputStub = LayedoutDiagram.OutputInterfaceStubs[OutputStubIndex];
+            Avoid::ConnEnd ConnectionEnd(Avoid::Point(InterfaceOutputStub.Position.Column, InterfaceOutputStub.Position.Row)); 
+
+            InterfaceStubsMap.insert(InterfaceOutputStub, ConnectionEnd);
+        }
+        for (uint32_t ControlStubIndex = 0u; ControlStubIndex < ControlInterfacesStubCount; ControlStubIndex++)
+        {
+            const IDEFStub& InterfaceControlStub = LayedoutDiagram.ControlInterfaceStubs[ControlStubIndex];
+            Avoid::ConnEnd ConnectionEnd(Avoid::Point(InterfaceControlStub.Position.Column, InterfaceControlStub.Position.Row)); 
+
+            InterfaceStubsMap.insert(InterfaceControlStub, ConnectionEnd);
+        }
+        for (uint32_t MechanismStubIndex = 0u; MechanismStubIndex < MechanismInterfacesStubCount; MechanismStubIndex++)
+        {
+            const IDEFStub& InterfaceMechanismStub = LayedoutDiagram.MechanismInterfaceStubs[MechanismStubIndex];
+            Avoid::ConnEnd ConnectionEnd(Avoid::Point(InterfaceMechanismStub.Position.Column, InterfaceMechanismStub.Position.Row)); 
+
+            InterfaceStubsMap.insert(InterfaceMechanismStub, ConnectionEnd);
+        }
+        for (uint32_t CallStubIndex = 0u; CallStubIndex < CallInterfacesStubCount; CallStubIndex++)
+        {
+            const IDEFStub& InterfaceCallStub = LayedoutDiagram.CallInterfaceStubs[CallStubIndex];
+            Avoid::ConnEnd ConnectionEnd(Avoid::Point(InterfaceCallStub.Position.Column, InterfaceCallStub.Position.Row)); 
+
+            InterfaceStubsMap.insert(InterfaceCallStub, ConnectionEnd);
+        }
+
+        return InterfaceStubsMap;
+    }
+
+    /*
+     * Places connection ends at each activity box stub and the parent boundary interface stubs.
+     *
+     * Parameters:
+     *     1. LayedoutDiagram - An IDEF Activity Diagram which has been layed out onto a file surface. 
+     * Returns:
+     *     1. BoxStubLabelConnMap - Map of activity box stub labels to avoid connection ends.
+     *     2. BoundaryStubLabelConnMap - Map of parent interface stub labels to avoid connection ends.
+     * Functional Breakdown:
+     *     1. Places connection ends at each activity box stub.
+     *     2. Places connection ends at each parent interface stub.
+     * Local Variables:
+     */
+    void PlaceConnectionEnds(const IDEFActivityDiagram& LayedoutDiagram, std::map<IDEFStub, Avoid:ConnEnd>& BoxStubConnMap, std::map<IDEFStub, Avoid::ConnEnd>& BoundaryStubConnMap)
+    {
+        BoxStubConnMap = PlaceBoxStubConnectionEnds(LayedoutDiagram);
+        BoundaryStubConnMap = PlaceBoundaryStubConnectionEnds(LayedoutDiagram);
+    }
+
+    /*
+     * Places obstacles for each box in the diagram.
+     *
+     * Parameters:
+     *     1. Layed-out idef activity diagram (LayedoutDiagram) - An activity diagram with all of its elements layed onto a text file.
+     * Returns:
+     *     1. List of Avoid Rectangles (Rectangles) - A list of rectangle shapes based on the activity diagram boxes.
+     * Functional Breakdown:
+     *     1. Iterates each box in the activity diagram.
+     *     2. Constructs a rectangle for each box.
+     *     3. Adds it to the list.
+     * Local Variables:
+     *     1. Number of activity boxes (NumBoxes).
+     *     2. Selected activity box (SelectedBox).
+     *     3. New rectangle (NewRect).
+     */
+    void PlaceObstacles(const IDEFActivityDiagram& LayedoutDiagram, std::vector<Avoid::Rectangle>& Rectangles)
+    {
+        uint32_t NumBoxes;
+
+        NumBoxes = LayedoutDiagram.Boxes.size();
+        for (uint32_t BoxIndex = 0u; BoxIndex < NumBoxes; BoxIndex++)
+        {
+            const IDEFActivityBox& SelectedBox = LayedoutDiagram.Boxes[BoxIndex];
+            Avoid::Rectangle NewRect;
+            FilePosition BoxTopLeft;
+            FilePosition BoxBottomRight;
+        
+            BoxTopLeft.Column = SelectedBox.Position.Column - (SelectedBox.Width / 2u);
+            BoxTopLeft.Row = SelectedBox.Position.Row - (SelectedBox.Height / 2u);
+            BoxBottomRight.Column = SelectedBox.Position.Column + (SelectedBox.Width / 2u);
+            BoxBottomRight.Row = SelectedBox.Position.Row + (SelectedBox.Height / 2u);
+            Rectangles.push_back(Avoid::Point(BoxTopLeft.Column, BoxTopLeft.Row), Avoid::Point(BoxBottomRight.Column, BoxBottomRight.Row));
+        }
+    }
+
+    /*
+     * Prepares an avoid router from the ends.
+     *
+     * Parameters:
+     *     1. BoxStubLabelConnMap - A map of box stub labels to avoid connection ends.
+     *     2. BoundaryStubLabelConnMap - A map of parent interface stub labels to avoid connection ends.
+     * Returns:
+     *     1. PreparedRouter - An avoid router with all connection ends joined.
+     * Functional Breakdown:
+     *     1. Iterates each box stub.
+     *     2. Iterates each other box stub.
+     *     3. Checks if their labels match.
+     *     4. Connects the stubs with an avoid connref.
+     *     5. Iterates each boundary stub.
+     *     6. Checks if the iterated stub's label matches the boundaries.
+     *     7. Connects the interface stub with an avoid connnref.
+     */
+    Avoid::Router* ConstructRouter(std::map<std::string, Avoid::ConnEnd>& BoxStubConnMap, std::map<std::string, Avoid::ConnEnd>& BoundaryStubConnMap, std::vector<Avoid::Rectangle>& Rectangles)
+    {
+        Avoid::Router* ConstructedRouter;
+        uint32_t NumRects;
+
+        ConstructedRouter = new Avoid::Router(Avoid::OrthogonalRouting);
+        NumRects = Rectangles.size();
+        for (uint32_t RectangleIndex = 0u; RectangleIndex < NumRects; RectangleIndex++)
+        {
+            Avoid::Rectangle SelectedRectangle;
+            Avoid::ShapeRef* ShapeReference;  
+
+            SelectedRectangle = Rectangles[RectangleIndex];
+            ShapeReference = new Avoid::ShapeRef(ConstructedRouter, SelectedRectangle);          
+        }
+        for (const std::pair<IDEFStub, Avoid::ConnEnd>& BoxStubPair : BoxStubConnMap)
+        {
+            for (const StubSource& StubSource : BoxStubPair.first.Sources)
+            {
+                for (const std::pair<IDEFStub, Avoid::ConnEnd>& PotentialInterfaceSourceStubPair : BoundaryStubConnMap)
+                {
+                    if (PotentialInterfaceSourceStubPair.first.Name == StubSource.StubName)
+                    {
+                        Avoid::ConnRef* NewConnectionRef;
+
+                        NewConnectionRef = new Avoid::ConnRef(ConstructedRouter, PotentialInterfaceSourceStubPair.second, BoxStubPair.second);
+                    }
+                } 
+                for (const std::pair<IDEFStub, Avoid::ConnEnd>& PotentialSourceStubPair : BoxStubConnMap)
+                {
+                    if (PotentialSourceStubPair.first.Name == StubSource.StubName)
+                    {
+                        Avoid::ConnRef* NewConnectionRef;
+
+                        NewConnectionRef = new Avoid::ConnRef(ConstructedRouter, PotentialSourceStubPair.second, BoxStubPair.second);
+                    }
+                }                
+            }
+        }
+
+        return ConstructedRouter;
+    }
+
+    /*
+     * Draws a diagram and its associated routed avoid connections.
+     *
+     * Parameters:
+     *     1. Target diagram to draw.
+     *     2. Router with connections.
+     * Return:
+     *     1. Diagram as a vector of strings.
+     * Functional Breakdown:
+     *     1. Creates the diagram string vector.
+     *     2. Draws the activity boxes.
+     *     3. Draws the connections.
+     *     4. Draws the stub labels.
+     */
+    std::vector<std::string> DrawDiagram(const IDEFActivityDiagram& TargetDiagram, Avoid::Router* ConnectedRouter)
+    {
+        std::vector<std::string> Diagram;
+        uint32_t ActivityBoxNum;
+
+        for (uint32_t RowNum = 0u; RowNum < TargetDiagram.Height; RowNum++)
+        {
+            std::string RowString;
+            
+            RowString.resize(TargetDiagram.Width + 1u);
+            Diagram.push_back(RowString);
+        }
+        // Drawing the arrows.
+        for (Avoid::ConnRef* ConnRef : ConnectedRouter->connRefs)
+            {
+                const Polyline& Route = ConnRef->displayRoute();
+                uint32_t NumVertices;
+                uint32_t VertexIndex;
+                std::string TravelDir;
+
+                NumVertices = Route.size();
+                for (uint32_t VertexIndex = 0u; VertexIndex < (NumVertices-1u); VertexIndex++)
+                {
+                    uint32_t NextVertexIndex;
+                    FilePosition LineStartPoint;
+                    FilePosition LineEndPoint;
+                    
+                    NextVertexIndex = VertexIndex + 1u; 
+                    const Point& FirstPoint = Route.at(VertexIndex);
+                    const Point& SecondPoint = Route.at(NextVertexIndex);
+                    LineStartPoint.Column = (uint32_t)(round(FirstPoint.x));
+                    LineStartPoint.Row = (uint32_t)(round(FirstPoint.y));
+                    LineEndPoint.Column = (uint32_t)(round(SecondPoint.x));
+                    LineEndPoint.Row = (uint32_t)(round(SecondPoint.y));
+                    if (LineEndPoint.Row > LineStartPoint.Row)
+                    {
+                        TravelDir = "Down";
+                    }
+                    if (LineEndPoint.Row < LineStartPoint.Row)
+                    {
+                        TravelDir = "Up";
+                    }
+                    if (LineEndPoint.Column > LineStartPoint.Column)
+                    {
+                        TravelDir = "Right";
+                    }
+                    if (LineEndPoint.Column < LineStartPoint.Column)
+                    {
+                        TravelDir = "Left";
+                    }
+                    if (TravelDir == "Down")
+                    {   
+                        uint32_t CursorRow;
+                        uint32_t CursorColumn;
+                        
+                        CursorColumn = LineStartPoint.Column;
+                        for (CursorRow = LineStartPoint.Row; CursorRow < LineEndPoint.Row; CursorRow++)
+                        {
+                            if (CursorRow == LineEndPoint.Row)
+                            {
+                                Diagram[CursorRow][CursorColumn] = "v";
+                            }
+                            else
+                            {
+                                Diagram[CursorRow][CursorColumn] = '|';
+                            }
+                        }
+                    }
+                    else if (TravelDir == "Up")
+                    {
+                        uint32_t CursorRow;
+                        uint32_t CursorColumn;
+                        
+                        CursorColumn = LineStartPoint.Column;
+                        for (CursorRow = LineStartPoint.Row; CursorRow > LineEndPoint.Row; CursorRow--)
+                        {
+                            if (CursorRow == LineEndPoint.Row)
+                            {
+                                Diagram[CursorRow][CursorColumn] = "^";
+                            }
+                            else
+                            {
+                                Diagram[CursorRow][CursorColumn] = '|';
+                            }
+                        }
+                    }
+                    else if (TravelDir == "Right")
+                    {
+                        uint32_t CursorRow;
+                        uint32_t CursorColumn;
+                        
+                        CursorRow = LineStartPoint.Row;
+                        for (CursorColumn = LineStartPoint.Column; CursorColumn < LineEndPoint.Column; CursorColumn++)
+                        {
+                            if (CursorColumn == LineEndPoint.Column)
+                            {
+                                Diagram[CursorRow][CursorColumn] = ">";
+                            }
+                            else
+                            {
+                                Diagram[CursorRow][CursorColumn] = '-';
+                            }
+                        }
+                    }
+                    else if (TravelDir == "Left")
+                    {
+                        uint32_t CursorRow;
+                        uint32_t CursorColumn;
+                        
+                        CursorRow = LineStartPoint.Row;
+                        for (CursorColumn = LineStartPoint.Column; CursorColumn > LineEndPoint.Column; CursorColumn++)
+                        {
+                            if (CursorColumn == LineEndPoint.Column)
+                            {
+                                Diagram[CursorRow][CursorColumn] = "<";
+                            }
+                            else
+                            {
+                                Diagram[CursorRow][CursorColumn] = '-';
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw std::runtime_error("Unknown travel direction");
+                    }
+                }
+            }
+
+        ActivityBoxNum = TargetDiagram.Boxes.size();
+        for (uint32_t ActivityBoxIndex = 0u; ActivityBoxIndex < ActivityBoxNum; ActivityBoxIndex++)
+        {
+            const IDEFActivityBox& SelectedBox = TargetDiagram.Boxes[ActivityBoxIndex];
+            FilePosition BoxTopLeft;
+            FilePosition BoxBottomRight;
+
+            BoxTopLeft.Row = SelectedBox.Position.Row - (SelectedBox.Height/2u);
+            BoxTopLeft.Column = SelectedBox.Position.Column - (SelectedBox.Width/2u);
+            BoxBottomRight.Row = SelectedBox.Position.Row + (SelectedBox.Width/2u);
+            BoxBottomRight.Column = SelectedBox.Position.Column + (SelectedBox.Height/2u);
+            for (uint32_t CursorX = BoxTopLeft.Position.Column; CursorX < BoxBottomRight.Position.Column; CursorX++)
+            {
+                for (uint32_t CursorY = BoxTopLeft.Position.Row; CursorY < BoxBottomRight.Position.Row; CursorY++)
+                {
+                    if (CursorX == BoxTopLeft.Position.Column)
+                    {
+                        if (CursorY == BoxTopLeft.Position.Row)
+                        {
+                            Diagram[CursorY][CursorX] = '+';
+                        }
+                        else if (CursorY == BoxBottomRight.Position.Row)
+                        {
+                            Diagram[CursorY][CursorX] = '+';
+                        }
+                        else
+                        {
+                            Diagram[CursorY][CursorX] = '|';
+                        }
+                    }
+                    else if (CursorX == BoxBottomRight.Position.Column)
+                    {
+                        if (CursorY == BoxTopLeft.Position.Row)
+                        {
+                            Diagram[CursorY][CursorX] = '+';
+                        }
+                        else if (CursorY = BoxBottomLeft.Position.Row)
+                        {
+                            Diagram[CursorY][CursorX] = '+';
+                        }
+                        else
+                        {
+                            Diagram[CursorY][CursorX] = '|';
+                        }
+                    }
+                    else
+                    {
+                        if (CursorX == BoxTopLeft.Position.Column)
+                        {
+                            Diagram[CursorY][CursorX] = '+';
+                        }
+                        else if (CursorX == BoxBottomRight.Position.Column)
+                        {
+                            Diagram[CursorY][CursorY] = '+';
+                        }
+                        else
+                        {
+                            Diagram[CursorX][CursorY] = '-';
+                        }
+                    }
+                }
+                for (const IDEFStub& InputStub : SelectedBox.InputStubs)
+                {
+                    uint32_t LabelLength;
+                    
+                    LabelLength = InputStub.Label.length();
+                    for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
+                    {
+                        uint32_t CharColumn;
+                        uint32_t CharRow;
+                        
+                        CharColumn = InputStub.Position.Column - (LabelLength - CharIndex);
+                        CharRow = InputStub.Position.Row;
+                        Diagram[CharColumn][CharRow] = InputStub.Label[CharIndex];
+                    }
+                }
+                for (const IDEFStub& OutputStub : SelectedBox.OutputStubs)
+                {
+                    uint32_t LabelLength;
+                    
+                    LabelLength = OutputStub.Label.length();
+                    for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
+                    {
+                        uint32_t CharColumn;
+                        uint32_t CharRow;
+                        
+                        CharColumn = OutputStub.Position.Column + CharIndex;
+                        CharRow = OutputStub.Position.Row;
+                        Diagram[CharColumn][CharRow] = OutputStub.Label[CharIndex];
+                    }
+                }
+                uint32_t ControlStubCount;
+                ControlStubCount = SelectedBox.ControlStubs.size();
+                for (uint32_t ControlStubIndex = 0u; ControlStubIndex < ControlstubCount; ControlStubIndeX++)
+                {
+                    const IDEFStub& ControlStub = SelectedBox.ControlStubs[ControlStubIndex];
+                    uint32_t LabelLength;
+                    
+                    LabelLength = ControlStub.Label.length();
+                    for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
+                    {
+                        uint32_t CharColumn;
+                        uint32_t CharRow;
+                        
+                        CharColumn = ControlStub.Position.Column + CharIndex;
+                        CharRow = ControlStub.Position.Row - 1u - ControlStubIndex;
+                        Diagram[CharColumn][CharRow] = ControlStub.Label[CharIndex];
+                    }
+                }
+                uint32_t MechanismStubCount;
+                MechanismStubCount = SelectedBox.MechanismStubs.size();
+                for (uint32_t MechanismStubIndex = 0u; MechanismStubIndex < MechanismStubCount; MechanismStubIndeX++)
+                {
+                    const IDEFStub& MechanismStub = SelectedBox.MechanismStubs[MechanismStubIndex];
+                    uint32_t LabelLength;
+                    
+                    LabelLength = MechanismStub.Label.length();
+                    for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
+                    {
+                        uint32_t CharColumn;
+                        uint32_t CharRow;
+                        
+                        CharColumn = MechanismStub.Position.Column + CharIndex;
+                        CharRow = ControlStub.Position.Row + 1u + MechanismStubIndex;
+                        Diagram[CharColumn][CharRow] = MechanismStub.Label[CharIndex];
+                    }
+                }
+                uint32_t CallStubCount;
+                CallStubCount = SelectedBox.CallStubs.size();
+                for (uint32_t CallStubIndex = 0u; CallStubIndex < CallStubCount; CallStubIndeX++)
+                {
+                    const IDEFStub& CallStub = SelectedBox.CallStubs[CallStubIndex];
+                    uint32_t LabelLength;
+                    
+                    LabelLength = CallStub.Label.length();
+                    for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
+                    {
+                        uint32_t CharColumn;
+                        uint32_t CharRow;
+                        
+                        CharColumn = CallStub.Position.Column + CharIndex;
+                        CharRow = CallStub.Position.Row + MechanismStubCount + 1u + CallStubIndex;
+                        Diagram[CharColumn][CharRow] = CallStub.Label[CharIndex];
+                    }
+                }
+            }
+         }
+        return Diagram;      
+    }
 }
 
 int main(int argc, char** argv)
