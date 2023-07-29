@@ -1,34 +1,45 @@
 <?xml version="1.0"?>
-<Model>
-	<Diagram Number="A-0" Title="IDEF Executor" CNumber="RB000">
-		<Input Title="Section of disk"/>
-		<Input Title="Section of memory"/>
-		<Control Title="IDEF model's text"/>
-		<Output Title="Group of IDEF ASCII diagrams"/>
+<Models>
+	<Model Title="IDEF Executor">
+		<Glossary>
+            <Entry Name="Section of disk" Description="A section of the disk"></Entry>
+        </Glossary>
+        <ClassDiagram>
+		</ClassDiagram>
+		<StateDiagram Number="S-0" Name="IDEF Executor" CNumber="RB001">
+		</StateDiagram>
+		<ActivityDiagram Number="A-0" Name="Creates IDEF0 Diagrams" CNumber="RB000">
+			<Input Name="Section of disk"/>
+			<Input Name="Section of memory"/>
+			<Control Name="IDEF model's text"/>
+			<Output Name="Group of IDEF ASCII diagrams"/>
 
-		<Box Title="Loads a source XML file" Child="">
-			<Input Title="Section of memory"/>
-			<Control Title="IDEF model's text"/>
-			<Output Title="Loaded IDEF diagram object"/>
-		</Box>
-		<Box Title="Positions a loaded IDEF diagram object">
-			<Input Title="Loaded IDEF diagram object"/>
-			<Control Title="Maximum diagram width"/>
-			<Control Title="Maximum diagram height"/>
-			<Output Title="Positioned IDEF diagram object"/>
-		</Box>
-		<Box Title="Generates a set of LibAvoid connectors">
-			<Input Title="Section of memory"/>
-			<Control Title="Positioned IDEF diagram object"/>
-			<Output Title="Set of LibAvoid connectors"/>
-		</Box>
-		<Box Title="Writes a set of IDEF diagram files.">
-			<Input Title="Section of disk"/>
-			<Control Title="Set of LibAvoid connectors"/>
-			<Control Title="Positioned IDEF diagram object"/>
-			<Output Title="Set of IDEF diagrams"/>
-		</Box>
-
-		<Interface Source="I1" Destination="A1.I1"/>
-	</Diagram>
-</Model>
+			<Activity Name="Loads a\n source XML file" Child="">
+				<Input Name="Section of memory">
+                    <Source Name="Section of memory"/>
+                </Input>
+				<Control Name="IDEF model's text"/>
+				<Output Name="Loaded IDEF diagram object"/>
+			</Activity>
+			<Activity Name="Positions a\n loaded IDEF diagram object">
+				<Input Name="Loaded IDEF diagram object"/>
+				<Control Name="Maximum diagram width"/>
+				<Control Name="Maximum diagram height"/>
+				<Output Name="Positioned IDEF diagram object"/>
+			</Activity>
+			<Activity Name="Generates a set\n of LibAvoid connectors">
+				<Input Name="Section of memory"/>
+				<Control Name="Positioned IDEF diagram object"/>
+				<Output Name="Set of LibAvoid connectors"/>
+			</Activity>
+			<Activity Name="Writes a set /nof IDEF diagram/n files.">
+				<Input Name="Section of disk">
+                    <Source Name="Section of disk"/>
+                </Input>
+				<Control Name="Set of LibAvoid connectors"/>
+				<Control Name="Positioned IDEF diagram object"/>
+				<Output Name="Set of IDEF diagrams"/>
+			</Activity>
+		</ActivityDiagram>
+	</Model>
+</Models>
