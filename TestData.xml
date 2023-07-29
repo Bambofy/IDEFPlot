@@ -14,25 +14,25 @@
 			<Control Name="IDEF model's text"/>
 			<Output Name="Group of IDEF ASCII diagrams"/>
 
-			<Activity Name="Loads a\n source XML file" Child="">
+			<Activity Name="Loads a source XML file">
 				<Input Name="Section of memory">
                     <Source Name="Section of memory"/>
                 </Input>
 				<Control Name="IDEF model's text"/>
 				<Output Name="Loaded IDEF diagram object"/>
 			</Activity>
-			<Activity Name="Positions a\n loaded IDEF diagram object">
+			<Activity Name="Positions a loaded IDEF diagram object">
 				<Input Name="Loaded IDEF diagram object"/>
 				<Control Name="Maximum diagram width"/>
 				<Control Name="Maximum diagram height"/>
 				<Output Name="Positioned IDEF diagram object"/>
 			</Activity>
-			<Activity Name="Generates a set\n of LibAvoid connectors">
+			<Activity Name="Generates a set of LibAvoid connectors">
 				<Input Name="Section of memory"/>
 				<Control Name="Positioned IDEF diagram object"/>
 				<Output Name="Set of LibAvoid connectors"/>
 			</Activity>
-			<Activity Name="Writes a set /nof IDEF diagram/n files.">
+			<Activity Name="Writes a set of IDEF diagram/n files.">
 				<Input Name="Section of disk">
                     <Source Name="Section of disk"/>
                 </Input>

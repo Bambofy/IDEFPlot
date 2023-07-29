@@ -69,6 +69,7 @@ class Box
     FilePosition Center;
     uint32_t Width;
     uint32_t Height;
+    uint32_t Padding;
 };
 
 class UMLBox : public Box
@@ -265,6 +266,7 @@ IDEFActivityBox LoadActivity(const pugi::xml_node &ActivityNode)
     NewActivityBox.Height = 0u;
     NewActivityBox.Center.Row = 0u;
     NewActivityBox.Center.Column = 0u;
+    NewActivityBox.Padding = 3u;
     for (const pugi::xml_node &XMLStub : ActivityNode.children())
     {
         if (strcmp(XMLStub.name(), "Input") == 0)
@@ -474,15 +476,13 @@ void LayoutBoxes(IDEFActivityDiagram &Diagram)
     NumBoxes = Diagram.Boxes.size();
     ColumnWidth = Diagram.Width / NumBoxes;
     RowHeight = (Diagram.Height - BottomBarHeight) / NumBoxes;
-    std::cout << "Columns are " << ColumnWidth << " wide" << std::endl;
-    std::cout << "Rows are " << RowHeight << " tall" << std::endl;
     for (uint32_t BoxIndex = 0u; BoxIndex < NumBoxes; BoxIndex++)
     {
         IDEFActivityBox &SelectedBox = Diagram.Boxes[BoxIndex];
         uint32_t ColumnPadding;
         uint32_t RowPadding;
-        const uint32_t BoxWidth = 10;
-        const uint32_t BoxHeight = 3;
+        const uint32_t BoxWidth = 32;
+        const uint32_t BoxHeight = 8;
 
         SelectedBox.Width = BoxWidth;
         SelectedBox.Height = BoxHeight;
@@ -1006,26 +1006,10 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
         FilePosition BoxTopLeft;
         FilePosition BoxBottomRight;
 
-        std::cout << SelectedBox.Width;
-        std::cout << ",";
-        std::cout << SelectedBox.Height;
-        std::cout << ":";
-        std::cout << SelectedBox.Center.Column;
-        std::cout << ",";
-        std::cout << SelectedBox.Center.Row;
-        std::cout << std::endl;
         BoxTopLeft.Row = SelectedBox.Center.Row - (SelectedBox.Height / 2u);
         BoxTopLeft.Column = SelectedBox.Center.Column - (SelectedBox.Width / 2u);
         BoxBottomRight.Row = SelectedBox.Center.Row + (SelectedBox.Height / 2u);
         BoxBottomRight.Column = SelectedBox.Center.Column + (SelectedBox.Width / 2u);
-        std::cout << BoxTopLeft.Column;
-        std::cout << ",";
-        std::cout << BoxTopLeft.Row;
-        std::cout << " to ";
-        std::cout << BoxBottomRight.Column;
-        std::cout << ",";
-        std::cout << BoxBottomRight.Row;
-        std::cout << std::endl;
         for (uint32_t CursorX = BoxTopLeft.Column; CursorX <= BoxBottomRight.Column; CursorX++)
         {
             for (uint32_t CursorY = BoxTopLeft.Row; CursorY <= BoxBottomRight.Row; CursorY++)
@@ -1071,6 +1055,60 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
                         Diagram[CursorY][CursorX] = '-';
                     }
                 }
+            }
+        }
+        uint8_t NumLines;
+        uint32_t NumChars;
+        FilePosition BoxLabelStartPosition;
+        bool WrapFlag;
+        FilePosition Cursor;
+
+        NumChars = SelectedBox.Name.length();
+        WrapFlag = NumChars > (SelectedBox.Width - (SelectedBox.Padding*2u));
+        NumLines = NumChars / (SelectedBox.Width - (SelectedBox.Padding*2u));
+        if (WrapFlag == true)
+        {
+            uint32_t CharIndex;
+            bool ColumnOffsetFlag;
+
+            ColumnOffsetFlag = false;
+            BoxLabelStartPosition.Column = BoxTopLeft.Column + SelectedBox.Padding;
+            BoxLabelStartPosition.Row = SelectedBox.Center.Row - (NumLines/2u);
+            Cursor.Column = BoxLabelStartPosition.Column;
+            Cursor.Row = BoxLabelStartPosition.Row;
+            for (CharIndex = 0u; CharIndex < NumChars; CharIndex++)
+            {
+                Diagram[Cursor.Row][Cursor.Column] = SelectedBox.Name[CharIndex];
+                if (Cursor.Column == (BoxBottomRight.Column - SelectedBox.Padding))
+                {
+                    Cursor.Row++;
+                    if (ColumnOffsetFlag == false)
+                    {
+                        uint32_t CharDiff;
+ 
+                        CharDiff = (NumChars - CharIndex);
+                        ColumnOffsetFlag = CharDiff < (SelectedBox.Width-(SelectedBox.Padding*2u));
+                        if (ColumnOffsetFlag == true)
+                        {
+                            BoxLabelStartPosition.Column = SelectedBox.Center.Column - (CharDiff/2u);
+                        }
+                    }
+                }
+            } 
+        }
+        else
+        {
+            uint32_t CharIndex;
+            FilePosition BoxLabelEndPositon;
+
+            BoxLabelStartPosition.Row = SelectedBox.Center.Row;
+            BoxLabelStartPosition.Column = SelectedBox.Center.Column - (NumChars/2u);
+            Cursor.Column = BoxLabelStartPosition.Column;
+            Cursor.Row = BoxLabelStartPosition.Row;
+            for (CharIndex = 0u; CharIndex < NumChars; CharIndex++)
+            {
+                Diagram[Cursor.Row][Cursor.Column] = SelectedBox.Name[CharIndex];
+                Cursor.Column++;
             }
         }
         continue;
