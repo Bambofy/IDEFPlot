@@ -28,4 +28,4 @@ LibAvoidTarget:
 
 IDEFPlotTarget:
 	$(CC) -g -c main.cpp -Ipugixml/src/ -Iadaptagrams/cola/
-	$(CC) main.o pugixml.o actioninfo.o connectionpin.o connector.o connend.o geometry.o geomtypes.o graph.o hyperedge.o hyperedgeimprover.o hyperedgetree.o junction.o makepath.o mtst.o obstacle.o orthogonal.o router.o scanline.o shape.o timer.o vertices.o viscluster.o visibility.o vpsc.o
+	$(CC) -g main.o pugixml.o actioninfo.o connectionpin.o connector.o connend.o geometry.o geomtypes.o graph.o hyperedge.o hyperedgeimprover.o hyperedgetree.o junction.o makepath.o mtst.o obstacle.o orthogonal.o router.o scanline.o shape.o timer.o vertices.o viscluster.o visibility.o vpsc.o

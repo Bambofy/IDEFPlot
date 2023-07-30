@@ -1,14 +1,7 @@
 <?xml version="1.0"?>
 <Models>
 	<Model Title="IDEF Executor">
-		<Glossary>
-            <Entry Name="Section of disk" Description="A section of the disk"></Entry>
-        </Glossary>
-        <ClassDiagram>
-		</ClassDiagram>
-		<StateDiagram Number="S-0" Name="IDEF Executor" CNumber="RB001">
-		</StateDiagram>
-		<ActivityDiagram Number="A-0" Name="Creates IDEF0 Diagrams" CNumber="RB000">
+        <ActivityDiagram Number="A-0" Name="Creates IDEF0 Diagrams" CNumber="RB000">
 			<Input Name="Section of disk"/>
 			<Input Name="Section of memory"/>
 			<Control Name="IDEF model's text"/>
@@ -22,8 +15,10 @@
 				<Output Name="Loaded IDEF diagram object"/>
 			</Activity>
 			<Activity Name="Positions a loaded IDEF diagram object">
-				<Input Name="Loaded IDEF diagram object"/>
-				<Control Name="Maximum diagram width"/>
+				<Input Name="Loaded IDEF diagram object">
+                    <Source Name="Loaded IDEF diagram object"></Source>
+                </Input>
+				<Control Name="Maximum diagram width"></Control>
 				<Control Name="Maximum diagram height"/>
 				<Output Name="Positioned IDEF diagram object"/>
 			</Activity>
