@@ -1126,7 +1126,7 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
                 uint32_t CharRow;
 
                 CharColumn = (InputStub.Position.Column - LabelLength) + CharIndex;
-                CharRow = InputStub.Position.Row;
+                CharRow = InputStub.Position.Row-1u;
                 std::cout << "Placing input stub at " << CharColumn << ", " << CharRow << std::endl;
                 Diagram[CharRow][CharColumn] = InputStub.Name[CharIndex];
             }
@@ -1142,8 +1142,8 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
                 uint32_t CharColumn;
                 uint32_t CharRow;
 
-                CharColumn = OutputStub.Position.Column + CharIndex;
-                CharRow = OutputStub.Position.Row;
+                CharColumn = OutputStub.Position.Column + CharIndex + 1u;
+                CharRow = OutputStub.Position.Row - 1u;
                 std::cout << "Placing output stub at " << CharColumn << ", " << CharRow << std::endl;
                 Diagram[CharRow][CharColumn] = OutputStub.Name[CharIndex];
             }
