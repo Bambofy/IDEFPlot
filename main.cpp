@@ -882,7 +882,6 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
         Diagram.push_back(BlankDiagramRow);
     }
     std::cout << "Diagram width " << TargetDiagram.Width << " height " << TargetDiagram.Height << std::endl;
-    /* Drawing the arrows.
     for (Avoid::ConnRef *ConnRef : ConnectedRouter->connRefs)
     {
         const Avoid::PolyLine &Route = ConnRef->displayRoute();
@@ -890,6 +889,7 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
         uint32_t VertexIndex;
         std::string TravelDir;
 
+        std::cout << "Rendering an avoid connection" << std::endl;
         NumVertices = Route.size();
         for (uint32_t VertexIndex = 0u; VertexIndex < (NumVertices - 1u); VertexIndex++)
         {
@@ -998,7 +998,6 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
             }
         }
     }
-    */
     ActivityBoxNum = TargetDiagram.Boxes.size();
     for (uint32_t ActivityBoxIndex = 0u; ActivityBoxIndex < ActivityBoxNum; ActivityBoxIndex++)
     {
@@ -1127,11 +1126,10 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
 
                 CharColumn = (InputStub.Position.Column - LabelLength) + CharIndex;
                 CharRow = InputStub.Position.Row-1u;
-                std::cout << "Placing input stub at " << CharColumn << ", " << CharRow << std::endl;
                 Diagram[CharRow][CharColumn] = InputStub.Name[CharIndex];
             }
         }
-        std::cout << "Done placing input stubs" << std::endl;
+        std::cout << "Done Drawing input stubs" << std::endl;
         for (const IDEFStub &OutputStub : SelectedBox.OutputStubs)
         {
             uint32_t LabelLength;
@@ -1144,11 +1142,10 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
 
                 CharColumn = OutputStub.Position.Column + CharIndex + 1u;
                 CharRow = OutputStub.Position.Row - 1u;
-                std::cout << "Placing output stub at " << CharColumn << ", " << CharRow << std::endl;
                 Diagram[CharRow][CharColumn] = OutputStub.Name[CharIndex];
             }
         }
-        std::cout << "Done placing output stubs" << std::endl;
+        std::cout << "Done drawing output stubs" << std::endl;
         uint32_t ControlStubCount;
         ControlStubCount = SelectedBox.ControlStubs.size();
         for (uint32_t ControlStubIndex = 0u; ControlStubIndex < ControlStubCount; ControlStubIndex++)
@@ -1164,11 +1161,10 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
 
                 CharColumn = ControlStub.Position.Column + CharIndex;
                 CharRow = ControlStub.Position.Row - 1u - ControlStubIndex;
-                std::cout << "Placing control stub at " << CharColumn << ", " << CharRow << std::endl;
                 Diagram[CharRow][CharColumn] = ControlStub.Name[CharIndex];
             }
         }
-        std::cout << "Done placing control stubs" << std::endl;
+        std::cout << "Done drawing control stubs" << std::endl;
         uint32_t MechanismStubCount;
         MechanismStubCount = SelectedBox.MechanismStubs.size();
         for (uint32_t MechanismStubIndex = 0u; MechanismStubIndex < MechanismStubCount; MechanismStubIndex++)
@@ -1184,11 +1180,10 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
 
                 CharColumn = MechanismStub.Position.Column + CharIndex;
                 CharRow = MechanismStub.Position.Row + 1u + MechanismStubIndex;
-                std::cout << "Placing mechanism stub at " << CharColumn << ", " << CharRow << std::endl;
                 Diagram[CharRow][CharColumn] = MechanismStub.Name[CharIndex];
             }
         }
-        std::cout << "Done placing mechanism stubs" << std::endl;
+        std::cout << "Done drawing mechanism stubs" << std::endl;
         uint32_t CallStubCount;
         CallStubCount = SelectedBox.CallStubs.size();
         for (uint32_t CallStubIndex = 0u; CallStubIndex < CallStubCount; CallStubIndex++)
@@ -1204,11 +1199,10 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
 
                 CharColumn = CallStub.Position.Column + CharIndex;
                 CharRow = CallStub.Position.Row + MechanismStubCount + 1u + CallStubIndex;
-                std::cout << "Placing call stub at " << CharColumn << ", " << CharRow << std::endl;
                 Diagram[CharRow][CharColumn] = CallStub.Name[CharIndex];
             }
         }
-        std::cout << "Done place call stubs" << std::endl;
+        std::cout << "Done drawing call stubs" << std::endl;
     }
     return Diagram;
 }
