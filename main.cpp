@@ -1079,21 +1079,24 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
             for (CharIndex = 0u; CharIndex < NumChars; CharIndex++)
             {
                 Diagram[Cursor.Row][Cursor.Column] = SelectedBox.Name[CharIndex];
-                if (Cursor.Column == (BoxBottomRight.Column - SelectedBox.Padding))
+                Cursor.Column++;
+                if (Cursor.Column > (BoxBottomRight.Column - SelectedBox.Padding))
                 {
+                    uint32_t CharsLeft;
+                    
                     Cursor.Row++;
-                    if (ColumnOffsetFlag == false)
+                    CharsLeft = (NumChars - CharIndex);
+                    if (CharsLeft > (SelectedBox.Width-(SelectedBox.Padding*2u)))
                     {
-                        uint32_t CharDiff;
- 
-                        CharDiff = (NumChars - CharIndex);
-                        ColumnOffsetFlag = CharDiff < (SelectedBox.Width-(SelectedBox.Padding*2u));
-                        if (ColumnOffsetFlag == true)
-                        {
-                            BoxLabelStartPosition.Column = SelectedBox.Center.Column - (CharDiff/2u);
-                        }
+                        Cursor.Column = BoxLabelStartPosition.Column;
                     }
-                }
+                    else
+                    {
+                        uint32_t FinalLineWidth;
+
+                        Cursor.Column = (SelectedBox.Center.Column - (CharsLeft/2u));
+                    }
+               }
             } 
         }
         else

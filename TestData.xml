@@ -32,7 +32,7 @@
 				<Control Name="Positioned IDEF diagram object"/>
 				<Output Name="Set of LibAvoid connectors"/>
 			</Activity>
-			<Activity Name="Writes a set of IDEF diagram/n files.">
+			<Activity Name="Writes a set of IDEF diagram files.">
 				<Input Name="Section of disk">
                     <Source Name="Section of disk"/>
                 </Input>
