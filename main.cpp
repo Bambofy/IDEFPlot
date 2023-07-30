@@ -1114,7 +1114,6 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
                 Cursor.Column++;
             }
         }
-        continue;
         std::cout << "Drawing input stubs." << std::endl;
         for (const IDEFStub &InputStub : SelectedBox.InputStubs)
         {
