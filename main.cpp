@@ -12,254 +12,227 @@
 
 namespace IDEF
 {
-class FilePosition
+
+struct FilePosition
 {
-  public:
     uint32_t Row;
     uint32_t Column;
 };
 
-class StubSource
+struct StubSource
 {
-  public:
     std::string StubName;
 };
 
-class Stub
+struct InputStub
 {
-  public:
-    bool operator<(const Stub &Other) const
-    {
-        int32_t ProjectedPosition;
-        int32_t OtherProjectedPosition;
-
-        ProjectedPosition = (this->Position.Row * 1000u) + this->Position.Column;
-        OtherProjectedPosition = (Other.Position.Row * 1000u) + Other.Position.Column;
-        return (ProjectedPosition < OtherProjectedPosition);
-    }
     std::string Name;
     FilePosition Position;
     std::vector<StubSource> Sources;
 };
 
-class UMLStub : public Stub
+struct OutputStub
 {
-  public:
+    std::string Name;
+    FilePosition Position;
+    std::vector<StubSource> Sources;
 };
 
-class IDEFStub : public Stub
+struct ControlStub
 {
-  public:
+    std::string Name;
+    FilePosition Position;
+    std::vector<StubSource> Sources;
 };
 
-class IDEFStateStub : public IDEFStub
+struct MechanismStub
 {
-  public:
+    std::string Name;
+    FilePosition Position;
+    std::vector<StubSource> Sources;
 };
 
-class IDEFActivityStub : public IDEFStub
+struct CallStub
 {
-  public:
+    std::string Name;
+    FilePosition Position;
+    std::vector<StubSource> Sources;
 };
 
-class Box
+typedef std::variant<InputStub, 
+                     OutputStub, 
+                     ControlStub, 
+                     MechanismStub> Stub;
+
+struct ActivityBox
 {
-  public:
+    std::vector<Stub> InputStubs;
+    std::vector<Stub> OutputStubs;
+    std::vector<Stub> ControlStubs;
+    std::vector<Stub> MechanismStubs;
+    std::vector<Stub> CallStubs;
     std::string Name;
     FilePosition Center;
     uint32_t Width;
     uint32_t Height;
     uint32_t Padding;
-};
-
-class UMLBox : public Box
-{
-  public:
-};
-
-class UMLClassBox : public UMLBox
-{
-  public:
-};
-
-class IDEFBox : public Box
-{
-  public:
     std::string NodeNumber;
 };
 
-class IDEFActivityBox : public IDEFBox
+struct NodeNumberSection 
 {
-  public:
-    std::vector<IDEFStub> InputStubs;
-    std::vector<IDEFStub> OutputStubs;
-    std::vector<IDEFStub> ControlStubs;
-    std::vector<IDEFStub> MechanismStubs;
-    std::vector<IDEFStub> CallStubs;
-};
-
-class IDEFStateBox : public IDEFBox
-{
-  public:
-    std::vector<IDEFStub> InputStubs;
-    std::vector<IDEFStub> OutputStubs;
-};
-
-class GlossaryEntry
-{
-  public:
-    std::string Title;
-    std::string Description;
-    std::string Type;
-};
-
-class IDEFDiagramBarSection
-{
-  public:
     FilePosition TopLeft;
     std::string Content;
     uint32_t Width;
     uint32_t Height;
 };
 
-class IDEFNodeNumberSection : public IDEFDiagramBarSection
+struct TitleSection
 {
-  public:
-};
-
-class IDEFTitleSection : public IDEFDiagramBarSection
-{
-  public:
-};
-
-class IDEFCNumberSection : public IDEFDiagramBarSection
-{
-  public:
-};
-
-class IDEFDiagramBar
-{
-  public:
     FilePosition TopLeft;
-    uint32_t Height;
-    IDEFNodeNumberSection NumberSection;
-    IDEFTitleSection TitleSection;
-    IDEFCNumberSection CNumberSection;
-};
-
-class IDEFDiagramFrame
-{
-  public:
-    IDEFDiagramBar Bar;
-};
-
-typedef std::vector<GlossaryEntry> Glossary;
-
-class Diagram
-{
-  public:
-    std::string Title;
+    std::string Content;
     uint32_t Width;
     uint32_t Height;
 };
 
-class UMLDiagram : public Diagram
+struct CNumberSection
 {
-  public:
+    FilePosition TopLeft;
+    std::string Content;
+    uint32_t Width;
+    uint32_t Height;
 };
 
-class ClassDiagram : public UMLDiagram
+typedef std::variant<NodeNumberSection,
+                     TitleSection,
+                     CNumberSection> DiagramSection;
+
+struct DiagramBar
 {
-  public:
+    FilePosition TopLeft;
+    uint32_t Height;
+    DiagramSection NumberSection;
+    DiagramSection TitleSection;
+    DiagramSection CNumberSection;
 };
 
-class IDEFDiagram : public Diagram
+struct DiagramFrame
 {
-  public:
-    IDEFDiagramFrame Frame;
+    DiagramBar BottomBar;
 };
 
-class IDEFStateDiagram : public IDEFDiagram
+struct ActivityDiagram
 {
-  public:
-    std::vector<IDEFStateBox> Boxes;
-    std::vector<IDEFStub> BoundaryStubs;
-};
-
-class IDEFActivityDiagram : public IDEFDiagram
-{
-  public:
-    std::vector<IDEFActivityBox> Boxes;
-    std::vector<IDEFStub> BoundaryInputStubs;
-    std::vector<IDEFStub> BoundaryOutputStubs;
-    std::vector<IDEFStub> BoundaryControlStubs;
-    std::vector<IDEFStub> BoundaryMechanismStubs;
-    std::vector<IDEFStub> BoundaryCallStubs;
-};
-
-class Model
-{
-  public:
     std::string Title;
-    Glossary AttachedGlossary;
-    std::vector<ClassDiagram> ClassDiagrams;
-    std::vector<IDEFStateDiagram> StateDiagrams;
-    std::vector<IDEFActivityDiagram> ActivityDiagrams;
+    uint32_t Width;
+    uint32_t Height;
+    std::vector<ActivityBox> Boxes;
+    std::vector<Stub> InputBoundaryStubs;
+    std::vector<Stub> OutputBoundaryStubs;
+    std::vector<Stub> ControlBoundaryStubs;
+    std::vector<Stub> MechanismBoundaryStubs;
+    std::vector<Stub> CallBoundaryStubs;
 };
 
-GlossaryEntry LoadGlossaryEntry(const pugi::xml_node &TargetGlossaryEntryNode)
+struct Model
 {
-    std::string EntryTitle;
-    std::string EntryDescription;
-    std::string EntryType;
-    GlossaryEntry NewGlossaryEntry;
+    std::string Title;
+    std::vector<ActivityDiagram> ActivityDiagrams;
+};
 
-    EntryTitle = TargetGlossaryEntryNode.attribute("Title").as_string();
-    EntryDescription = TargetGlossaryEntryNode.attribute("Description").as_string();
-    EntryType = TargetGlossaryEntryNode.attribute("Type").as_string();
-    NewGlossaryEntry.Title = EntryTitle;
-    NewGlossaryEntry.Description = EntryDescription;
-    NewGlossaryEntry.Type = EntryType;
-
-    return NewGlossaryEntry;
-}
-
-Glossary LoadGlossary(const pugi::xml_node &TargetGlossaryNode)
+Stub LoadInputStub(const pugi::xml_node& InputStubXMLNode)
 {
-    Glossary NewGlossary;
-
-    for (const pugi::xml_node &EntryNode : TargetGlossaryNode.children())
-    {
-        GlossaryEntry NewGlossaryEntry;
-
-        NewGlossaryEntry = LoadGlossaryEntry(EntryNode);
-        NewGlossary.push_back(NewGlossaryEntry);
-    }
-
-    return NewGlossary;
-}
-
-IDEFActivityStub LoadActivityStub(const pugi::xml_node &InputXMLNode)
-{
-    IDEFActivityStub NewActivityStub;
-
-    NewActivityStub.Name = InputXMLNode.attribute("Name").as_string();
-    for (const pugi::xml_node &StubSourceXMLNode : InputXMLNode.children())
+    InputStub NewStub;
+    
+    NewStub.Name = InputStubXMLNode.attribute("Name").as_string();
+    for (const pugi::xml_node &StubSourceXMLNode : InputStubXMLNode.children())
     {
         StubSource NewStubSource;
 
         NewStubSource.StubName = StubSourceXMLNode.attribute("Name").as_string();
-        NewActivityStub.Sources.push_back(NewStubSource);
+        NewStub.Sources.push_back(NewStubSource);
     }
-    NewActivityStub.Position.Row = 0u;
-    NewActivityStub.Position.Column = 0u;
+    NewStub.Position.Row = 0u;
+    NewStub.Position.Column = 0u;
 
-    return NewActivityStub;
+    return NewStub;   
 }
 
-IDEFActivityBox LoadActivity(const pugi::xml_node &ActivityNode)
+Stub LoadOutputStub(const pugi::xml_node& OutputStubXMLNode)
 {
-    IDEFActivityBox NewActivityBox;
+    OutputStub NewStub;
+
+    NewStub.Name = OutputStubXMLNode.attribute("Name").as_string();
+    for (const pugi::xml_node &StubSourceXMLNode : OutputStubXMLNode.children())
+    {
+        StubSource NewStubSource;
+
+        NewStubSource.StubName = StubSourceXMLNode.attribute("Name").as_string();
+        NewStub.Sources.push_back(NewStubSource);
+    }
+    NewStub.Position.Row = 0u;
+    NewStub.Position.Column = 0u;
+
+    return NewStub;   
+}
+
+Stub LoadControlStub(const pugi::xml_node& ControlStubXMLNode)
+{
+    ControlStub NewStub;
+
+    NewStub.Name = ControlStubXMLNode.attribute("Name").as_string();
+    for (const pugi::xml_node &StubSourceXMLNode : ControlStubXMLNode.children())
+    {
+        StubSource NewStubSource;
+
+        NewStubSource.StubName = StubSourceXMLNode.attribute("Name").as_string();
+        NewStub.Sources.push_back(NewStubSource);
+    }
+    NewStub.Position.Row = 0u;
+    NewStub.Position.Column = 0u;
+
+    return NewStub;   
+}
+
+Stub LoadMechanismStub(const pugi::xml_node& MechanismStubXMLNode)
+{
+    MechanismStub NewStub;
+
+    NewStub.Name = MechanismStubXMLNode.attribute("Name").as_string();
+    for (const pugi::xml_node &StubSourceXMLNode : MechanismStubXMLNode.children())
+    {
+        StubSource NewStubSource;
+
+        NewStubSource.StubName = StubSourceXMLNode.attribute("Name").as_string();
+        NewStub.Sources.push_back(NewStubSource);
+    }
+    NewStub.Position.Row = 0u;
+    NewStub.Position.Column = 0u;
+
+    return NewStub;   
+}
+
+Stub LoadCallStub(const pugi::xml_node& CallStubXMLNode)
+{
+    CallStub NewStub;
+
+    NewStub.Name = CallStubXMLNode.attribute("Name").as_string();
+    for (const pugi::xml_node &StubSourceXMLNode : CallStubXMLNode.children())
+    {
+        StubSource NewStubSource;
+
+        NewStubSource.StubName = StubSourceXMLNode.attribute("Name").as_string();
+        NewStub.Sources.push_back(NewStubSource);
+    }
+    NewStub.Position.Row = 0u;
+    NewStub.Position.Column = 0u;
+
+    return NewStub;   
+}
+
+ActivityBox LoadActivity(const pugi::xml_node &ActivityNode)
+{
+    ActivityBox NewActivityBox;
 
     NewActivityBox.Name = ActivityNode.attribute("Name").as_string();
     NewActivityBox.Width = 0u;
@@ -269,40 +242,32 @@ IDEFActivityBox LoadActivity(const pugi::xml_node &ActivityNode)
     NewActivityBox.Padding = 3u;
     for (const pugi::xml_node &XMLStub : ActivityNode.children())
     {
+        Stub NewStub;
+
         if (strcmp(XMLStub.name(), "Input") == 0)
         {
-            IDEFActivityStub NewInputStub;
-
-            NewInputStub = LoadActivityStub(XMLStub);
-            NewActivityBox.InputStubs.push_back(NewInputStub);
+            NewStub = LoadInputStub(XMLStub);
+            NewActivityBox.InputStubs.push_back(NewStub);
         }
         else if (strcmp(XMLStub.name(), "Output") == 0)
         {
-            IDEFActivityStub NewOutputStub;
-
-            NewOutputStub = LoadActivityStub(XMLStub);
-            NewActivityBox.OutputStubs.push_back(NewOutputStub);
+            NewStub = LoadOutputStub(XMLStub);
+            NewActivityBox.OutputStubs.push_back(NewStub);
         }
         else if (strcmp(XMLStub.name(), "Control") == 0)
         {
-            IDEFActivityStub NewControlStub;
-
-            NewControlStub = LoadActivityStub(XMLStub);
-            NewActivityBox.ControlStubs.push_back(NewControlStub);
+            NewStub = LoadControlStub(XMLStub);
+            NewActivityBox.ControlStubs.push_back(NewStub);
         }
         else if (strcmp(XMLStub.name(), "Mechanism") == 0)
         {
-            IDEFActivityStub NewMechanismStub;
-
-            NewMechanismStub = LoadActivityStub(XMLStub);
-            NewActivityBox.MechanismStubs.push_back(NewMechanismStub);
+            NewStub = LoadMechanismStub(XMLStub);
+            NewActivityBox.MechanismStubs.push_back(NewStub);
         }
         else if (strcmp(XMLStub.name(), "Call") == 0)
         {
-            IDEFActivityStub NewCallStub;
-
-            NewCallStub = LoadActivityStub(XMLStub);
-            NewActivityBox.CallStubs.push_back(NewCallStub);
+            NewStub = LoadCallStub(XMLStub);
+            NewActivityBox.CallStubs.push_back(NewStub);
         }
         else
         {
@@ -313,64 +278,56 @@ IDEFActivityBox LoadActivity(const pugi::xml_node &ActivityNode)
     return NewActivityBox;
 }
 
-IDEFActivityDiagram LoadActivityDiagram(const pugi::xml_node &ActivityDiagramNode)
+ActivityDiagram LoadActivityDiagram(const pugi::xml_node &ActivityDiagramNode)
 {
-    IDEFActivityDiagram NewActivityDiagram;
+    ActivityDiagram NewDiagram;
 
-    NewActivityDiagram.Frame.Bar.NumberSection.Content = ActivityDiagramNode.attribute("Number").as_string();
-    NewActivityDiagram.Frame.Bar.NumberSection.TopLeft.Row = 0u;
-    NewActivityDiagram.Frame.Bar.NumberSection.TopLeft.Column = 0u;
-    NewActivityDiagram.Frame.Bar.TitleSection.Content = ActivityDiagramNode.attribute("Title").as_string();
-    NewActivityDiagram.Frame.Bar.TitleSection.TopLeft.Row = 0u;
-    NewActivityDiagram.Frame.Bar.TitleSection.TopLeft.Column = 0u;
-    NewActivityDiagram.Frame.Bar.CNumberSection.Content = ActivityDiagramNode.attribute("CNumber").as_string();
-    NewActivityDiagram.Frame.Bar.CNumberSection.TopLeft.Row = 0u;
-    NewActivityDiagram.Frame.Bar.CNumberSection.TopLeft.Column = 0u;
-    NewActivityDiagram.Width = 0u;
-    NewActivityDiagram.Height = 0u;
+    std::get<NumberSection>(NewDiagram.Frame.BottomBar.NumberSection).Content = ActivityDiagramNode.attribute("Number").as_string();
+    std::get<NumberSection>(NewDiagram.Frame.BottomBar.NumberSection).TopLeft.Row = 0u;
+    std::get<NumberSection>(NewDiagram.Frame.BottomBar.NumberSection).TopLeft.Column = 0u;
+    std::get<TitleSection>(NewDiagram.Frame.BottomBar.TitleSection).Content = ActivityDiagramNode.attribute("Title").as_string();
+    std::get<TitleSection>(NewDiagram.Frame.BottomBar.TitleSection).TopLeft.Row = 0u;
+    std::get<TitleSection>(NewDiagram.Frame.BottomBar.TitleSection).TopLeft.Column = 0u;
+    std::get<CNumberSection>(NewDiagram.Frame.BottomBar.CNumberSection).Content = ActivityDiagramNode.attribute("CNumber").as_string();
+    std::get<CNumberSection>(NewDiagram.Frame.BottomBar.CNumberSection).TopLeft.Row = 0u;
+    std::get<CNumberSection>(NewDiagram.Frame.BottomBar.CNumberSection).TopLeft.Column = 0u;
+    NewDiagram.Width = 0u;
+    NewDiagram.Height = 0u;
     for (const pugi::xml_node &ChildXMLNode : ActivityDiagramNode.children())
     {
+        Stub NewStub;
+
         if (strcmp(ChildXMLNode.name(), "Input") == 0)
         {
-            IDEFActivityStub NewInputStub;
-
-            NewInputStub = LoadActivityStub(ChildXMLNode);
-            NewActivityDiagram.BoundaryInputStubs.push_back(NewInputStub);
+            NewStub = LoadInputStub(ChildXMLNode);
+            NewDiagram.BoundaryInputStubs.push_back(NewStub);
         }
         else if (strcmp(ChildXMLNode.name(), "Output") == 0)
         {
-            IDEFActivityStub NewOutputStub;
-
-            NewOutputStub = LoadActivityStub(ChildXMLNode);
-            NewActivityDiagram.BoundaryOutputStubs.push_back(NewOutputStub);
+            NewStub = LoadOutputStub(ChildXMLNode);
+            NewDiagram.BoundaryOutputStubs.push_back(NewStub);
         }
         else if (strcmp(ChildXMLNode.name(), "Control") == 0)
         {
-            IDEFActivityStub NewControlStub;
-
-            NewControlStub = LoadActivityStub(ChildXMLNode);
-            NewActivityDiagram.BoundaryControlStubs.push_back(NewControlStub);
+            NewStub = LoadControlStub(ChildXMLNode);
+            NewDiagram.BoundaryControlStubs.push_back(NewStub);
         }
         else if (strcmp(ChildXMLNode.name(), "Mechanism") == 0)
         {
-            IDEFActivityStub NewMechanismStub;
-
-            NewMechanismStub = LoadActivityStub(ChildXMLNode);
-            NewActivityDiagram.BoundaryMechanismStubs.push_back(NewMechanismStub);
+            NewStub = LoadMechanismStub(ChildXMLNode);
+            NewDiagram.BoundaryMechanismStubs.push_back(NewStub);
         }
         else if (strcmp(ChildXMLNode.name(), "Call") == 0)
         {
-            IDEFActivityStub NewCallStub;
-
-            NewCallStub = LoadActivityStub(ChildXMLNode);
-            NewActivityDiagram.BoundaryCallStubs.push_back(NewCallStub);
+            NewStub = LoadCallStub(ChildXMLNode);
+            NewDiagram.BoundaryCallStubs.push_back(NewStub);
         }
         else if (strcmp(ChildXMLNode.name(), "Activity") == 0)
         {
-            IDEFActivityBox NewActivityBox;
+            ActivityBox NewActivityBox;
 
             NewActivityBox = LoadActivity(ChildXMLNode);
-            NewActivityDiagram.Boxes.push_back(NewActivityBox);
+            NewDiagram.Boxes.push_back(NewActivityBox);
         }
         else
         {
@@ -383,7 +340,7 @@ IDEFActivityDiagram LoadActivityDiagram(const pugi::xml_node &ActivityDiagramNod
         }
     }
 
-    return NewActivityDiagram;
+    return NewDiagram;
 }
 
 Model LoadModel(const pugi::xml_node &ModelNode)
@@ -393,30 +350,10 @@ Model LoadModel(const pugi::xml_node &ModelNode)
     NewModel.Title = ModelNode.attribute("Name").as_string();
     for (const pugi::xml_node &ChildNode : ModelNode.children())
     {
-        if (strcmp(ChildNode.name(), "ActivityDiagram") == 0)
-        {
-            IDEFActivityDiagram NewDiagram;
+        ActivityDiagram NewDiagram;
 
-            NewDiagram = LoadActivityDiagram(ChildNode);
-            NewModel.ActivityDiagrams.push_back(NewDiagram);
-        }
-        else if (strcmp(ChildNode.name(), "ClassDiagram") == 0)
-        {
-        }
-        else if (strcmp(ChildNode.name(), "StateDiagram") == 0)
-        {
-        }
-        else if (strcmp(ChildNode.name(), "Glossary") == 0)
-        {
-        }
-        else
-        {
-            std::string ErrorMessage;
-
-            ErrorMessage = "Unknown diagram type: ";
-            ErrorMessage += ChildNode.name();
-            throw std::runtime_error(ErrorMessage);
-        }
+        NewDiagram = LoadActivityDiagram(ChildNode);
+        NewModel.ActivityDiagrams.push_back(NewDiagram);
     }
 
     return NewModel;
@@ -442,31 +379,26 @@ std::vector<Model> LoadModelsFile(const std::string &FilePath)
     return LoadedModels;
 }
 
-void LayoutFrame(IDEFActivityDiagram &Diagram)
+void LayoutFrame(ActivityDiagram &Diagram)
 {
     static const uint32_t TopLeftRow = 0u;
     static const uint32_t TopLeftColumn = 0u;
     static const uint32_t BottomBarHeight = 3u;
 
-    Diagram.Frame.Bar.TopLeft.Row = Diagram.Height - BottomBarHeight;
-    Diagram.Frame.Bar.TopLeft.Column = TopLeftColumn;
-
-    Diagram.Frame.Bar.NumberSection.Width = Diagram.Width / 3u;
-    Diagram.Frame.Bar.NumberSection.TopLeft.Row = Diagram.Frame.Bar.TopLeft.Row;
-    Diagram.Frame.Bar.NumberSection.TopLeft.Column = Diagram.Frame.Bar.TopLeft.Column;
-
-    Diagram.Frame.Bar.TitleSection.Width = Diagram.Width / 3u;
-    Diagram.Frame.Bar.TitleSection.TopLeft.Row = Diagram.Frame.Bar.TopLeft.Row;
-    Diagram.Frame.Bar.TitleSection.TopLeft.Column =
-        Diagram.Frame.Bar.TopLeft.Column + Diagram.Frame.Bar.TitleSection.Width;
-
-    Diagram.Frame.Bar.CNumberSection.Width = Diagram.Width / 3u;
-    Diagram.Frame.Bar.CNumberSection.TopLeft.Row = Diagram.Frame.Bar.TopLeft.Row;
-    Diagram.Frame.Bar.CNumberSection.TopLeft.Column =
-        Diagram.Frame.Bar.TopLeft.Column + Diagram.Frame.Bar.CNumberSection.Width;
+    Diagram.Frame.BottomBar.TopLeft.Row = Diagram.Height - BottomBarHeight;
+    Diagram.Frame.BottomBar.TopLeft.Column = TopLeftColumn;
+    std::get<NumberSection>(Diagram.Frame.BottomBar.NumberSection).Width = Diagram.Width / 3u;
+    std::get<NumberSection>(Diagram.Frame.BottomBar.NumberSection).TopLeft.Row = Diagram.Frame.BottomBar.TopLeft.Row;
+    std::get<NumberSection>(Diagram.Frame.BottomBar.NumberSection).TopLeft.Column = Diagram.Frame.BottomBar.TopLeft.Column;
+    std::get<TitleSection>(Diagram.Frame.BottomBar.TitleSection).Width = Diagram.Width / 3u;
+    std::get<TitleSection>(Diagram.Frame.BottomBar.TitleSection).TopLeft.Row = Diagram.Frame.BottomBar.TopLeft.Row;
+    std::get<TitleSection>(Diagram.Frame.BottomBar.TitleSection).TopLeft.Column = Diagram.Frame.Bar.TopLeft.Column + std::get<TitleSection>(Diagram.Frame.BottomBar.TitleSection).Width;
+    std::get<CNumberSection>(Diagram.Frame.BottomBar.CNumberSection).Width = Diagram.Width / 3u;
+    std::get<CNumberSection>(Diagram.Frame.BottomBar.CNumberSection).TopLeft.Row = Diagram.Frame.BottomBar.TopLeft.Row;
+    std::get<CNumberSection>(Diagram.Frame.BottomBar.CNumberSection).TopLeft.Column = Diagram.Frame.Bar.TopLeft.Column + Diagram.Frame.BottomBar.CNumberSection.Width;
 }
 
-void LayoutBoxes(IDEFActivityDiagram &Diagram)
+void LayoutBoxes(ActivityDiagram &Diagram)
 {
     static const uint32_t BottomBarHeight = 3u;
     uint32_t NumBoxes;
@@ -478,7 +410,7 @@ void LayoutBoxes(IDEFActivityDiagram &Diagram)
     RowHeight = (Diagram.Height - BottomBarHeight) / NumBoxes;
     for (uint32_t BoxIndex = 0u; BoxIndex < NumBoxes; BoxIndex++)
     {
-        IDEFActivityBox &SelectedBox = Diagram.Boxes[BoxIndex];
+        ActivityBox &SelectedBox = Diagram.Boxes[BoxIndex];
         uint32_t ColumnPadding;
         uint32_t RowPadding;
         const uint32_t BoxWidth = 32;
@@ -493,14 +425,14 @@ void LayoutBoxes(IDEFActivityDiagram &Diagram)
     }
 }
 
-void LayoutBoxStubs(IDEFActivityDiagram &Diagram)
+void LayoutBoxStubs(ActivityDiagram &Diagram)
 {
     uint32_t NumBoxes;
 
     NumBoxes = Diagram.Boxes.size();
     for (uint32_t BoxIndex = 0u; BoxIndex < NumBoxes; BoxIndex++)
     {
-        IDEFActivityBox &SelectedBox = Diagram.Boxes[BoxIndex];
+        ActivityBox &SelectedBox = Diagram.Boxes[BoxIndex];
         uint8_t NumInputStubs;
         uint8_t NumOutputStubs;
         uint8_t NumControlStubs;
@@ -526,7 +458,7 @@ void LayoutBoxStubs(IDEFActivityDiagram &Diagram)
         InputInterfaceDivisionWidth = SelectedBox.Height / InputInterfaceDivisions;
         for (uint32_t InputStubIndex = 0u; InputStubIndex < NumInputStubs; InputStubIndex++)
         {
-            IDEFStub &SelectedInputStub = SelectedBox.InputStubs[InputStubIndex];
+            InputStub& SelectedInputStub = std::get<InputStub>(SelectedBox.InputStubs[InputStubIndex]);
             uint32_t RowOffset;
 
             RowOffset = InputInterfaceDivisionWidth * (1u + InputStubIndex);
@@ -538,7 +470,7 @@ void LayoutBoxStubs(IDEFActivityDiagram &Diagram)
         OutputInterfaceDivisionWidth = SelectedBox.Height / OutputInterfaceDivisions;
         for (uint32_t OutputStubIndex = 0u; OutputStubIndex < NumOutputStubs; OutputStubIndex++)
         {
-            IDEFStub &SelectedOutputStub = SelectedBox.OutputStubs[OutputStubIndex];
+            OutputStub &SelectedOutputStub = std::get<OutputStub>(SelectedBox.OutputStubs[OutputStubIndex]);
             uint32_t RowOffset;
 
             RowOffset = OutputInterfaceDivisionWidth * (1u + OutputStubIndex);
@@ -550,7 +482,7 @@ void LayoutBoxStubs(IDEFActivityDiagram &Diagram)
         ControlInterfaceDivisionWidth = SelectedBox.Width / ControlInterfaceDivisions;
         for (uint32_t ControlStubIndex = 0u; ControlStubIndex < NumControlStubs; ControlStubIndex++)
         {
-            IDEFStub &SelectedControlStub = SelectedBox.ControlStubs[ControlStubIndex];
+            ControlStub &SelectedControlStub = std::get<ControlStub>(SelectedBox.ControlStubs[ControlStubIndex]);
             uint32_t ColumnOffset;
 
             ColumnOffset = ControlInterfaceDivisionWidth * (1u + ControlStubIndex);
@@ -562,7 +494,7 @@ void LayoutBoxStubs(IDEFActivityDiagram &Diagram)
         MechanismInterfaceDivisionWidth = (SelectedBox.Width / 2u) / MechanismInterfaceDivisions;
         for (uint32_t MechanismStubIndex = 0u; MechanismStubIndex < NumMechanismStubs; MechanismStubIndex++)
         {
-            IDEFStub &SelectedMechanismStub = SelectedBox.MechanismStubs[MechanismStubIndex];
+            MechanismStub &SelectedMechanismStub = std::get<MechanismStub>(SelectedBox.MechanismStubs[MechanismStubIndex]);
             uint32_t ColumnOffset;
 
             ColumnOffset = MechanismInterfaceDivisionWidth * (1u + MechanismStubIndex);
@@ -574,7 +506,7 @@ void LayoutBoxStubs(IDEFActivityDiagram &Diagram)
         CallInterfaceDivisionWidth = (SelectedBox.Width / 2) / CallInterfaceDivisions;
         for (uint32_t CallStubIndex = 0u; CallStubIndex < NumCallStubs; CallStubIndex++)
         {
-            IDEFStub &SelectedCallStub = SelectedBox.CallStubs[CallStubIndex];
+            CallStub &SelectedCallStub = std::get<CallStub>(SelectedBox.CallStubs[CallStubIndex]);
             uint32_t ColumnOffset;
 
             ColumnOffset = CallInterfaceDivisionWidth * (1u + CallStubIndex);
@@ -620,7 +552,7 @@ void LayoutBoundaryStubs(IDEFActivityDiagram &Diagram)
     CallDivisionWidth = (Diagram.Width / 2u) / NumCallDivisions;
     for (uint8_t InputStubIndex = 0u; InputStubIndex < NumInputStubs; InputStubIndex++)
     {
-        IDEFStub &SelectedStub = Diagram.BoundaryInputStubs[InputStubIndex];
+        InputStub &SelectedStub = std::get<InputStub>(Diagram.BoundaryInputStubs[InputStubIndex]);
         uint8_t RowOffset;
 
         RowOffset = (1 + InputStubIndex) * InputDivisionWidth;
@@ -629,7 +561,7 @@ void LayoutBoundaryStubs(IDEFActivityDiagram &Diagram)
     }
     for (uint8_t OutputStubIndex = 0u; OutputStubIndex < NumOutputStubs; OutputStubIndex++)
     {
-        IDEFStub &SelectedStub = Diagram.BoundaryOutputStubs[OutputStubIndex];
+        OutputStub &SelectedStub = std::get<OutputStub>(Diagram.BoundaryOutputStubs[OutputStubIndex]);
         uint8_t RowOffset;
 
         RowOffset = (1 + OutputStubIndex) * OutputDivisionWidth;
@@ -638,7 +570,7 @@ void LayoutBoundaryStubs(IDEFActivityDiagram &Diagram)
     }
     for (uint8_t ControlStubIndex = 0u; ControlStubIndex < NumControlStubs; ControlStubIndex++)
     {
-        IDEFStub &SelectedStub = Diagram.BoundaryControlStubs[ControlStubIndex];
+        ControlStub &SelectedStub = std::get<ControlStub>(Diagram.BoundaryControlStubs[ControlStubIndex]);
         uint8_t ColumnOffset;
 
         ColumnOffset = (1 + ControlStubIndex) * ControlDivisionWidth;
@@ -647,7 +579,7 @@ void LayoutBoundaryStubs(IDEFActivityDiagram &Diagram)
     }
     for (uint8_t MechanismStubIndex = 0u; MechanismStubIndex < NumMechanismStubs; MechanismStubIndex++)
     {
-        IDEFStub &SelectedStub = Diagram.BoundaryMechanismStubs[MechanismStubIndex];
+        MechanismStub &SelectedStub = std::get<MechanismStub>(Diagram.BoundaryMechanismStubs[MechanismStubIndex]);
         uint8_t ColumnOffset;
 
         ColumnOffset = (1 + MechanismStubIndex) * MechanismDivisionWidth;
@@ -656,7 +588,7 @@ void LayoutBoundaryStubs(IDEFActivityDiagram &Diagram)
     }
     for (uint8_t CallStubIndex = 0u; CallStubIndex < NumCallStubs; CallStubIndex++)
     {
-        IDEFStub &SelectedStub = Diagram.BoundaryCallStubs[CallStubIndex];
+        CallStub &SelectedStub = std::get<CallStub>(Diagram.BoundaryCallStubs[CallStubIndex]);
         uint8_t ColumnOffset;
 
         ColumnOffset = (1 + CallStubIndex) * CallDivisionWidth;
@@ -666,7 +598,7 @@ void LayoutBoundaryStubs(IDEFActivityDiagram &Diagram)
     }
 }
 
-void LayoutActivityDiagram(IDEFActivityDiagram &LoadedDiagram, uint32_t Width, uint32_t Height)
+void LayoutActivityDiagram(ActivityDiagram &LoadedDiagram, uint32_t Width, uint32_t Height)
 {
     LoadedDiagram.Width = Width;
     LoadedDiagram.Height = Height;
@@ -676,133 +608,55 @@ void LayoutActivityDiagram(IDEFActivityDiagram &LoadedDiagram, uint32_t Width, u
     LayoutBoundaryStubs(LoadedDiagram);
 }
 
-std::map<IDEFStub, Avoid::ConnEnd> PlaceBoxStubConnectionEnds(const IDEFActivityDiagram &LayedoutDiagram)
+vstd::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& LayedOutDiagram)
 {
-    std::map<IDEFStub, Avoid::ConnEnd> InterfaceStubsMap;
+    std::map<Stub, Avoid::ConnEnd> BoxStubsMap;
     uint32_t NumActivityBoxes;
 
-    NumActivityBoxes = LayedoutDiagram.Boxes.size();
-    for (uint32_t ActivityBoxIndex = 0u; ActivityBoxIndex < NumActivityBoxes; ActivityBoxIndex++)
+    NumActivityBoxes = LayedOutDiagram.Boxes.size();
+    for (ActivityBox& SelectedBox : LayedOutDiagram)
     {
-        const IDEFActivityBox &SelectedBox = LayedoutDiagram.Boxes[ActivityBoxIndex];
-        uint32_t InputInterfaceStubCount;
-        uint32_t ControlInterfaceStubCount;
-        uint32_t OutputInterfaceStubCount;
-        uint32_t MechanismInterfaceStubCount;
-        uint32_t CallInterfaceStubCount;
-
-        InputInterfaceStubCount = SelectedBox.InputStubs.size();
-        ControlInterfaceStubCount = SelectedBox.ControlStubs.size();
-        OutputInterfaceStubCount = SelectedBox.OutputStubs.size();
-        MechanismInterfaceStubCount = SelectedBox.MechanismStubs.size();
-        CallInterfaceStubCount = SelectedBox.CallStubs.size();
-        std::cout << "Layouting " << InputInterfaceStubCount << ", " << ControlInterfaceStubCount << ", " << OutputInterfaceStubCount
-            << ", " << MechanismInterfaceStubCount << ", " << CallInterfaceStubCount << " stubs for " << SelectedBox.Name << std::endl;
-        for (uint32_t InputStubIndex = 0u; InputStubIndex < InputInterfaceStubCount; InputStubIndex++)
+        for (Stub SelectedStub : SelectedBox.InputStubs)
         {
-            const IDEFStub &InterfaceInputStub = SelectedBox.InputStubs[InputStubIndex];
-            Avoid::ConnEnd ConnectionEnd(
-                Avoid::Point(InterfaceInputStub.Position.Column, InterfaceInputStub.Position.Row));
-
-            InterfaceStubsMap.insert({InterfaceInputStub, ConnectionEnd});
-        }
-        for (uint32_t OutputStubIndex = 0u; OutputStubIndex < OutputInterfaceStubCount; OutputStubIndex++)
-        {
-            const IDEFStub &InterfaceOutputStub = SelectedBox.OutputStubs[OutputStubIndex];
-            Avoid::ConnEnd ConnectionEnd(
-                Avoid::Point(InterfaceOutputStub.Position.Column, InterfaceOutputStub.Position.Row));
-            InterfaceStubsMap.insert({InterfaceOutputStub, ConnectionEnd});
-        }
-        for (uint32_t ControlStubIndex = 0u; ControlStubIndex < ControlInterfaceStubCount; ControlStubIndex++)
-        {
-            const IDEFStub &InterfaceControlStub = SelectedBox.ControlStubs[ControlStubIndex];
-            Avoid::ConnEnd ConnectionEnd(
-                Avoid::Point(InterfaceControlStub.Position.Column, InterfaceControlStub.Position.Row));
-
-            InterfaceStubsMap.insert({InterfaceControlStub, ConnectionEnd});
-        }
-        for (uint32_t MechanismStubIndex = 0u; MechanismStubIndex < MechanismInterfaceStubCount; MechanismStubIndex++)
-        {
-            const IDEFStub &InterfaceMechanismStub = SelectedBox.MechanismStubs[MechanismStubIndex];
-            Avoid::ConnEnd ConnectionEnd(
-                Avoid::Point(InterfaceMechanismStub.Position.Column, InterfaceMechanismStub.Position.Row));
-
-            InterfaceStubsMap.insert({InterfaceMechanismStub, ConnectionEnd});
-        }
-        for (uint32_t CallStubIndex = 0u; CallStubIndex < CallInterfaceStubCount; CallStubIndex++)
-        {
-            const IDEFStub &InterfaceCallStub = SelectedBox.CallStubs[CallStubIndex];
-            Avoid::ConnEnd ConnectionEnd(
-                Avoid::Point(InterfaceCallStub.Position.Column, InterfaceCallStub.Position.Row));
-
-            InterfaceStubsMap.insert({InterfaceCallStub, ConnectionEnd});
+            Avoid::ConnEnd ConnectionEnd(Avoid::Point(Stub.Position.Column, Stub.Position.Row));
+            BoxStubsMap.insert({SelectedStub, ConnEnd});
         }
     }
 
-    return InterfaceStubsMap;
+    return BoxStubsMap;
 }
 
-std::map<IDEFStub, Avoid::ConnEnd> PlaceBoundaryStubConnectionEnds(const IDEFActivityDiagram &LayedoutDiagram)
+std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& LayedOutDiagram)
 {
-    std::map<IDEFStub, Avoid::ConnEnd> InterfaceStubsMap;
-    uint32_t InputInterfaceStubCount;
-    uint32_t ControlInterfaceStubCount;
-    uint32_t OutputInterfaceStubCount;
-    uint32_t MechanismInterfaceStubCount;
-    uint32_t CallInterfaceStubCount;
+    std::map<Stub, Avoid::ConnEnd> BoundaryStubsMap;
 
-    InputInterfaceStubCount = LayedoutDiagram.BoundaryInputStubs.size();
-    ControlInterfaceStubCount = LayedoutDiagram.BoundaryControlStubs.size();
-    OutputInterfaceStubCount = LayedoutDiagram.BoundaryOutputStubs.size();
-    MechanismInterfaceStubCount = LayedoutDiagram.BoundaryMechanismStubs.size();
-    CallInterfaceStubCount = LayedoutDiagram.BoundaryCallStubs.size();
-    for (uint32_t InputStubIndex = 0u; InputStubIndex < InputInterfaceStubCount; InputStubIndex++)
+    for (Stub BoundaryStub : LayedOutDiagram.InputBoundaryStubs)
     {
-        const IDEFStub &InterfaceInputStub = LayedoutDiagram.BoundaryInputStubs[InputStubIndex];
-        Avoid::ConnEnd ConnectionEnd(Avoid::Point(InterfaceInputStub.Position.Column, InterfaceInputStub.Position.Row));
-
-        InterfaceStubsMap.insert({InterfaceInputStub, ConnectionEnd});
+        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryStub.Position.Column, BoundaryStub.Position.Row));
+        BoundaryStubsMap.insert({BoundaryStub, ConnectionEnd};
     }
-    for (uint32_t OutputStubIndex = 0u; OutputStubIndex < OutputInterfaceStubCount; OutputStubIndex++)
+    for (Stub BoundaryStub : LayedOutDiagram.OutputBoundaryStubs)
     {
-        const IDEFStub &InterfaceOutputStub = LayedoutDiagram.BoundaryOutputStubs[OutputStubIndex];
-        Avoid::ConnEnd ConnectionEnd(
-            Avoid::Point(InterfaceOutputStub.Position.Column, InterfaceOutputStub.Position.Row));
-
-        InterfaceStubsMap.insert({InterfaceOutputStub, ConnectionEnd});
+        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryStub.Position.Column, BoundaryStub.Position.Row));
+        BoundaryStubsMap.insert({BoundaryStub, ConnectionEnd};
     }
-    for (uint32_t ControlStubIndex = 0u; ControlStubIndex < ControlInterfaceStubCount; ControlStubIndex++)
+    for (Stub BoundaryStub : LayedOutDiagram.ControlBoundaryStubs)
     {
-        const IDEFStub &InterfaceControlStub = LayedoutDiagram.BoundaryControlStubs[ControlStubIndex];
-        Avoid::ConnEnd ConnectionEnd(
-            Avoid::Point(InterfaceControlStub.Position.Column, InterfaceControlStub.Position.Row));
-
-        InterfaceStubsMap.insert({InterfaceControlStub, ConnectionEnd});
+        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryStub.Position.Column, BoundaryStub.Position.Row));
+        BoundaryStubsMap.insert({BoundaryStub, ConnectionEnd};
     }
-    for (uint32_t MechanismStubIndex = 0u; MechanismStubIndex < MechanismInterfaceStubCount; MechanismStubIndex++)
+    for (Stub BoundaryStub : LayedOutDiagram.MechanismBoundaryStubs)
     {
-        const IDEFStub &InterfaceMechanismStub = LayedoutDiagram.BoundaryMechanismStubs[MechanismStubIndex];
-        Avoid::ConnEnd ConnectionEnd(
-            Avoid::Point(InterfaceMechanismStub.Position.Column, InterfaceMechanismStub.Position.Row));
-
-        InterfaceStubsMap.insert({InterfaceMechanismStub, ConnectionEnd});
+        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryStub.Position.Column, BoundaryStub.Position.Row));
+        BoundaryStubsMap.insert({BoundaryStub, ConnectionEnd};
     }
-    for (uint32_t CallStubIndex = 0u; CallStubIndex < CallInterfaceStubCount; CallStubIndex++)
+    for (Stub BoundaryStub : LayedOutDiagram.CallBoundaryStubs)
     {
-        const IDEFStub &InterfaceCallStub = LayedoutDiagram.BoundaryCallStubs[CallStubIndex];
-        Avoid::ConnEnd ConnectionEnd(Avoid::Point(InterfaceCallStub.Position.Column, InterfaceCallStub.Position.Row));
-
-        InterfaceStubsMap.insert({InterfaceCallStub, ConnectionEnd});
+        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryStub.Position.Column, BoundaryStub.Position.Row));
+        BoundaryStubsMap.insert({BoundaryStub, ConnectionEnd};
     }
-
-    return InterfaceStubsMap;
-}
-
-void PlaceConnectionEnds(const IDEFActivityDiagram &LayedoutDiagram, std::map<IDEFStub, Avoid::ConnEnd> &BoxStubConnMap,
-                         std::map<IDEFStub, Avoid::ConnEnd> &BoundaryStubConnMap)
-{
-    BoxStubConnMap = PlaceBoxStubConnectionEnds(LayedoutDiagram);
-    BoundaryStubConnMap = PlaceBoundaryStubConnectionEnds(LayedoutDiagram);
+   
+    return BoundaryStubsMap;
 }
 
 void PlaceObstacles(const IDEFActivityDiagram &LayedoutDiagram, std::vector<Avoid::Rectangle> &Rectangles)
@@ -826,9 +680,9 @@ void PlaceObstacles(const IDEFActivityDiagram &LayedoutDiagram, std::vector<Avoi
     }
 }
 
-Avoid::Router *ConstructRouter(std::map<IDEFStub, Avoid::ConnEnd> &BoxStubConnMap,
-                               std::map<IDEFStub, Avoid::ConnEnd> &BoundaryStubConnMap,
-                               std::vector<Avoid::Rectangle> &Rectangles)
+Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
+                               std::map<Stub, Avoid::ConnEnd>& BoundaryStubsMap
+                              std::vector<Avoid::Rectangle> &Rectangles)
 {
     Avoid::Router *ConstructedRouter;
     uint32_t NumRects;
@@ -842,39 +696,58 @@ Avoid::Router *ConstructRouter(std::map<IDEFStub, Avoid::ConnEnd> &BoxStubConnMa
         Avoid::Rectangle SelectedRectangle = Rectangles[RectangleIndex];
         ShapeReference = new Avoid::ShapeRef(ConstructedRouter, SelectedRectangle);
     }
-    for (const std::pair<IDEFStub, Avoid::ConnEnd> &BoxStubPair : BoxStubConnMap)
+    for (const std::pair<Stub, Avoid::ConnEnd> &BoxStubPair : BoxStubsMap)
     {
-        for (const StubSource &StubSource : BoxStubPair.first.Sources)
+        const Stub& FirstStub = BoxStubPair.first;
+
+        for (const std::pair<Stub, Avoid::ConnEnd> &OtherBoxStubPair : BoxStubsMap)
         {
-            for (const std::pair<IDEFStub, Avoid::ConnEnd> &PotentialInterfaceSourceStubPair : BoundaryStubConnMap)
+            const Stub& OtherStub = OtherBoxStubPair.second;
+ 
+            if (FirstStub.Column != OtherStub.Column)
             {
-                if (PotentialInterfaceSourceStubPair.first.Name == StubSource.StubName)
+                if (FirstStub.Row != OtherStub.Row)
                 {
-                    Avoid::ConnRef *NewConnectionRef;
+                    if (FirstStub.Name == OtherStub.Name)
+                    {
+                        if (std::holds_alternative<OutputStub>(FirstStub))
+                        {
+                            if (std::holds_alternative<InputStub>(OtherStub))
+                            {
+                                Avoid::ConnRef* NewRef;
+                                
+                                NewRef = Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, OtherBoxStubPair.second);
+                            }
+                            else if (std::holds_alternative<ControlStub>(OtherBoxStubPair))
+                            {
+                                Avoid::ConnRef* NewRef;
+                                
+                                NewRef = Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, OtherBoxStubPair.second);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (const StubSource& Source : FirstStub.Sources)
+                        {
+                            if (Source.StubName == OtherStub.Name)
+                            {
+                                Avoid::ConnRef* NewRef;
 
-                    NewConnectionRef = new Avoid::ConnRef(ConstructedRouter, PotentialInterfaceSourceStubPair.second,
-                                                          BoxStubPair.second);
+                                NewRef = Avoid::ConnRef(ConstructedRouter, OtherBoxStubPair.second, BoxStubPair.second);
+                            }
+                        }
+                    }
                 }
-            }
-            for (const std::pair<IDEFStub, Avoid::ConnEnd> &PotentialSourceStubPair : BoxStubConnMap)
-            {
-                if (PotentialSourceStubPair.first.Name == StubSource.StubName)
-                {
-                    Avoid::ConnRef *NewConnectionRef;
-
-                    NewConnectionRef =
-                        new Avoid::ConnRef(ConstructedRouter, PotentialSourceStubPair.second, BoxStubPair.second);
-                }
-            }
+            }            
         }
-    }
-    
+    }   
     ConstructedRouter->processTransaction();
     
     return ConstructedRouter;
 }
 
-std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, Avoid::Router *ConnectedRouter)
+std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid::Router *ConnectedRouter)
 {
     std::vector<std::string> Diagram;
     uint32_t ActivityBoxNum;
@@ -907,6 +780,8 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
             LineStartPoint.Row = (uint32_t)(round(FirstPoint.y));
             LineEndPoint.Column = (uint32_t)(round(SecondPoint.x));
             LineEndPoint.Row = (uint32_t)(round(SecondPoint.y));
+            std::cout << "Drawing a line from (" << LineStartPoint.Column << ", " << LineStartPoint.Row << ") to ";
+            std::cout << "(" << LineEndPoint.Column << ", " << LineEndPoint.Row << ")" << std::endl;
             if (LineEndPoint.Row > LineStartPoint.Row)
             {
                 TravelDir = "Down";
@@ -1004,7 +879,7 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
     ActivityBoxNum = TargetDiagram.Boxes.size();
     for (uint32_t ActivityBoxIndex = 0u; ActivityBoxIndex < ActivityBoxNum; ActivityBoxIndex++)
     {
-        const IDEFActivityBox &SelectedBox = TargetDiagram.Boxes[ActivityBoxIndex];
+        const ActivityBox &SelectedBox = TargetDiagram.Boxes[ActivityBoxIndex];
         FilePosition BoxTopLeft;
         FilePosition BoxBottomRight;
 
@@ -1117,7 +992,7 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
             }
         }
         std::cout << "Drawing input stubs." << std::endl;
-        for (const IDEFStub &InputStub : SelectedBox.InputStubs)
+        for (const Stub &SelectedStub : SelectedBox.InputStubs)
         {
             uint32_t LabelLength;
 
@@ -1127,13 +1002,13 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
                 uint32_t CharColumn;
                 uint32_t CharRow;
 
-                CharColumn = (InputStub.Position.Column - LabelLength) + CharIndex;
-                CharRow = InputStub.Position.Row-1u;
+                CharColumn = (TargetStub.Position.Column - LabelLength) + CharIndex;
+                CharRow = TargetStub.Position.Row-1u;
                 Diagram[CharRow][CharColumn] = InputStub.Name[CharIndex];
             }
         }
         std::cout << "Done Drawing input stubs" << std::endl;
-        for (const IDEFStub &OutputStub : SelectedBox.OutputStubs)
+        for (const Stub &OutputStub : SelectedBox.OutputStubs)
         {
             uint32_t LabelLength;
 
@@ -1153,7 +1028,7 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
         ControlStubCount = SelectedBox.ControlStubs.size();
         for (uint32_t ControlStubIndex = 0u; ControlStubIndex < ControlStubCount; ControlStubIndex++)
         {
-            const IDEFStub &ControlStub = SelectedBox.ControlStubs[ControlStubIndex];
+            const Stub &ControlStub = SelectedBox.ControlStubs[ControlStubIndex];
             uint32_t LabelLength;
 
             LabelLength = ControlStub.Name.length();
@@ -1172,7 +1047,7 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
         MechanismStubCount = SelectedBox.MechanismStubs.size();
         for (uint32_t MechanismStubIndex = 0u; MechanismStubIndex < MechanismStubCount; MechanismStubIndex++)
         {
-            const IDEFStub &MechanismStub = SelectedBox.MechanismStubs[MechanismStubIndex];
+            const Stub &MechanismStub = SelectedBox.MechanismStubs[MechanismStubIndex];
             uint32_t LabelLength;
 
             LabelLength = MechanismStub.Name.length();
@@ -1191,7 +1066,7 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
         CallStubCount = SelectedBox.CallStubs.size();
         for (uint32_t CallStubIndex = 0u; CallStubIndex < CallStubCount; CallStubIndex++)
         {
-            const IDEFStub &CallStub = SelectedBox.CallStubs[CallStubIndex];
+            const Stub &CallStub = SelectedBox.CallStubs[CallStubIndex];
             uint32_t LabelLength;
 
             LabelLength = CallStub.Name.length();
@@ -1223,19 +1098,19 @@ void Test1(char *InputFilePath, char *OutputFilePath)
         for (IDEF::IDEFActivityDiagram &SelectedActivityDiagram : SelectedModel.ActivityDiagrams)
         {
             std::fstream OutputFileStream;
-            std::map<IDEF::IDEFStub, Avoid::ConnEnd> BoxStubConnMap;
-            std::map<IDEF::IDEFStub, Avoid::ConnEnd> BoundaryStubConnMap;
+            std::map<IDEF::Stub, Avoid::ConnEnd> BoxStubsMap;
+            std::map<IDEF::Stub, Avoid::ConnEnd> BoundaryStubsMap;       
             std::vector<Avoid::Rectangle> Obstacles;
             Avoid::Router *Router;
             std::vector<std::string> Diagram;
             uint32_t RowNumber;
 
             IDEF::LayoutActivityDiagram(SelectedActivityDiagram, 400, 120);
-            IDEF::PlaceConnectionEnds(SelectedActivityDiagram, BoxStubConnMap, BoundaryStubConnMap);
             IDEF::PlaceObstacles(SelectedActivityDiagram, Obstacles);
-            Router = IDEF::ConstructRouter(BoxStubConnMap, BoundaryStubConnMap, Obstacles);
+            BoxStubsMap = IDEF::PlaceBoxStubConnEnds(SelectedActivityDiagram);
+            BoundaryStubsMap = IDEF::PlaceBoundaryStubConnEnds(SelectedActivityDiagram);
+            Router = IDEF::ConstructRouter(BoxStubsMap,BoundaryStubsMap, Obstacles);
             Diagram = DrawDiagram(SelectedActivityDiagram, Router);
-
             RowNumber = 0u;
             OutputFileStream.open(OutputFilePath, std::ios_base::out);
             for (const std::string &Line : Diagram)
