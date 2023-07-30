@@ -35,7 +35,7 @@ class Stub
 
         ProjectedPosition = (this->Position.Row * 1000u) + this->Position.Column;
         OtherProjectedPosition = (Other.Position.Row * 1000u) + Other.Position.Column;
-        return (ProjectedPosition == OtherProjectedPosition);
+        return (ProjectedPosition < OtherProjectedPosition);
     }
     std::string Name;
     FilePosition Position;
@@ -696,6 +696,8 @@ std::map<IDEFStub, Avoid::ConnEnd> PlaceBoxStubConnectionEnds(const IDEFActivity
         OutputInterfaceStubCount = SelectedBox.OutputStubs.size();
         MechanismInterfaceStubCount = SelectedBox.MechanismStubs.size();
         CallInterfaceStubCount = SelectedBox.CallStubs.size();
+        std::cout << "Layouting " << InputInterfaceStubCount << ", " << ControlInterfaceStubCount << ", " << OutputInterfaceStubCount
+            << ", " << MechanismInterfaceStubCount << ", " << CallInterfaceStubCount << " stubs for " << SelectedBox.Name << std::endl;
         for (uint32_t InputStubIndex = 0u; InputStubIndex < InputInterfaceStubCount; InputStubIndex++)
         {
             const IDEFStub &InterfaceInputStub = SelectedBox.InputStubs[InputStubIndex];
@@ -709,7 +711,6 @@ std::map<IDEFStub, Avoid::ConnEnd> PlaceBoxStubConnectionEnds(const IDEFActivity
             const IDEFStub &InterfaceOutputStub = SelectedBox.OutputStubs[OutputStubIndex];
             Avoid::ConnEnd ConnectionEnd(
                 Avoid::Point(InterfaceOutputStub.Position.Column, InterfaceOutputStub.Position.Row));
-
             InterfaceStubsMap.insert({InterfaceOutputStub, ConnectionEnd});
         }
         for (uint32_t ControlStubIndex = 0u; ControlStubIndex < ControlInterfaceStubCount; ControlStubIndex++)
@@ -867,7 +868,9 @@ Avoid::Router *ConstructRouter(std::map<IDEFStub, Avoid::ConnEnd> &BoxStubConnMa
             }
         }
     }
-
+    
+    ConstructedRouter->processTransaction();
+    
     return ConstructedRouter;
 }
 
@@ -889,7 +892,7 @@ std::vector<std::string> DrawDiagram(const IDEFActivityDiagram &TargetDiagram, A
         uint32_t VertexIndex;
         std::string TravelDir;
 
-        std::cout << "Rendering an avoid connection" << std::endl;
+        std::cout << "Drawing an avoid connection" << std::endl;
         NumVertices = Route.size();
         for (uint32_t VertexIndex = 0u; VertexIndex < (NumVertices - 1u); VertexIndex++)
         {
