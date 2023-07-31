@@ -333,12 +333,15 @@ ActivityDiagram LoadActivityDiagram(const pugi::xml_node &ActivityDiagramNode)
 {
     ActivityDiagram NewDiagram;
 
+    NewDiagram.Frame.BottomBar.NodeNumberSection = NodeNumberSection();
     std::get<NodeNumberSection>(NewDiagram.Frame.BottomBar.NodeNumberSection).Content = ActivityDiagramNode.attribute("Number").as_string();
     std::get<NodeNumberSection>(NewDiagram.Frame.BottomBar.NodeNumberSection).TopLeft.Row = 0u;
     std::get<NodeNumberSection>(NewDiagram.Frame.BottomBar.NodeNumberSection).TopLeft.Column = 0u;
+    NewDiagram.Frame.BottomBar.TitleSection = TitleSection();
     std::get<TitleSection>(NewDiagram.Frame.BottomBar.TitleSection).Content = ActivityDiagramNode.attribute("Title").as_string();
     std::get<TitleSection>(NewDiagram.Frame.BottomBar.TitleSection).TopLeft.Row = 0u;
     std::get<TitleSection>(NewDiagram.Frame.BottomBar.TitleSection).TopLeft.Column = 0u;
+    NewDiagram.Frame.BottomBar.CNumberSection = CNumberSection();
     std::get<CNumberSection>(NewDiagram.Frame.BottomBar.CNumberSection).Content = ActivityDiagramNode.attribute("CNumber").as_string();
     std::get<CNumberSection>(NewDiagram.Frame.BottomBar.CNumberSection).TopLeft.Row = 0u;
     std::get<CNumberSection>(NewDiagram.Frame.BottomBar.CNumberSection).TopLeft.Column = 0u;
@@ -657,7 +660,7 @@ void LayoutActivityDiagram(ActivityDiagram &LoadedDiagram, uint32_t Width, uint3
     LayoutBoxes(LoadedDiagram);
     LayoutBoxStubs(LoadedDiagram);
     LayoutBoundaryStubs(LoadedDiagram);
-}
+} 
 
 std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& LayedOutDiagram)
 {
@@ -671,39 +674,42 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
         {
             Avoid::ConnEnd ConnectionEnd;
 
-            if (std::holds_alternative<InputStub>(SelectedStub))
-            {
-                InputStub SelectedInputStub = std::get<InputStub>(SelectedStub);
-
-                ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedInputStub.Position.Column, SelectedInputStub.Position.Row));
-            }
-            else if (std::holds_alternative<OutputStub>(SelectedStub))
-            {
-                OutputStub SelectedOutputStub = std::get<OutputStub>(SelectedStub);
-
-                ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedOutputStub.Position.Column, SelectedOutputStub.Position.Row));
-            }
-            else if (std::holds_alternative<ControlStub>(SelectedStub))
-            {
-                ControlStub SelectedControlStub = std::get<ControlStub>(SelectedStub);
-
-                ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedControlStub.Position.Column, SelectedControlStub.Position.Row));
-            }
-            else if (std::holds_alternative<MechanismStub>(SelectedStub))
-            {
-                MechanismStub SelectedMechanismStub = std::get<MechanismStub>(SelectedStub);
-
-                ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedMechanismStub.Position.Column, SelectedMechanismStub.Position.Row));
-            }
-            else if (std::holds_alternative<CallStub>(SelectedStub))
-            {
-                CallStub SelectedCallStub = std::get<CallStub>(SelectedStub);
-
-                ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedCallStub.Position.Column, SelectedCallStub.Position.Row));
-            }
-
+            InputStub SelectedInputStub = std::get<InputStub>(SelectedStub);
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedInputStub.Position.Column, SelectedInputStub.Position.Row));
             BoxStubsMap.insert({SelectedStub, ConnectionEnd});
         }
+        for (Stub SelectedStub : SelectedBox.OutputStubs)
+        {
+            Avoid::ConnEnd ConnectionEnd;
+            
+            OutputStub SelectedOutputStub = std::get<OutputStub>(SelectedStub);
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedOutputStub.Position.Column, SelectedOutputStub.Position.Row));
+            BoxStubsMap.insert({SelectedStub, ConnectionEnd});
+        }
+        for (Stub SelectedStub: SelectedBox.ControlStubs)
+        {
+            Avoid::ConnEnd ConnectionEnd;
+
+            ControlStub SelectedControlStub = std::get<ControlStub>(SelectedStub);
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedControlStub.Position.Column, SelectedControlStub.Position.Row));
+            BoxStubsMap.insert({SelectedStub, ConnectionEnd});
+        }
+        for (Stub SelectedStub : SelectedBox.MechanismStubs)
+        {
+            Avoid::ConnEnd ConnectionEnd;
+
+            MechanismStub SelectedMechanismStub = std::get<MechanismStub>(SelectedStub);
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedMechanismStub.Position.Column, SelectedMechanismStub.Position.Row));
+            BoxStubsMap.insert({SelectedStub, ConnectionEnd});
+        }
+        for (Stub SelectedStub : SelectedBox.CallStubs)
+        {
+            Avoid::ConnEnd ConnectionEnd;
+
+            CallStub SelectedCallStub = std::get<CallStub>(SelectedStub);
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedCallStub.Position.Column, SelectedCallStub.Position.Row));
+            BoxStubsMap.insert({SelectedStub, ConnectionEnd});
+        } 
     }
 
     return BoxStubsMap;
@@ -798,7 +804,7 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
         for (const std::pair<Stub, Avoid::ConnEnd>& BoxStubPair : BoxStubsMap)
         {
             const Stub& BoxStub = BoxStubPair.first;
-            
+              
             if (std::holds_alternative<InputStub>(BoundaryStub))
             {
                 const InputStub& BoundaryInputStub = std::get<InputStub>(BoundaryStub);
@@ -943,7 +949,7 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
             if (std::holds_alternative<OutputStub>(FirstStub))
             {
                 const OutputStub& FirstOutputStub = std::get<OutputStub>(FirstStub);
-
+                
                 if (std::holds_alternative<InputStub>(OtherStub))
                 {
                     const InputStub& OtherInputStub = std::get<InputStub>(OtherStub);
