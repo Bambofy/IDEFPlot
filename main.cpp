@@ -1376,7 +1376,6 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
             const OutputStub& SelectedOutputStub = std::get<OutputStub>(SelectedStub);
             uint32_t LabelLength;
 
-            Diagram[SelectedOutputStub.Position.Row][SelectedOutputStub.Position.Column + 3u] = '-';
             Diagram[SelectedOutputStub.Position.Row][SelectedOutputStub.Position.Column + 2u] = '-';
             Diagram[SelectedOutputStub.Position.Row][SelectedOutputStub.Position.Column + 1u] = '-';
             LabelLength = SelectedOutputStub.Name.length();
@@ -1397,8 +1396,7 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
             const ControlStub &SelectedControlStub = std::get<ControlStub>(SelectedBox.ControlStubs[ControlStubIndex]);
             uint32_t LabelLength;
 
-            Diagram[SelectedControlStub.Position.Row - 3u][SelectedControlStub.Position.Column] = '-';
-            Diagram[SelectedControlStub.Position.Row - 2u][SelectedControlStub.Position.Column] = '-';
+            Diagram[SelectedControlStub.Position.Row - 2u][SelectedControlStub.Position.Column] = '|';
             Diagram[SelectedControlStub.Position.Row - 1u][SelectedControlStub.Position.Column] = 'V';
             LabelLength = SelectedControlStub.Name.length();
             for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
@@ -1418,8 +1416,7 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
             const MechanismStub &SelectedMechanismStub = std::get<MechanismStub>(SelectedBox.MechanismStubs[MechanismStubIndex]);
             uint32_t LabelLength;
 
-            Diagram[SelectedMechanismStub.Position.Row + 3u][SelectedMechanismStub.Position.Column] = '-';
-            Diagram[SelectedMechanismStub.Position.Row + 2u][SelectedMechanismStub.Position.Column] = '-';
+            Diagram[SelectedMechanismStub.Position.Row + 2u][SelectedMechanismStub.Position.Column] = '|';
             Diagram[SelectedMechanismStub.Position.Row + 1u][SelectedMechanismStub.Position.Column] = '^';
             LabelLength = SelectedMechanismStub.Name.length();
             for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
@@ -1439,7 +1436,6 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
             const CallStub &SelectedCallStub = std::get<CallStub>(SelectedBox.CallStubs[CallStubIndex]);
             uint32_t LabelLength;
 
-            Diagram[SelectedCallStub.Position.Row + 3u][SelectedCallStub.Position.Column] = '-';
             Diagram[SelectedCallStub.Position.Row + 2u][SelectedCallStub.Position.Column] = '-';
             Diagram[SelectedCallStub.Position.Row + 1u][SelectedCallStub.Position.Column] = '^';
             LabelLength = SelectedCallStub.Name.length();
