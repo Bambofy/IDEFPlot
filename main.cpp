@@ -664,6 +664,7 @@ void LayoutActivityDiagram(ActivityDiagram &LoadedDiagram, uint32_t Width, uint3
 
 std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& LayedOutDiagram)
 {
+    const uint32_t StubLength = 3u;
     std::map<Stub, Avoid::ConnEnd> BoxStubsMap;
     uint32_t NumActivityBoxes;
 
@@ -675,7 +676,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
             Avoid::ConnEnd ConnectionEnd;
 
             InputStub SelectedInputStub = std::get<InputStub>(SelectedStub);
-            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedInputStub.Position.Column, SelectedInputStub.Position.Row));
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedInputStub.Position.Column - StubLength, SelectedInputStub.Position.Row));
             BoxStubsMap.insert({SelectedStub, ConnectionEnd});
         }
         for (Stub SelectedStub : SelectedBox.OutputStubs)
@@ -683,7 +684,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
             Avoid::ConnEnd ConnectionEnd;
             
             OutputStub SelectedOutputStub = std::get<OutputStub>(SelectedStub);
-            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedOutputStub.Position.Column, SelectedOutputStub.Position.Row));
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedOutputStub.Position.Column + StubLength, SelectedOutputStub.Position.Row));
             BoxStubsMap.insert({SelectedStub, ConnectionEnd});
         }
         for (Stub SelectedStub: SelectedBox.ControlStubs)
@@ -691,7 +692,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
             Avoid::ConnEnd ConnectionEnd;
 
             ControlStub SelectedControlStub = std::get<ControlStub>(SelectedStub);
-            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedControlStub.Position.Column, SelectedControlStub.Position.Row));
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedControlStub.Position.Column, SelectedControlStub.Position.Row - StubLength));
             BoxStubsMap.insert({SelectedStub, ConnectionEnd});
         }
         for (Stub SelectedStub : SelectedBox.MechanismStubs)
@@ -699,7 +700,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
             Avoid::ConnEnd ConnectionEnd;
 
             MechanismStub SelectedMechanismStub = std::get<MechanismStub>(SelectedStub);
-            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedMechanismStub.Position.Column, SelectedMechanismStub.Position.Row));
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedMechanismStub.Position.Column, SelectedMechanismStub.Position.Row + StubLength));
             BoxStubsMap.insert({SelectedStub, ConnectionEnd});
         }
         for (Stub SelectedStub : SelectedBox.CallStubs)
@@ -707,7 +708,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
             Avoid::ConnEnd ConnectionEnd;
 
             CallStub SelectedCallStub = std::get<CallStub>(SelectedStub);
-            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedCallStub.Position.Column, SelectedCallStub.Position.Row));
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedCallStub.Position.Column, SelectedCallStub.Position.Row + StubLength));
             BoxStubsMap.insert({SelectedStub, ConnectionEnd});
         } 
     }
@@ -717,40 +718,41 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
 
 std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& LayedOutDiagram)
 {
+    const uint32_t StubLength = 3u;
     std::map<Stub, Avoid::ConnEnd> BoundaryStubsMap;
    
     for (const Stub& BoundaryStub : LayedOutDiagram.InputBoundaryStubs)
     {
         const InputStub& BoundaryInputStub = std::get<InputStub>(BoundaryStub);
-        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryInputStub.Position.Column, BoundaryInputStub.Position.Row));
+        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryInputStub.Position.Column + StubLength, BoundaryInputStub.Position.Row));
 
         BoundaryStubsMap.insert({BoundaryInputStub, ConnectionEnd});
     }
     for (const Stub BoundaryStub : LayedOutDiagram.OutputBoundaryStubs)
     {
         const OutputStub& BoundaryOutputStub = std::get<OutputStub>(BoundaryStub);
-        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryOutputStub.Position.Column, BoundaryOutputStub.Position.Row));
+        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryOutputStub.Position.Column - StubLength, BoundaryOutputStub.Position.Row));
         
         BoundaryStubsMap.insert({BoundaryOutputStub, ConnectionEnd});
     }
     for (const Stub BoundaryStub : LayedOutDiagram.ControlBoundaryStubs)
     {
         const ControlStub& BoundaryControlStub = std::get<ControlStub>(BoundaryStub);
-        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryControlStub.Position.Column, BoundaryControlStub.Position.Row));
+        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryControlStub.Position.Column, BoundaryControlStub.Position.Row + StubLength));
         
         BoundaryStubsMap.insert({BoundaryControlStub, ConnectionEnd});
     }
     for (const Stub BoundaryStub : LayedOutDiagram.MechanismBoundaryStubs)
     {
         const MechanismStub& BoundaryMechanismStub = std::get<MechanismStub>(BoundaryStub);
-        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryMechanismStub.Position.Column, BoundaryMechanismStub.Position.Row));
+        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryMechanismStub.Position.Column, BoundaryMechanismStub.Position.Row - StubLength));
         
         BoundaryStubsMap.insert({BoundaryMechanismStub, ConnectionEnd});
     }
     for (const Stub BoundaryStub : LayedOutDiagram.CallBoundaryStubs)
     {
         const CallStub& BoundaryCallStub = std::get<CallStub>(BoundaryStub);
-        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryCallStub.Position.Column, BoundaryCallStub.Position.Row));
+        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryCallStub.Position.Column, BoundaryCallStub.Position.Row - StubLength));
         
         BoundaryStubsMap.insert({BoundaryCallStub, ConnectionEnd});
     }
@@ -1075,7 +1077,6 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
     {
         Diagram.push_back(BlankDiagramRow);
     }
-    std::cout << "Diagram width " << TargetDiagram.Width << " height " << TargetDiagram.Height << std::endl;
     for (Avoid::ConnRef *ConnRef : ConnectedRouter->connRefs)
     {
         const Avoid::PolyLine &Route = ConnRef->displayRoute();
@@ -1083,7 +1084,6 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
         uint32_t VertexIndex;
         std::string TravelDir;
 
-        std::cout << "Drawing an avoid connection" << std::endl;
         NumVertices = Route.size();
         for (uint32_t VertexIndex = 0u; VertexIndex < (NumVertices - 1u); VertexIndex++)
         {
@@ -1098,8 +1098,6 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
             LineStartPoint.Row = (uint32_t)(round(FirstPoint.y));
             LineEndPoint.Column = (uint32_t)(round(SecondPoint.x));
             LineEndPoint.Row = (uint32_t)(round(SecondPoint.y));
-            std::cout << "Drawing a line from (" << LineStartPoint.Column << ", " << LineStartPoint.Row << ") to ";
-            std::cout << "(" << LineEndPoint.Column << ", " << LineEndPoint.Row << ")" << std::endl;
             if (LineEndPoint.Row > LineStartPoint.Row)
             {
                 TravelDir = "Down";
@@ -1122,15 +1120,27 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
                 uint32_t CursorColumn;
 
                 CursorColumn = LineStartPoint.Column;
-                for (CursorRow = LineStartPoint.Row; CursorRow < LineEndPoint.Row; CursorRow++)
+                for (CursorRow = LineStartPoint.Row; CursorRow <= LineEndPoint.Row; CursorRow++)
                 {
-                    if (CursorRow == LineEndPoint.Row)
+                    if (Diagram[CursorRow][CursorColumn] == '+')
                     {
-                        Diagram[CursorRow][CursorColumn] = 'v';
-                    }
+                        continue;
+                    } 
                     else
                     {
-                        Diagram[CursorRow][CursorColumn] = '|';
+                        if (CursorRow == LineEndPoint.Row)
+                        {
+                            Diagram[CursorRow][CursorColumn] = '+';
+                        }
+                        else if ( (CursorRow == LineStartPoint.Row) && (CursorRow == LineStartPoint.Column) )
+                        {
+                            Diagram[CursorRow][CursorColumn] = '+';
+                        }
+                        else
+                        {
+                            Diagram[CursorRow][CursorColumn] = '|';
+                        }
+                       
                     }
                 }
             }
@@ -1140,15 +1150,26 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
                 uint32_t CursorColumn;
 
                 CursorColumn = LineStartPoint.Column;
-                for (CursorRow = LineStartPoint.Row; CursorRow > LineEndPoint.Row; CursorRow--)
+                for (CursorRow = LineStartPoint.Row; CursorRow >= LineEndPoint.Row; CursorRow--)
                 {
-                    if (CursorRow == LineEndPoint.Row)
+                    if (Diagram[CursorRow][CursorColumn] == '+')
                     {
-                        Diagram[CursorRow][CursorColumn] = '^';
-                    }
+                        continue;
+                    } 
                     else
                     {
-                        Diagram[CursorRow][CursorColumn] = '|';
+                        if (CursorRow == LineEndPoint.Row)
+                        {
+                            Diagram[CursorRow][CursorColumn] = '+';
+                        }
+                        else if ( CursorRow == LineStartPoint.Row)
+                        {
+                            Diagram[CursorRow][CursorColumn] = '+';
+                        }
+                        else
+                        {
+                            Diagram[CursorRow][CursorColumn] = '|';
+                        }
                     }
                 }
             }
@@ -1158,15 +1179,26 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
                 uint32_t CursorColumn;
 
                 CursorRow = LineStartPoint.Row;
-                for (CursorColumn = LineStartPoint.Column; CursorColumn < LineEndPoint.Column; CursorColumn++)
+                for (CursorColumn = LineStartPoint.Column; CursorColumn <= LineEndPoint.Column; CursorColumn++)
                 {
-                    if (CursorColumn == LineEndPoint.Column)
+                    if (Diagram[CursorRow][CursorColumn] == '+')
                     {
-                        Diagram[CursorRow][CursorColumn] = '>';
-                    }
+                        continue;
+                    } 
                     else
                     {
-                        Diagram[CursorRow][CursorColumn] = '-';
+                        if (CursorColumn == LineEndPoint.Column)
+                        {
+                            Diagram[CursorRow][CursorColumn] = '+';
+                        }
+                        else if (CursorColumn == LineStartPoint.Column)
+                        {
+                            Diagram[CursorRow][CursorColumn] = '+';
+                        }
+                        else
+                        {
+                            Diagram[CursorRow][CursorColumn] = '-';
+                        }
                     }
                 }
             }
@@ -1176,15 +1208,26 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
                 uint32_t CursorColumn;
 
                 CursorRow = LineStartPoint.Row;
-                for (CursorColumn = LineStartPoint.Column; CursorColumn > LineEndPoint.Column; CursorColumn--)
+                for (CursorColumn = LineStartPoint.Column; CursorColumn >= LineEndPoint.Column; CursorColumn--)
                 {
-                    if (CursorColumn == LineEndPoint.Column)
+                    if (Diagram[CursorRow][CursorColumn] == '+')
                     {
-                        Diagram[CursorRow][CursorColumn] = '<';
-                    }
+                        continue;
+                    } 
                     else
                     {
-                        Diagram[CursorRow][CursorColumn] = '-';
+                        if (CursorColumn == LineEndPoint.Column)
+                        {
+                            Diagram[CursorRow][CursorColumn] = '+';
+                        }
+                        else if ( (CursorRow == LineStartPoint.Row) && (CursorColumn == LineStartPoint.Column))
+                        {
+                            Diagram[CursorRow][CursorColumn] = '+';
+                        }
+                        else
+                        {
+                            Diagram[CursorRow][CursorColumn] = '-';
+                        }
                     }
                 }
             }
@@ -1309,7 +1352,6 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
                 Cursor.Column++;
             }
         }
-        std::cout << "Drawing input stubs." << std::endl;
         for (const Stub &SelectedStub : SelectedBox.InputStubs)
         {
             const InputStub& SelectedInputStub = std::get<InputStub>(SelectedStub);
@@ -1326,7 +1368,6 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
                 Diagram[CharRow][CharColumn] = SelectedInputStub.Name[CharIndex];
             }
         }
-        std::cout << "Done Drawing input stubs" << std::endl;
         for (const Stub &SelectedStub : SelectedBox.OutputStubs)
         {
             const OutputStub& SelectedOutputStub = std::get<OutputStub>(SelectedStub);
@@ -1343,7 +1384,6 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
                 Diagram[CharRow][CharColumn] = SelectedOutputStub.Name[CharIndex];
             }
         }
-        std::cout << "Done drawing output stubs" << std::endl;
         uint32_t ControlStubCount;
         ControlStubCount = SelectedBox.ControlStubs.size();
         for (uint32_t ControlStubIndex = 0u; ControlStubIndex < ControlStubCount; ControlStubIndex++)
@@ -1362,7 +1402,6 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
                 Diagram[CharRow][CharColumn] = SelectedControlStub.Name[CharIndex];
             }
         }
-        std::cout << "Done drawing control stubs" << std::endl;
         uint32_t MechanismStubCount;
         MechanismStubCount = SelectedBox.MechanismStubs.size();
         for (uint32_t MechanismStubIndex = 0u; MechanismStubIndex < MechanismStubCount; MechanismStubIndex++)
@@ -1381,7 +1420,6 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
                 Diagram[CharRow][CharColumn] = SelectedMechanismStub.Name[CharIndex];
             }
         }
-        std::cout << "Done drawing mechanism stubs" << std::endl;
         uint32_t CallStubCount;
         CallStubCount = SelectedBox.CallStubs.size();
         for (uint32_t CallStubIndex = 0u; CallStubIndex < CallStubCount; CallStubIndex++)
@@ -1400,7 +1438,6 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
                 Diagram[CharRow][CharColumn] = SelectedCallStub.Name[CharIndex];
             }
         }
-        std::cout << "Done drawing call stubs" << std::endl;
     }
     return Diagram;
 }
@@ -1409,8 +1446,6 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
 void Test1(char *InputFilePath, char *OutputFilePath)
 {
     std::vector<IDEF::Model> Models;
-
-    std::cout << "Running Test 1" << std::endl;
 
     Models = IDEF::LoadModelsFile(InputFilePath);
     for (IDEF::Model &SelectedModel : Models)
