@@ -627,8 +627,7 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram,
     {
         Stub InnerStub;
         
-        InnerStub = FindInnerStub(Diagram, SelectedStub); 
-
+        InnerStub = FindInnerStub(Diagram, SelectedStub);
         if (std::holds_alternative<InputStub>(SelectedStub))
         {
             InputStub SelectedBoundaryInputStub;
@@ -636,17 +635,40 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram,
             SelectedBoundaryInputStub = std::get<InputStub>(SelectedBox);
             if (std::holds_alternative<InputStub>(InnerStub))
             {
-                InputStub SelectedBoundaryStub;
                 InputStub FoundInnerStub;
                 
-                SelectedBoundaryStub = std::get<InputStub>(SelectedStub);
                 FoundInnerStub = std::get<InputStub>(FoundInnerStub);
-                SelectedBoundaryStub.Position.Column = 3u;
-                SelectedBoundaryStub.Position.Row = FoundInnerStub.Row;
+                SelectedBoundaryInputStub.Position.Column = 3u;
+                SelectedBoundaryInputStub.Position.Row = FoundInnerStub.Row;
             }
             else if (std::holds_alternative<ControlStub>(InnerStub))
             {
+                ControlStub FoundInnerStub;
+
+                FoundInnerStub = std::get<ControlStub>(FoundInnerStub);
+                SelectedBoundaryInputStub.Position.Column = FoundInnerStub.Column;
+                SelectedBoundaryInputStub.Position.Row = 3u;
+            }
+        }
+        else (std::holds_alternative<ControlStub>(SelectedStub))
+        {
+            ControlStub SelectedBoundaryControlStub;
+
+            if (std::holds_alternative<InputStub>(InnerStub))
+            {
+                InputStub FoundInnerStub;
                 
+                FoundInnerStub = std::get<InputStub>(FoundInnerStub);
+                SelectedBoundaryControlStub.Position.Column = 3u;
+                SelectedBoundaryControlStub.Position.Row = FoundInnerStub.Row;
+            }
+            else if (std::holds_alternative<ControlStub>(InnerStub))
+            {
+                ControlStub FoundInnerStub;
+
+                FoundInnerStub = std::get<ControlStub>(FoundInnerStub);
+                SelectedBoundaryControlStub.Position.Column = FoundInnerStub.Column;
+                SelectedBoundaryControlStub.Position.Row = 3u;
             }
         }
     }
