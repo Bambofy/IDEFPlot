@@ -20,6 +20,13 @@ Steps to compile:
 Notices:
 1. If the compiler complains about missing "basic_string" or other C++ features then you might have missed out specifiying the compile when running make. The correct make command is "make IDEFPlotTarget CC=g++".
 
+# Known Bugs
+Bug 1: If the boxes and arrows do not fit onto the diagram of the given size, the error
+```
+free(): invalid next size (normal)                                                                                                                            Aborted (core dumped)
+```
+is printed, this can be fixed by changing the size of the diagram and its parts.
+
 ## Contributing
 Please feel free to make PRs and raise issues however new features are not welcome at this time.
 

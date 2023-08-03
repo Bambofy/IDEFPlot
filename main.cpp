@@ -176,6 +176,7 @@ struct ActivityDiagram
     std::string Title;
     uint32_t Width;
     uint32_t Height;
+    uint32_t Padding;
     std::vector<ActivityBox> Boxes;
     std::vector<Stub> InputBoundaryStubs;
     std::vector<Stub> OutputBoundaryStubs;
@@ -347,6 +348,7 @@ ActivityDiagram LoadActivityDiagram(const pugi::xml_node &ActivityDiagramNode)
     std::get<CNumberSection>(NewDiagram.Frame.BottomBar.CNumberSection).TopLeft.Column = 0u;
     NewDiagram.Width = 0u;
     NewDiagram.Height = 0u;
+    NewDiagram.Padding = 0u;
     for (const pugi::xml_node &ChildXMLNode : ActivityDiagramNode.children())
     {
         Stub NewStub;
@@ -452,30 +454,28 @@ void LayoutFrame(ActivityDiagram &Diagram)
     std::get<CNumberSection>(Diagram.Frame.BottomBar.CNumberSection).TopLeft.Column = Diagram.Frame.BottomBar.TopLeft.Column + std::get<CNumberSection>(Diagram.Frame.BottomBar.CNumberSection).Width;
 }
 
-void LayoutBoxes(ActivityDiagram &Diagram)
+void LayoutBoxes(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t BoxHeight, uint32_t BoxMargin)
 {
-    static const uint32_t BottomBarHeight = 3u;
     uint32_t NumBoxes;
-    uint32_t ColumnWidth;
-    uint32_t RowHeight;
+    FilePosition Cursor;
 
     NumBoxes = Diagram.Boxes.size();
-    ColumnWidth = Diagram.Width / NumBoxes;
-    RowHeight = (Diagram.Height - BottomBarHeight) / NumBoxes;
+    Cursor.Column = 0;
+    Cursor.Row = 0;
+    Cursor.Column += Diagram.Padding;
+    Cursor.Row += Diagram.Padding;
+    Cursor.Column += BoxWidth/2u;
+    Cursor.Row += BoxHeight/2u;
     for (uint32_t BoxIndex = 0u; BoxIndex < NumBoxes; BoxIndex++)
     {
-        ActivityBox &SelectedBox = Diagram.Boxes[BoxIndex];
-        uint32_t ColumnPadding;
-        uint32_t RowPadding;
-        const uint32_t BoxWidth = 32;
-        const uint32_t BoxHeight = 8;
-
-        SelectedBox.Width = BoxWidth;
-        SelectedBox.Height = BoxHeight;
-        ColumnPadding = ColumnWidth / 2u;
-        RowPadding = RowHeight / 2u;
-        SelectedBox.Center.Column = ColumnPadding + (ColumnWidth * BoxIndex);
-        SelectedBox.Center.Row = RowPadding + (RowHeight * BoxIndex);
+        Diagram.Boxes[BoxIndex].Center.Column = Cursor.Column;
+        Diagram.Boxes[BoxIndex].Center.Row = Cursor.Row;
+        Cursor.Column += BoxWidth/2u;
+        Cursor.Column += BoxMargin;
+        Cursor.Column += BoxWidth/2u;
+        Cursor.Row += BoxHeight/2u;
+        Cursor.Row += BoxMargin;
+        Cursor.Row += BoxHeight/2u;
     }
 }
 
@@ -571,95 +571,98 @@ void LayoutBoxStubs(ActivityDiagram &Diagram)
     }
 }
 
-void LayoutBoundaryStubs(ActivityDiagram &Diagram)
+/*
+ * Finds the correct inner stub that matches the boundary stub.
+ * 
+ * 1. Selects each box top to bottom.
+ * 2. Compares the boundary stub name to the box input stubs.
+ * 3. Compares the boundary stub name to the box control stubs.
+ */
+Stub FindInnerStub(const ActivityDiagram& Diagram, const Stub& BoundaryStub)
 {
-    uint8_t NumInputDivisions;
-    uint8_t NumOutputDivisions;
-    uint8_t NumControlDivisions;
-    uint8_t NumMechanismDivisions;
-    uint8_t NumCallDivisions;
-    uint8_t InputDivisionWidth;
-    uint8_t ControlDivisionWidth;
-    uint8_t OutputDivisionWidth;
-    uint8_t MechanismDivisionWidth;
-    uint8_t CallDivisionWidth;
-    uint8_t NumInputStubs;
-    uint8_t NumOutputStubs;
-    uint8_t NumControlStubs;
-    uint8_t NumMechanismStubs;
-    uint8_t NumCallStubs;
+    Stub FoundInnerStub;
+    bool SearchFlag;
 
-    NumInputStubs = Diagram.InputBoundaryStubs.size();
-    NumOutputStubs = Diagram.OutputBoundaryStubs.size();
-    NumControlStubs = Diagram.ControlBoundaryStubs.size();
-    NumMechanismStubs = Diagram.MechanismBoundaryStubs.size();
-    NumCallStubs = Diagram.CallBoundaryStubs.size();
-    NumInputDivisions = NumInputStubs + 1u;
-    NumOutputDivisions = NumOutputStubs + 1u;
-    NumControlDivisions = NumControlStubs + 1u;
-    NumMechanismDivisions = NumMechanismStubs + 1u;
-    NumCallDivisions = NumCallStubs + 1u;
-    InputDivisionWidth = Diagram.Height / NumInputDivisions;
-    ControlDivisionWidth = Diagram.Width / NumControlDivisions;
-    OutputDivisionWidth = Diagram.Height / NumOutputDivisions;
-    MechanismDivisionWidth = (Diagram.Width / 2u) / NumMechanismDivisions;
-    CallDivisionWidth = (Diagram.Width / 2u) / NumCallDivisions;
-    for (uint8_t InputStubIndex = 0u; InputStubIndex < NumInputStubs; InputStubIndex++)
+    SearchFlag = true;
+    for (ActivityBox& SelectedBox : Diagram.Boxes)
     {
-        InputStub &SelectedStub = std::get<InputStub>(Diagram.InputBoundaryStubs[InputStubIndex]);
-        uint8_t RowOffset;
-
-        RowOffset = (1 + InputStubIndex) * InputDivisionWidth;
-        SelectedStub.Position.Column = 0u;
-        SelectedStub.Position.Row = RowOffset;
+        for (Stub& SelectedStub : SelectedBox.InputStubs)
+        {
+            if (SelectedStub.Name == BoundaryStub.Name)
+            {
+                FoundInnerStub = SelectedStub;
+                SearchFlag = false;
+                break;
+            }
+            else
+            {
+                for (StubSource& StubSource : SelectedStub.Sources)
+                {
+                    if (StubSource.StubName == BoundaryStub.Name)
+                    {
+                        FoundInnerStub = SelectedStub;
+                        SearchFlag = false;
+                        break;
+                    }
+                }
+            }
+        }
+        if (SearchFlag == false)
+        {
+            break;
+        }
     }
-    for (uint8_t OutputStubIndex = 0u; OutputStubIndex < NumOutputStubs; OutputStubIndex++)
+    if (SearchFlag == true)
     {
-        OutputStub &SelectedStub = std::get<OutputStub>(Diagram.OutputBoundaryStubs[OutputStubIndex]);
-        uint8_t RowOffset;
-
-        RowOffset = (1 + OutputStubIndex) * OutputDivisionWidth;
-        SelectedStub.Position.Column = Diagram.Width;
-        SelectedStub.Position.Row = RowOffset;
+        throw std::runtime_error("Could not find matching box arrow for interface.");
     }
-    for (uint8_t ControlStubIndex = 0u; ControlStubIndex < NumControlStubs; ControlStubIndex++)
-    {
-        ControlStub &SelectedStub = std::get<ControlStub>(Diagram.ControlBoundaryStubs[ControlStubIndex]);
-        uint8_t ColumnOffset;
 
-        ColumnOffset = (1 + ControlStubIndex) * ControlDivisionWidth;
-        SelectedStub.Position.Row = 0u;
-        SelectedStub.Position.Column = ColumnOffset;
-    }
-    for (uint8_t MechanismStubIndex = 0u; MechanismStubIndex < NumMechanismStubs; MechanismStubIndex++)
-    {
-        MechanismStub &SelectedStub = std::get<MechanismStub>(Diagram.MechanismBoundaryStubs[MechanismStubIndex]);
-        uint8_t ColumnOffset;
+    return FoundInnerStub;
+}
 
-        ColumnOffset = (1 + MechanismStubIndex) * MechanismDivisionWidth;
-        SelectedStub.Position.Row = Diagram.Height;
-        SelectedStub.Position.Column = ColumnOffset;
-    }
-    for (uint8_t CallStubIndex = 0u; CallStubIndex < NumCallStubs; CallStubIndex++)
+void LayoutBoundaryStubs(ActivityDiagram &Diagram, 
+    uint32_t BoxWidth, uint32_t BoxHeight, uint32_t BoxMargin)
+{
+    for (Stub& SelectedStub : Diagram.BoundaryInputStubs)
     {
-        CallStub &SelectedStub = std::get<CallStub>(Diagram.CallBoundaryStubs[CallStubIndex]);
-        uint8_t ColumnOffset;
+        Stub InnerStub;
+        
+        InnerStub = FindInnerStub(Diagram, SelectedStub); 
 
-        ColumnOffset = (1 + CallStubIndex) * CallDivisionWidth;
-        SelectedStub.Position.Row = Diagram.Height;
-        SelectedStub.Position.Column = Diagram.Width / 2u;
-        SelectedStub.Position.Column = SelectedStub.Position.Column + ColumnOffset;
+        if (std::holds_alternative<InputStub>(SelectedStub))
+        {
+            InputStub SelectedBoundaryInputStub;
+            
+            SelectedBoundaryInputStub = std::get<InputStub>(SelectedBox);
+            if (std::holds_alternative<InputStub>(InnerStub))
+            {
+                InputStub SelectedBoundaryStub;
+                InputStub FoundInnerStub;
+                
+                SelectedBoundaryStub = std::get<InputStub>(SelectedStub);
+                FoundInnerStub = std::get<InputStub>(FoundInnerStub);
+                SelectedBoundaryStub.Position.Column = 3u;
+                SelectedBoundaryStub.Position.Row = FoundInnerStub.Row;
+            }
+            else if (std::holds_alternative<ControlStub>(InnerStub))
+            {
+                
+            }
+        }
     }
 }
 
-void LayoutActivityDiagram(ActivityDiagram &LoadedDiagram, uint32_t Width, uint32_t Height)
+void LayoutActivityDiagram(ActivityDiagram &LoadedDiagram, 
+    uint32_t Width, uint32_t Height, uint32_t Padding, 
+    uint32_t BoxWidth, uint32_t BoxHeight, uint32_t BoxMargin)
 {
     LoadedDiagram.Width = Width;
     LoadedDiagram.Height = Height;
+    LoadedDiagram.Padding = Padding
     LayoutFrame(LoadedDiagram);
-    LayoutBoxes(LoadedDiagram);
+    LayoutBoxes(LoadedDiagram, BoxWidth, BoxHeight, BoxMargin);
     LayoutBoxStubs(LoadedDiagram);
-    LayoutBoundaryStubs(LoadedDiagram);
+    LayoutBoundaryStubs(LoadedDiagram, BoxWidth, BoxHeight, BoxMargin);
 } 
 
 std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& LayedOutDiagram)
@@ -673,42 +676,87 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
     {
         for (Stub SelectedStub : SelectedBox.InputStubs)
         {
+            uint32_t StubColumn;
+            uint32_t StubRow;
+            uint32_t AvoidX;
+            uint32_t AvoidY;
+            InputStub SelectedInputStub;
             Avoid::ConnEnd ConnectionEnd;
 
-            InputStub SelectedInputStub = std::get<InputStub>(SelectedStub);
-            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedInputStub.Position.Column - StubLength, SelectedInputStub.Position.Row));
+            SelectedInputStub = std::get<InputStub>(SelectedStub);
+            StubColumn = SelectedInputStub.Position.Column - StubLength;
+            StubRow = SelectedInputStub.Position.Row;
+            AvoidX = StubColumn;
+            AvoidY = LayedOutDiagram.Height - StubRow;
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
             BoxStubsMap.insert({SelectedStub, ConnectionEnd});
         }
         for (Stub SelectedStub : SelectedBox.OutputStubs)
         {
+            uint32_t StubColumn;
+            uint32_t StubRow;
+            uint32_t AvoidX;
+            uint32_t AvoidY;
+            OutputStub SelectedOutputStub;
             Avoid::ConnEnd ConnectionEnd;
-            
-            OutputStub SelectedOutputStub = std::get<OutputStub>(SelectedStub);
-            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedOutputStub.Position.Column + StubLength, SelectedOutputStub.Position.Row));
+           
+            SelectedOutputStub = std::get<OutputStub>(SelectedStub);
+            StubColumn = SelectedOutputStub.Position.Column + StubLength;
+            StubRow = SelectedOutputStub.Position.Row;
+            AvoidX = StubColumn;
+            AvoidY = LayedOutDiagram.Height - StubColumn;
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
             BoxStubsMap.insert({SelectedStub, ConnectionEnd});
         }
         for (Stub SelectedStub: SelectedBox.ControlStubs)
         {
+            uint32_t StubColumn;
+            uint32_t StubRow;
+            uint32_t AvoidX;
+            uint32_t AvoidY;
+            ControlStub SelectedControlStub;
             Avoid::ConnEnd ConnectionEnd;
 
-            ControlStub SelectedControlStub = std::get<ControlStub>(SelectedStub);
-            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedControlStub.Position.Column, SelectedControlStub.Position.Row - StubLength));
+            SelectedControlStub = std::get<ControlStub>(SelectedStub);
+            StubColumn = SelectedControlStub.Position.Column;
+            StubRow = SelectedControlStub.Position.Row - StubLength;
+            AvoidX = StubColumn;
+            AvoidY = LayedOutDiagram.Height - StubRow;
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
             BoxStubsMap.insert({SelectedStub, ConnectionEnd});
         }
         for (Stub SelectedStub : SelectedBox.MechanismStubs)
         {
+            uint32_t StubColumn;
+            uint32_t StubRow;
+            uint32_t AvoidX;
+            uint32_t AvoidY;
             Avoid::ConnEnd ConnectionEnd;
+            MechanismStub SelectedMechanismStub;
 
-            MechanismStub SelectedMechanismStub = std::get<MechanismStub>(SelectedStub);
-            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedMechanismStub.Position.Column, SelectedMechanismStub.Position.Row + StubLength));
+            SelectedMechanismStub = std::get<MechanismStub>(SelectedStub);
+            StubColumn = SelectedMechanismStub.Position.Column;
+            StubRow = SelectedMechanismStub.Position.Row + StubLength;
+            AvoidX = StubColumn;
+            AvoidY = LayedOutDiagram.Height - StubRow;
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
             BoxStubsMap.insert({SelectedStub, ConnectionEnd});
         }
         for (Stub SelectedStub : SelectedBox.CallStubs)
         {
+            uint32_t StubColumn;
+            uint32_t StubRow;
+            uint32_t AvoidX;
+            uint32_t AvoidY;
             Avoid::ConnEnd ConnectionEnd;
+            CallStub SelectedCallStub;
 
-            CallStub SelectedCallStub = std::get<CallStub>(SelectedStub);
-            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(SelectedCallStub.Position.Column, SelectedCallStub.Position.Row + StubLength));
+            SelectedCallStub = std::get<CallStub>(SelectedStub);
+            StubColumn = SelectedCallStub.Position.Column;
+            StubRow = SelectedCallStub.Position.Row + StubLength;
+            AvoidX = StubColumn;
+            AvoidY = LayedOutDiagram.Height - StubRow;
+            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
             BoxStubsMap.insert({SelectedStub, ConnectionEnd});
         } 
     }
@@ -723,38 +771,93 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& 
    
     for (const Stub& BoundaryStub : LayedOutDiagram.InputBoundaryStubs)
     {
+        uint32_t StubColumn;
+        uint32_t StubRow;
+        uint32_t AvoidX;
+        uint32_t AvoidY;
         const InputStub& BoundaryInputStub = std::get<InputStub>(BoundaryStub);
-        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryInputStub.Position.Column + StubLength, BoundaryInputStub.Position.Row));
+        Avoid::ConnEnd ConnectionEnd;
 
+        StubColumn = BoundaryInputStub.Position.Column + StubLength;
+        StubRow = BoundaryInputStub.Position.Row;
+        AvoidX = StubColumn;
+        AvoidY = LayedOutDiagram.Height - StubRow;
+        ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
         BoundaryStubsMap.insert({BoundaryInputStub, ConnectionEnd});
+        std::cout << "Found input boundary stub at (" << StubColumn << "," << StubRow << ")" << std::endl;
+        std::cout << "Placing input boundary stub at (" << AvoidX << "," << AvoidY << ")" << std::endl;
     }
     for (const Stub BoundaryStub : LayedOutDiagram.OutputBoundaryStubs)
     {
+        uint32_t StubColumn;
+        uint32_t StubRow;
+        uint32_t AvoidX;
+        uint32_t AvoidY;
         const OutputStub& BoundaryOutputStub = std::get<OutputStub>(BoundaryStub);
-        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryOutputStub.Position.Column - StubLength, BoundaryOutputStub.Position.Row));
-        
+        Avoid::ConnEnd ConnectionEnd;
+
+        StubColumn = BoundaryOutputStub.Position.Column - StubLength;
+        StubRow = BoundaryOutputStub.Position.Row;
+        AvoidX = StubColumn;
+        AvoidY = LayedOutDiagram.Height - StubRow;
+        ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
         BoundaryStubsMap.insert({BoundaryOutputStub, ConnectionEnd});
+        std::cout << "Found output boundary stub at (" << StubColumn << "," << StubRow << ")" << std::endl;
+        std::cout << "Placing output boundary stub at (" << AvoidX << "," << AvoidY << ")" << std::endl;
     }
     for (const Stub BoundaryStub : LayedOutDiagram.ControlBoundaryStubs)
     {
+        uint32_t StubColumn;
+        uint32_t StubRow;
+        uint32_t AvoidX;
+        uint32_t AvoidY;
         const ControlStub& BoundaryControlStub = std::get<ControlStub>(BoundaryStub);
-        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryControlStub.Position.Column, BoundaryControlStub.Position.Row + StubLength));
-        
+        Avoid::ConnEnd ConnectionEnd;
+   
+        StubColumn = BoundaryControlStub.Position.Column;
+        StubRow = BoundaryControlStub.Position.Row + StubLength;
+        AvoidX = StubColumn;
+        AvoidY = LayedOutDiagram.Height - StubRow;
+        ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
         BoundaryStubsMap.insert({BoundaryControlStub, ConnectionEnd});
+        std::cout << "Found control boundary stub at (" << StubColumn << "," << StubRow << ")" << std::endl;
+        std::cout << "Placing control boundary stub at (" << AvoidX << "," << AvoidY << ")" << std::endl;
     }
     for (const Stub BoundaryStub : LayedOutDiagram.MechanismBoundaryStubs)
     {
+        uint32_t StubColumn;
+        uint32_t StubRow;
+        uint32_t AvoidX;
+        uint32_t AvoidY;
         const MechanismStub& BoundaryMechanismStub = std::get<MechanismStub>(BoundaryStub);
-        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryMechanismStub.Position.Column, BoundaryMechanismStub.Position.Row - StubLength));
-        
+        Avoid::ConnEnd ConnectionEnd;
+
+        StubColumn = BoundaryMechanismStub.Position.Column;
+        StubRow = BoundaryMechanismStub.Position.Row - StubLength;
+        AvoidX = StubColumn;
+        AvoidY = LayedOutDiagram.Height - StubRow;
+        ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
         BoundaryStubsMap.insert({BoundaryMechanismStub, ConnectionEnd});
+        std::cout << "Found mechanism boundary stub at (" << StubColumn << "," << StubRow << ")" << std::endl;    
+        std::cout << "Placing mechanism boundary stub at (" << AvoidX << "," << AvoidY << ")" << std::endl;
     }
     for (const Stub BoundaryStub : LayedOutDiagram.CallBoundaryStubs)
     {
+        uint32_t StubColumn;
+        uint32_t StubRow;
+        uint32_t AvoidX;
+        uint32_t AvoidY;
         const CallStub& BoundaryCallStub = std::get<CallStub>(BoundaryStub);
-        Avoid::ConnEnd ConnectionEnd(Avoid::Point(BoundaryCallStub.Position.Column, BoundaryCallStub.Position.Row - StubLength));
-        
+        Avoid::ConnEnd ConnectionEnd;
+
+        StubColumn = BoundaryCallStub.Position.Column;
+        StubRow = BoundaryCallStub.Position.Row - StubLength;
+        AvoidX = StubColumn;
+        AvoidY = LayedOutDiagram.Height - StubRow;
+        ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
         BoundaryStubsMap.insert({BoundaryCallStub, ConnectionEnd});
+        std::cout << "Found mechanism boundary stub at (" << StubColumn << "," << StubRow << ")" << std::endl;
+        std::cout << "Placing call  boundary stub at (" << AvoidX << "," << AvoidY << ")" << std::endl;
     }
    
     return BoundaryStubsMap;
@@ -770,13 +873,19 @@ void PlaceObstacles(const ActivityDiagram &LayedoutDiagram, std::vector<Avoid::R
         const ActivityBox &SelectedBox = LayedoutDiagram.Boxes[BoxIndex];
         FilePosition BoxTopLeft;
         FilePosition BoxBottomRight;
+        Avoid::Point BoxTopLeftAvoid;
+        Avoid::Point BoxBottomRightAvoid;
+        Avoid::Rectangle NewRect(Avoid::Point(0,0), Avoid::Point(0,0));
 
         BoxTopLeft.Column = SelectedBox.Center.Column - (SelectedBox.Width / 2u);
         BoxTopLeft.Row = SelectedBox.Center.Row - (SelectedBox.Height / 2u);
         BoxBottomRight.Column = SelectedBox.Center.Column + (SelectedBox.Width / 2u);
         BoxBottomRight.Row = SelectedBox.Center.Row + (SelectedBox.Height / 2u);
-        Avoid::Rectangle NewRect(Avoid::Point(BoxTopLeft.Column, BoxTopLeft.Row),
-                                 Avoid::Point(BoxBottomRight.Column, BoxBottomRight.Row));
+        BoxTopLeftAvoid.x = BoxTopLeft.Column;
+        BoxTopLeftAvoid.y = LayedoutDiagram.Height - BoxTopLeft.Row;
+        BoxBottomRightAvoid.x = BoxBottomRight.Column;
+        BoxBottomRightAvoid.y = LayedoutDiagram.Height - BoxBottomRight.Row;
+        NewRect = Avoid::Rectangle(BoxTopLeftAvoid, BoxBottomRightAvoid);
         Rectangles.push_back(NewRect);
     }
 }
@@ -1072,7 +1181,7 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
     std::vector<std::string> Diagram;
     uint32_t ActivityBoxNum;
     std::string BlankDiagramRow(TargetDiagram.Width, ' ');
-
+    
     for (uint32_t RowNum = 0u; RowNum < TargetDiagram.Height; RowNum++)
     {
         Diagram.push_back(BlankDiagramRow);
@@ -1094,10 +1203,14 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
             NextVertexIndex = VertexIndex + 1u;
             const Avoid::Point &FirstPoint = Route.at(VertexIndex);
             const Avoid::Point &SecondPoint = Route.at(NextVertexIndex);
+            std::cout << "First point (" << FirstPoint.x << "," << FirstPoint.y << ")" << std::endl;
+            std::cout << "Second point (" << SecondPoint.x << "," << SecondPoint.y << ")" << std::endl;
             LineStartPoint.Column = (uint32_t)(round(FirstPoint.x));
-            LineStartPoint.Row = (uint32_t)(round(FirstPoint.y));
+            LineStartPoint.Row = TargetDiagram.Height - (uint32_t)(round(FirstPoint.y));
             LineEndPoint.Column = (uint32_t)(round(SecondPoint.x));
-            LineEndPoint.Row = (uint32_t)(round(SecondPoint.y));
+            LineEndPoint.Row = TargetDiagram.Height - (uint32_t)(round(SecondPoint.y));
+            std::cout << "Line Start Pont (Column:" << LineStartPoint.Column << ", Row:" << LineStartPoint.Row << ")" << std::endl;
+            std::cout << "Line End Point (Column:" << LineEndPoint.Column << ", Row:" << LineEndPoint.Row << ")" << std::endl;
             if (LineEndPoint.Row > LineStartPoint.Row)
             {
                 TravelDir = "Down";
@@ -1454,10 +1567,21 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
 }
 }
 
-void Test1(char *InputFilePath, char *OutputFilePath)
+
+int main(int argc, char **argv)
 {
+    char* InputFilePath;
+    char* OutputFilePath;
+    const uint32_t DiagramWidth = 800;
+    const uint32_t DiagramHeight = 400;
+    const uint32_t BoxWidth = 32;
+    const uint32_t BoxHeight = 4;
+    const uint32_t ColumMargin = 5;
+    const uint32_t RowMargin = 5;
     std::vector<IDEF::Model> Models;
 
+    InputFilePath = argv[1u];
+    OutputFilePath = argv[2u];
     Models = IDEF::LoadModelsFile(InputFilePath);
     for (IDEF::Model &SelectedModel : Models)
     {
@@ -1471,12 +1595,15 @@ void Test1(char *InputFilePath, char *OutputFilePath)
             std::vector<std::string> Diagram;
             uint32_t RowNumber;
 
-            IDEF::LayoutActivityDiagram(SelectedActivityDiagram, 400, 120);
+            IDEF::LayoutActivityDiagram(SelectedActivityDiagram, 
+                                        DiagramWidth, DiagramHeight, 
+                                        BoxWidth, BoxHeight,
+                                        ColumnMargin, RowMargin);
             IDEF::PlaceObstacles(SelectedActivityDiagram, Obstacles);
             BoxStubsMap = IDEF::PlaceBoxStubConnEnds(SelectedActivityDiagram);
             BoundaryStubsMap = IDEF::PlaceBoundaryStubConnEnds(SelectedActivityDiagram);
             Router = IDEF::ConstructRouter(BoxStubsMap,BoundaryStubsMap, Obstacles);
-            Diagram = DrawDiagram(SelectedActivityDiagram, Router);
+            Diagram = IDEF::DrawDiagram(SelectedActivityDiagram, Router);
             RowNumber = 0u;
             OutputFileStream.open(OutputFilePath, std::ios_base::out);
             for (const std::string &Line : Diagram)
@@ -1486,14 +1613,10 @@ void Test1(char *InputFilePath, char *OutputFilePath)
                 RowNumber = RowNumber + 1u;
             }
             OutputFileStream.close();
-
+            Diagram.clear(); 
             delete Router;
         }
     }
-}
 
-int main(int argc, char **argv)
-{
-    Test1(argv[1u], argv[2u]);
     return 0;
 }
