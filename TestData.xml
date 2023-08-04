@@ -5,7 +5,9 @@
 			<Input Name="Section of disk"/>
 			<Input Name="Section of memory"/>
 			<Control Name="IDEF model's text"/>
-			<Output Name="Group of IDEF ASCII diagrams"/>
+			<Output Name="Group of IDEF ASCII diagrams">
+				<Source Name="Set of IDEF diagrams"></Source>
+			</Output>
 
 			<Activity Name="Loads a source XML file">
 				<Input Name="Section of memory">

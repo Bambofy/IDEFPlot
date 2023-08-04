@@ -803,13 +803,13 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
                 InputStub& FoundInputStub = std::get<InputStub>(FoundStub);
                 
                 BoundaryInputStub.Position.Row = FoundInputStub.Position.Row;
-                BoundaryInputStub.Position.Column = 0u + ColumnCenterOffset;
+                BoundaryInputStub.Position.Column = 0u;
             }
             else if (std::holds_alternative<ControlStub>(FoundStub))
             {
                 ControlStub& FoundControlStub = std::get<ControlStub>(FoundStub);
 
-                BoundaryInputStub.Position.Row = 0u + RowCenterOffset;
+                BoundaryInputStub.Position.Row = 0u;
                 BoundaryInputStub.Position.Column = FoundControlStub.Position.Column;
             }
         }
@@ -867,12 +867,12 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
                 OutputStub& FoundOutputStub = std::get<OutputStub>(FoundStub);
                 
                 BoundaryOutputStub.Position.Row = FoundOutputStub.Position.Row;
-                BoundaryOutputStub.Position.Column = BoxSectionWidth - 1u;
+                BoundaryOutputStub.Position.Column = Diagram.Width - 1u;
             }
         }
         else
         {
-            BoundaryOutputStub.Position.Column = BoxSectionWidth - 1u;
+            BoundaryOutputStub.Position.Column = Diagram.Width - 1u;
             BoundaryOutputStub.Position.Row = (1u+StubIndex) * RowHeight;
         }
         StubIndex++;
@@ -1932,6 +1932,62 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid
                 Diagram[CharRow][CharColumn] = SelectedCallStub.Name[CharIndex];
             }
         }
+        uint32_t NumCallBoundaryStubs;
+        uint32_t NumInputBoundaryStubs;
+        uint32_t NumOutputBoundaryStubs;
+        uint32_t NumMechanismBoundaryStubs;
+        uint32_t NumControlBoundaryStubs;
+
+        NumCallBoundaryStubs = TargetDiagram.CallBoundaryStubs.size();
+        NumInputBoundaryStubs = TargetDiagram.InputBoundaryStubs.size();
+        NumOutputBoundaryStubs = TargetDiagram.OutputBoundaryStubs.size();
+        NumMechanismBoundaryStubs = TargetDiagram.MechanismBoundaryStubs.size();
+        NumControlBoundaryStubs = TargetDiagram.ControlBoundaryStubs.size();
+        for (uint32_t StubIndex = 0u; StubIndex < NumInputBoundaryStubs; StubIndex++)
+        {
+            const Stub& IteratedStub = TargetDiagram.InputBoundaryStubs[StubIndex];
+            const InputStub& BoundaryInputStub = std::get<InputStub>(IteratedStub);
+
+            Diagram[BoundaryInputStub.Position.Row][BoundaryInputStub.Position.Column] = '-';
+            Diagram[BoundaryInputStub.Position.Row][BoundaryInputStub.Position.Column + 1u] = '-';
+            Diagram[BoundaryInputStub.Position.Row][BoundaryInputStub.Position.Column + 2u] = '-';
+        }
+        for (uint32_t StubIndex = 0u; StubIndex < NumControlBoundaryStubs; StubIndex++)
+        {
+            const Stub& IteratedStub = TargetDiagram.ControlBoundaryStubs[StubIndex];
+            const ControlStub& BoundaryControlStub = std::get<ControlStub>(IteratedStub);
+            
+            Diagram[BoundaryControlStub.Position.Row][BoundaryControlStub.Position.Column] = '|';
+            Diagram[BoundaryControlStub.Position.Row + 1u][BoundaryControlStub.Position.Column] = '|';
+            Diagram[BoundaryControlStub.Position.Row + 2u][BoundaryControlStub.Position.Column] = '|';
+        }
+        for (uint32_t StubIndex = 0u; StubIndex < NumOutputBoundaryStubs; StubIndex++)
+        {
+            const Stub& IteratedStub = TargetDiagram.OutputBoundaryStubs[StubIndex];
+            const OutputStub& BoundaryOutputStub = std::get<OutputStub>(IteratedStub);
+            
+            Diagram[BoundaryOutputStub.Position.Row][BoundaryOutputStub.Position.Column - 2u] = '-';
+            Diagram[BoundaryOutputStub.Position.Row][BoundaryOutputStub.Position.Column - 1u] = '-';
+            Diagram[BoundaryOutputStub.Position.Row][BoundaryOutputStub.Position.Column] = '>';
+        }
+        for (uint32_t StubIndex = 0u; StubIndex < NumMechanismBoundaryStubs; StubIndex++)
+        {
+            const Stub& IteratedStub = TargetDiagram.MechanismBoundaryStubs[StubIndex];
+            const MechanismStub& BoundaryMechanismStub = std::get<MechanismStub>(IteratedStub);
+            
+            Diagram[BoundaryMechanismStub.Position.Row - 2u][BoundaryMechanismStub.Position.Column] = '|';
+            Diagram[BoundaryMechanismStub.Position.Row - 1u][BoundaryMechanismStub.Position.Column] = '|';
+            Diagram[BoundaryMechanismStub.Position.Row][BoundaryMechanismStub.Position.Column] = '|';
+        }
+        for (uint32_t StubIndex = 0u; StubIndex < NumCallBoundaryStubs; StubIndex++)
+        {
+            const Stub& IteratedStub = TargetDiagram.CallBoundaryStubs[StubIndex];
+            const CallStub& BoundaryCallStub = std::get<CallStub>(IteratedStub);
+            
+            Diagram[BoundaryCallStub.Position.Row - 2u][BoundaryCallStub.Position.Column] = '|';
+            Diagram[BoundaryCallStub.Position.Row - 1u][BoundaryCallStub.Position.Column] = '|';
+            Diagram[BoundaryCallStub.Position.Row][BoundaryCallStub.Position.Column] = 'V';
+        }
     }
     return Diagram;
 }
@@ -1946,7 +2002,7 @@ int main(int argc, char **argv)
     const uint32_t DiagramHeight = 120;
     const uint32_t BoxWidth = 32;
     const uint32_t BoxHeight = 4;
-    const uint32_t BoxMargin = 5;
+    const uint32_t BoxMargin = 20;
     std::vector<IDEF::Model> Models;
 
     InputFilePath = argv[1u];

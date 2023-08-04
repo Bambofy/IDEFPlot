@@ -1,0 +1,206 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3208" height="1440" class="svgbob">
+  <style>
+    .svgbob line, .svgbob path, .svgbob circle, .svgbob rect, .svgbob polygon {
+    stroke: black;
+    stroke-width: 2;
+    stroke-opacity: 1;
+    fill-opacity: 1;
+    stroke-linecap: round;
+    stroke-linejoin: miter;
+}
+.svgbob text {
+    white-space: pre;
+    fill: black;
+    font-family: Iosevka Fixed, monospace;
+    font-size: 14px;
+}
+.svgbob rect.backdrop {
+    stroke: none;
+    fill: white;
+}
+.svgbob .broken {
+    stroke-dasharray: 8;
+}
+.svgbob .filled {
+    fill: black;
+}
+.svgbob .bg_filled {
+    fill: white;
+    stroke-width: 1;
+}
+.svgbob .nofill {
+    fill: white;
+}
+.svgbob .end_marked_arrow {
+    marker-end: url(#arrow);
+}
+.svgbob .start_marked_arrow {
+    marker-start: url(#arrow);
+}
+.svgbob .end_marked_diamond {
+    marker-end: url(#diamond);
+}
+.svgbob .start_marked_diamond {
+    marker-start: url(#diamond);
+}
+.svgbob .end_marked_circle {
+    marker-end: url(#circle);
+}
+.svgbob .start_marked_circle {
+    marker-start: url(#circle);
+}
+.svgbob .end_marked_open_circle {
+    marker-end: url(#open_circle);
+}
+.svgbob .start_marked_open_circle {
+    marker-start: url(#open_circle);
+}
+.svgbob .end_marked_big_open_circle {
+    marker-end: url(#big_open_circle);
+}
+.svgbob .start_marked_big_open_circle {
+    marker-start: url(#big_open_circle);
+}
+    <!--separator-->
+    
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="-2 -2 8 8" refX="4" refY="2" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,0 0,4 4,2 0,0"></polygon>
+    </marker>
+    <marker id="diamond" viewBox="-2 -2 8 8" refX="4" refY="2" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,2 2,0 4,2 2,4 0,2"></polygon>
+    </marker>
+    <marker id="circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <circle cx="4" cy="4" r="2" class="filled"></circle>
+    </marker>
+    <marker id="open_circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <circle cx="4" cy="4" r="2" class="bg_filled"></circle>
+    </marker>
+    <marker id="big_open_circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <circle cx="4" cy="4" r="3" class="bg_filled"></circle>
+    </marker>
+  </defs>
+  <rect class="backdrop" x="0" y="0" width="3208" height="1440"></rect>
+  <line x1="900" y1="0" x2="900" y2="176" class="solid"></line>
+  <text x="898" y="188" >IDEF</text>
+  <text x="938" y="188" >model&#39;s</text>
+  <text x="1002" y="188" >text</text>
+  <text x="634" y="220" >Section</text>
+  <text x="698" y="220" >of</text>
+  <text x="722" y="220" >memory</text>
+  <text x="1034" y="220" >Loaded</text>
+  <text x="1090" y="220" >IDEF</text>
+  <text x="1130" y="220" >diagram</text>
+  <polygon points="760,228 768,232 760,236" class="filled"></polygon>
+  <line x1="1268" y1="544" x2="1268" y2="560" class="solid"></line>
+  <text x="1346" y="556" >Maximum</text>
+  <text x="1410" y="556" >diagram</text>
+  <text x="1266" y="572" >Maximum</text>
+  <text x="1330" y="572" >diVgram</text>
+  <text x="1394" y="572" >width</text>
+  <text x="1138" y="604" >object</text>
+  <text x="1450" y="604" >Positioned</text>
+  <text x="1538" y="604" >IDEF</text>
+  <text x="1578" y="604" >diagram</text>
+  <text x="1642" y="604" >object</text>
+  <line x1="1160" y1="616" x2="1176" y2="616" class="solid"></line>
+  <polygon points="1176,612 1184,616 1176,620" class="filled"></polygon>
+  <text x="1210" y="620" >Positions</text>
+  <text x="1290" y="620" >a</text>
+  <text x="1306" y="620" >loaded</text>
+  <text x="1266" y="636" >gram</text>
+  <text x="1306" y="636" >object</text>
+  <text x="1730" y="956" >Positioned</text>
+  <text x="1818" y="956" >IDEF</text>
+  <text x="1858" y="956" >diagram</text>
+  <text x="1466" y="988" >Section</text>
+  <text x="1530" y="988" >of</text>
+  <text x="1554" y="988" >memory</text>
+  <text x="1866" y="988" >Set</text>
+  <text x="1898" y="988" >of</text>
+  <text x="1922" y="988" >LibAvoid</text>
+  <text x="1994" y="988" >connectors</text>
+  <polygon points="1592,996 1600,1000 1592,1004" class="filled"></polygon>
+  <text x="1626" y="1004" >Generates</text>
+  <text x="1706" y="1004" >a</text>
+  <text x="1722" y="1004" >set</text>
+  <text x="1754" y="1004" >of</text>
+  <text x="1690" y="1020" >connectors</text>
+  <text x="2178" y="1324" >Positioned</text>
+  <text x="2266" y="1324" >IDEF</text>
+  <text x="2306" y="1324" >diagram</text>
+  <text x="2098" y="1340" >Set</text>
+  <text x="2130" y="1340" >of</text>
+  <text x="2154" y="1340" >LibVvoid</text>
+  <text x="2226" y="1340" >connectors</text>
+  <text x="1898" y="1372" >Section</text>
+  <text x="1962" y="1372" >of</text>
+  <text x="1986" y="1372" >disk</text>
+  <text x="2282" y="1372" >Set</text>
+  <text x="2314" y="1372" >of</text>
+  <text x="2338" y="1372" >IDEF</text>
+  <text x="2378" y="1372" >diagrams</text>
+  <line x1="0" y1="1384" x2="2008" y2="1384" class="solid"></line>
+  <polygon points="2008,1380 2016,1384 2008,1388" class="filled"></polygon>
+  <text x="2114" y="1388" >set</text>
+  <text x="2146" y="1388" >of</text>
+  <text x="2170" y="1388" >IDEF</text>
+  <text x="2114" y="1404" >m</text>
+  <text x="2130" y="1404" >files.</text>
+  <text x="1194" y="220" >object</text>
+  <text x="810" y="236" >Loads</text>
+  <text x="858" y="236" >a</text>
+  <text x="874" y="236" >source</text>
+  <text x="930" y="236" >XML</text>
+  <text x="962" y="236" >file</text>
+  <text x="1474" y="556" >height</text>
+  <text x="978" y="604" >Loaded</text>
+  <text x="1034" y="604" >IDEF</text>
+  <text x="1074" y="604" >diagram</text>
+  <text x="1362" y="620" >IDEF</text>
+  <text x="1402" y="620" >dia</text>
+  <text x="1922" y="956" >object</text>
+  <text x="1778" y="1004" >LibAvoid</text>
+  <text x="2370" y="1324" >object</text>
+  <text x="2042" y="1388" >Writes</text>
+  <text x="2098" y="1388" >a</text>
+  <text x="2210" y="1388" >diagra</text>
+  <g>
+    <line x1="772" y1="200" x2="1028" y2="200" class="solid"></line>
+    <line x1="772" y1="200" x2="772" y2="264" class="solid"></line>
+    <line x1="1028" y1="200" x2="1028" y2="264" class="solid"></line>
+    <line x1="1028" y1="232" x2="1164" y2="232" class="solid"></line>
+    <line x1="1164" y1="232" x2="1164" y2="592" class="solid"></line>
+    <line x1="772" y1="264" x2="1028" y2="264" class="solid"></line>
+  </g>
+  <g>
+    <line x1="0" y1="232" x2="760" y2="232" class="solid"></line>
+    <line x1="28" y1="232" x2="28" y2="1000" class="solid"></line>
+    <line x1="28" y1="1000" x2="1592" y2="1000" class="solid"></line>
+  </g>
+  <g>
+    <line x1="1188" y1="584" x2="1444" y2="584" class="solid"></line>
+    <line x1="1188" y1="584" x2="1188" y2="648" class="solid"></line>
+    <line x1="1444" y1="584" x2="1444" y2="648" class="solid"></line>
+    <line x1="1444" y1="616" x2="2180" y2="616" class="solid"></line>
+    <line x1="1732" y1="616" x2="1732" y2="944" class="solid"></line>
+    <line x1="2180" y1="616" x2="2180" y2="1304" class="solid"></line>
+    <line x1="1188" y1="648" x2="1444" y2="648" class="solid"></line>
+  </g>
+  <g>
+    <line x1="1604" y1="968" x2="1860" y2="968" class="solid"></line>
+    <line x1="1604" y1="968" x2="1604" y2="1032" class="solid"></line>
+    <line x1="1860" y1="968" x2="1860" y2="1032" class="solid"></line>
+    <line x1="1860" y1="1000" x2="2100" y2="1000" class="solid"></line>
+    <line x1="2100" y1="1000" x2="2100" y2="1328" class="solid"></line>
+    <line x1="1604" y1="1032" x2="1860" y2="1032" class="solid"></line>
+  </g>
+  <g>
+    <line x1="2020" y1="1352" x2="2276" y2="1352" class="solid"></line>
+    <line x1="2020" y1="1352" x2="2020" y2="1416" class="solid"></line>
+    <line x1="2276" y1="1352" x2="2276" y2="1416" class="solid"></line>
+    <line x1="2276" y1="1384" x2="3200" y2="1384" class="solid"></line>
+    <line x1="2020" y1="1416" x2="2276" y2="1416" class="solid"></line>
+  </g>
+</svg>
