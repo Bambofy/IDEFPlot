@@ -464,8 +464,8 @@ void LayoutBoxes(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t BoxHeight
     uint32_t BoxSectionWidth;
     
     NumBoxes = Diagram.Boxes.size();
-    BoxSectionHeight = NumBoxes * (BoxHeight + (2u*BoxMargin));
-    BoxSectionWidth = NumBoxes * (BoxWidth + (2u*BoxMargin));
+    BoxSectionHeight = (NumBoxes * BoxHeight) + (NumBoxes * BoxMargin);
+    BoxSectionWidth = (NumBoxes * BoxWidth) + (NumBoxes * BoxMargin);
     RowHeight = BoxSectionHeight / (1u+NumBoxes);
     ColumnWidth = BoxSectionWidth / (1u+NumBoxes);
     ColumnCenterOffset = (Diagram.Width / 2u) - (BoxSectionWidth / 2u);
@@ -474,10 +474,8 @@ void LayoutBoxes(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t BoxHeight
     std::cout << "Diagram height=" << Diagram.Height << ", Box Section Height = " << BoxSectionHeight << std::endl;
     Cursor.Column = ColumnCenterOffset;
     Cursor.Row = RowCenterOffset;
-    Cursor.Column += BoxMargin;
-    Cursor.Row += BoxMargin;
-    Cursor.Column += BoxWidth/2u;
-    Cursor.Row += BoxHeight/2u;
+    Cursor.Column += (BoxWidth/2u);
+    Cursor.Row += (BoxHeight/2u);
     for (uint32_t BoxIndex = 0u; BoxIndex < NumBoxes; BoxIndex++)
     {
         ActivityBox& SelectedBox = Diagram.Boxes[BoxIndex];
@@ -488,8 +486,8 @@ void LayoutBoxes(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t BoxHeight
         SelectedBox.Center.Row = Cursor.Row;
         std::cout << "Center Column: " << SelectedBox.Center.Column << "." << std::endl;
         std::cout << "Center Row: " << SelectedBox.Center.Row << "." << std::endl;
-        Cursor.Column += BoxMargin + BoxMargin + (BoxWidth / 2u);
-        Cursor.Row += BoxMargin + BoxMargin + (BoxHeight / 2u);
+        Cursor.Column += BoxWidth + BoxMargin;
+        Cursor.Row += BoxHeight + BoxMargin;
     }
 }
 
@@ -585,14 +583,6 @@ void LayoutBoxStubs(ActivityDiagram &Diagram)
     }
 }
 
-
-/*
- * Finds the correct inner stub that matches the boundary stub.
- * 
- * 1. Selects each box top to bottom.
- * 2. Compares the boundary stub name to the box input stubs.
- * 3. Compares the boundary stub name to the box control stubs.
- */
 void FindInnerStub(const ActivityDiagram& Diagram, 
     const Stub& BoundaryStub, 
     Stub& FoundStub, 
@@ -792,8 +782,8 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
     uint32_t RowCenterOffset;
     
     NumBoxes = Diagram.Boxes.size();
-    BoxSectionHeight = NumBoxes * (BoxHeight + (2u*BoxMargin));
-    BoxSectionWidth = NumBoxes * (BoxWidth + (2u*BoxMargin));
+    BoxSectionHeight = (NumBoxes * BoxHeight) + (NumBoxes * BoxMargin);
+    BoxSectionWidth = (NumBoxes * BoxWidth) + (NumBoxes * BoxMargin);
     RowHeight = BoxSectionHeight / (1u+NumBoxes);
     ColumnWidth = BoxSectionWidth / (1u+NumBoxes);
     ColumnCenterOffset = (Diagram.Width / 2u) - (BoxSectionWidth / 2u);
@@ -1952,8 +1942,8 @@ int main(int argc, char **argv)
 {
     char* InputFilePath;
     char* OutputFilePath;
-    const uint32_t DiagramWidth = 800;
-    const uint32_t DiagramHeight = 400;
+    const uint32_t DiagramWidth = 400;
+    const uint32_t DiagramHeight = 120;
     const uint32_t BoxWidth = 32;
     const uint32_t BoxHeight = 4;
     const uint32_t BoxMargin = 5;
