@@ -176,7 +176,6 @@ struct ActivityDiagram
     std::string Title;
     uint32_t Width;
     uint32_t Height;
-    uint32_t Padding;
     std::vector<ActivityBox> Boxes;
     std::vector<Stub> InputBoundaryStubs;
     std::vector<Stub> OutputBoundaryStubs;
@@ -348,7 +347,6 @@ ActivityDiagram LoadActivityDiagram(const pugi::xml_node &ActivityDiagramNode)
     std::get<CNumberSection>(NewDiagram.Frame.BottomBar.CNumberSection).TopLeft.Column = 0u;
     NewDiagram.Width = 0u;
     NewDiagram.Height = 0u;
-    NewDiagram.Padding = 0u;
     for (const pugi::xml_node &ChildXMLNode : ActivityDiagramNode.children())
     {
         Stub NewStub;
@@ -458,24 +456,40 @@ void LayoutBoxes(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t BoxHeight
 {
     uint32_t NumBoxes;
     FilePosition Cursor;
-
+    uint32_t ColumnCenterOffset;
+    uint32_t RowCenterOffset;
+    uint32_t RowHeight;
+    uint32_t ColumnWidth;
+    uint32_t BoxSectionHeight;
+    uint32_t BoxSectionWidth;
+    
     NumBoxes = Diagram.Boxes.size();
-    Cursor.Column = 0;
-    Cursor.Row = 0;
-    Cursor.Column += Diagram.Padding;
-    Cursor.Row += Diagram.Padding;
+    BoxSectionHeight = NumBoxes * (BoxHeight + (2u*BoxMargin));
+    BoxSectionWidth = NumBoxes * (BoxWidth + (2u*BoxMargin));
+    RowHeight = BoxSectionHeight / (1u+NumBoxes);
+    ColumnWidth = BoxSectionWidth / (1u+NumBoxes);
+    ColumnCenterOffset = (Diagram.Width / 2u) - (BoxSectionWidth / 2u);
+    RowCenterOffset = (Diagram.Height / 2u) - (BoxSectionHeight / 2u);
+    std::cout << "Diagram width=" << Diagram.Width << ", Box Section Width = " << BoxSectionWidth << std::endl;
+    std::cout << "Diagram height=" << Diagram.Height << ", Box Section Height = " << BoxSectionHeight << std::endl;
+    Cursor.Column = ColumnCenterOffset;
+    Cursor.Row = RowCenterOffset;
+    Cursor.Column += BoxMargin;
+    Cursor.Row += BoxMargin;
     Cursor.Column += BoxWidth/2u;
     Cursor.Row += BoxHeight/2u;
     for (uint32_t BoxIndex = 0u; BoxIndex < NumBoxes; BoxIndex++)
     {
-        Diagram.Boxes[BoxIndex].Center.Column = Cursor.Column;
-        Diagram.Boxes[BoxIndex].Center.Row = Cursor.Row;
-        Cursor.Column += BoxWidth/2u;
-        Cursor.Column += BoxMargin;
-        Cursor.Column += BoxWidth/2u;
-        Cursor.Row += BoxHeight/2u;
-        Cursor.Row += BoxMargin;
-        Cursor.Row += BoxHeight/2u;
+        ActivityBox& SelectedBox = Diagram.Boxes[BoxIndex];
+        
+        SelectedBox.Width = BoxWidth;
+        SelectedBox.Height = BoxHeight;
+        SelectedBox.Center.Column = Cursor.Column;
+        SelectedBox.Center.Row = Cursor.Row;
+        std::cout << "Center Column: " << SelectedBox.Center.Column << "." << std::endl;
+        std::cout << "Center Row: " << SelectedBox.Center.Row << "." << std::endl;
+        Cursor.Column += BoxMargin + BoxMargin + (BoxWidth / 2u);
+        Cursor.Row += BoxMargin + BoxMargin + (BoxHeight / 2u);
     }
 }
 
@@ -571,6 +585,7 @@ void LayoutBoxStubs(ActivityDiagram &Diagram)
     }
 }
 
+
 /*
  * Finds the correct inner stub that matches the boundary stub.
  * 
@@ -578,122 +593,369 @@ void LayoutBoxStubs(ActivityDiagram &Diagram)
  * 2. Compares the boundary stub name to the box input stubs.
  * 3. Compares the boundary stub name to the box control stubs.
  */
-Stub FindInnerStub(const ActivityDiagram& Diagram, const Stub& BoundaryStub)
+void FindInnerStub(const ActivityDiagram& Diagram, 
+    const Stub& BoundaryStub, 
+    Stub& FoundStub, 
+    bool& FoundFlag)
 {
-    Stub FoundInnerStub;
-    bool SearchFlag;
-
-    SearchFlag = true;
-    for (ActivityBox& SelectedBox : Diagram.Boxes)
+    FoundFlag = false;
+    for (const ActivityBox& SelectedBox : Diagram.Boxes)
     {
-        for (Stub& SelectedStub : SelectedBox.InputStubs)
+        if (std::holds_alternative<InputStub>(BoundaryStub))
         {
-            if (SelectedStub.Name == BoundaryStub.Name)
+            const InputStub& BoundaryInputStub = std::get<InputStub>(BoundaryStub);
+            
+            for (const Stub& SelectedStub : SelectedBox.InputStubs)
             {
-                FoundInnerStub = SelectedStub;
-                SearchFlag = false;
-                break;
-            }
-            else
-            {
-                for (StubSource& StubSource : SelectedStub.Sources)
+                const InputStub& SelectedInputStub = std::get<InputStub>(SelectedStub);
+                
+                if (SelectedInputStub.Name == BoundaryInputStub.Name)
                 {
-                    if (StubSource.StubName == BoundaryStub.Name)
+                    FoundStub = SelectedInputStub;
+                    FoundFlag = true;
+                }
+                else
+                {
+                    for (const StubSource& StubSource : SelectedInputStub.Sources)
                     {
-                        FoundInnerStub = SelectedStub;
-                        SearchFlag = false;
-                        break;
+                        if (StubSource.StubName == BoundaryInputStub.Name)
+                        {
+                            FoundStub = SelectedInputStub;
+                            FoundFlag = true;
+                        }
+                    }
+                }
+            }   
+            for (const Stub& SelectedStub : SelectedBox.ControlStubs)
+            {
+                const ControlStub& SelectedControlStub = std::get<ControlStub>(SelectedStub);
+                
+                if (SelectedControlStub.Name == BoundaryInputStub.Name)
+                {
+                    FoundStub = SelectedControlStub;
+                    FoundFlag = true;
+                }
+                else
+                {
+                    for (const StubSource& StubSource : SelectedControlStub.Sources)
+                    {
+                        if (StubSource.StubName == BoundaryInputStub.Name)
+                        {
+                            FoundStub = SelectedControlStub;
+                            FoundFlag = true;
+                        }
                     }
                 }
             }
         }
-        if (SearchFlag == false)
+        else if (std::holds_alternative<ControlStub>(BoundaryStub))
+        {
+            const ControlStub& BoundaryControlStub = std::get<ControlStub>(BoundaryStub);
+            
+            for (const Stub& SelectedStub : SelectedBox.InputStubs)
+            {
+                const InputStub& SelectedInputStub = std::get<InputStub>(SelectedStub);
+                
+                if (SelectedInputStub.Name == BoundaryControlStub.Name)
+                {
+                    FoundStub = SelectedInputStub;
+                    FoundFlag = true;
+                }
+                else
+                {
+                    for (const StubSource& SelectedStubSource : SelectedInputStub.Sources)
+                    {
+                        if (SelectedStubSource.StubName == BoundaryControlStub.Name)
+                        {
+                            FoundStub = SelectedInputStub;
+                            FoundFlag = true;
+                        }
+                    }
+                }
+            }
+            for (const Stub& SelectedStub : SelectedBox.ControlStubs)
+            {
+                const ControlStub& SelectedControlStub = std::get<ControlStub>(SelectedStub);
+
+                if (SelectedControlStub.Name == BoundaryControlStub.Name)
+                {
+                    FoundStub = SelectedControlStub;
+                    FoundFlag = true;
+                }
+                else
+                {
+                    for (const StubSource& SelectedStubSource : SelectedControlStub.Sources)
+                    {
+                        if (SelectedStubSource.StubName == BoundaryControlStub.Name)
+                        {
+                            FoundStub = SelectedControlStub;
+                            FoundFlag = true;
+                        }
+                    }
+                }
+            }
+        }
+        else if (std::holds_alternative<OutputStub>(BoundaryStub))
+        {
+            const OutputStub& BoundaryOutputStub = std::get<OutputStub>(BoundaryStub);
+            
+            for (const Stub& SelectedStub : SelectedBox.OutputStubs)
+            {
+                const OutputStub& SelectedOutputStub = std::get<OutputStub>(SelectedStub);
+
+                if (SelectedOutputStub.Name == BoundaryOutputStub.Name)
+                {
+                    FoundStub = SelectedOutputStub;
+                    FoundFlag = true;
+                }
+                else
+                {
+                    for (const StubSource& BoundaryStubSource : BoundaryOutputStub.Sources)
+                    {
+                        if (BoundaryStubSource.StubName == SelectedOutputStub.Name)
+                        {
+                            FoundStub = SelectedOutputStub;
+                            FoundFlag = true;
+                        }
+                    } 
+                }
+            }    
+        }
+        else if (std::holds_alternative<MechanismStub>(BoundaryStub))
+        {
+            const MechanismStub& BoundaryMechanismStub = std::get<MechanismStub>(BoundaryStub);
+
+            for (const Stub& SelectedStub : SelectedBox.MechanismStubs)
+            {
+                const MechanismStub& BoxMechanismStub = std::get<MechanismStub>(SelectedStub);
+
+                if (BoundaryMechanismStub.Name == BoxMechanismStub.Name)
+                {
+                    FoundStub = BoxMechanismStub;
+                    FoundFlag = true;
+                }
+                else
+                {
+                    for (const StubSource& BoxStubSource : BoxMechanismStub.Sources)
+                    {
+                        if (BoxStubSource.StubName == BoundaryMechanismStub.Name)
+                        {
+                            FoundStub = BoxMechanismStub;
+                            FoundFlag = true;
+                        }
+                    }
+                }
+            }
+        }
+        else if (std::holds_alternative<CallStub>(BoundaryStub))
+        {
+            const CallStub& BoundaryCallStub = std::get<CallStub>(BoundaryStub);
+
+            for (const Stub& SelectedStub : SelectedBox.CallStubs)
+            {
+                const CallStub& BoxCallStub = std::get<CallStub>(SelectedStub);
+
+                if (BoundaryCallStub.Name == BoxCallStub.Name)
+                {
+                    FoundStub = BoxCallStub;
+                    FoundFlag = true;
+                }
+                else
+                {
+                    for (const StubSource& BoundaryStubSource : BoundaryCallStub.Sources)
+                    {
+                        if (BoundaryStubSource.StubName == BoxCallStub.Name)
+                        {
+                            FoundStub = BoxCallStub;
+                            FoundFlag = true;
+                        }
+                    }
+                }
+            }
+        }
+        if (FoundFlag == true)
         {
             break;
         }
     }
-    if (SearchFlag == true)
-    {
-        throw std::runtime_error("Could not find matching box arrow for interface.");
-    }
-
-    return FoundInnerStub;
 }
 
-void LayoutBoundaryStubs(ActivityDiagram &Diagram, 
-    uint32_t BoxWidth, uint32_t BoxHeight, uint32_t BoxMargin)
+void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t BoxHeight, uint32_t BoxMargin)
 {
-    for (Stub& SelectedStub : Diagram.BoundaryInputStubs)
+    uint32_t BoxSectionHeight;
+    uint32_t BoxSectionWidth;
+    uint32_t RowHeight;
+    uint32_t ColumnWidth;
+    uint32_t NumBoxes;
+    uint32_t StubIndex;
+    uint32_t ColumnCenterOffset;
+    uint32_t RowCenterOffset;
+    
+    NumBoxes = Diagram.Boxes.size();
+    BoxSectionHeight = NumBoxes * (BoxHeight + (2u*BoxMargin));
+    BoxSectionWidth = NumBoxes * (BoxWidth + (2u*BoxMargin));
+    RowHeight = BoxSectionHeight / (1u+NumBoxes);
+    ColumnWidth = BoxSectionWidth / (1u+NumBoxes);
+    ColumnCenterOffset = (Diagram.Width / 2u) - (BoxSectionWidth / 2u);
+    RowCenterOffset = (Diagram.Height / 2u) - (BoxSectionHeight / 2u);
+    StubIndex = 0u;
+    for (Stub& BoundaryStub : Diagram.InputBoundaryStubs)
     {
-        Stub InnerStub;
+        Stub FoundStub;
+        bool FoundFlag;
+        InputStub& BoundaryInputStub = std::get<InputStub>(BoundaryStub);
         
-        InnerStub = FindInnerStub(Diagram, SelectedStub);
-        if (std::holds_alternative<InputStub>(SelectedStub))
+        FindInnerStub(Diagram, BoundaryInputStub, FoundStub, FoundFlag);
+        if (FoundFlag)
         {
-            InputStub SelectedBoundaryInputStub;
-            
-            SelectedBoundaryInputStub = std::get<InputStub>(SelectedBox);
-            if (std::holds_alternative<InputStub>(InnerStub))
+            if (std::holds_alternative<InputStub>(FoundStub))
             {
-                InputStub FoundInnerStub;
+                InputStub& FoundInputStub = std::get<InputStub>(FoundStub);
                 
-                FoundInnerStub = std::get<InputStub>(FoundInnerStub);
-                SelectedBoundaryInputStub.Position.Column = 3u;
-                SelectedBoundaryInputStub.Position.Row = FoundInnerStub.Row;
+                BoundaryInputStub.Position.Row = FoundInputStub.Position.Row;
+                BoundaryInputStub.Position.Column = 0u + ColumnCenterOffset;
             }
-            else if (std::holds_alternative<ControlStub>(InnerStub))
+            else if (std::holds_alternative<ControlStub>(FoundStub))
             {
-                ControlStub FoundInnerStub;
+                ControlStub& FoundControlStub = std::get<ControlStub>(FoundStub);
 
-                FoundInnerStub = std::get<ControlStub>(FoundInnerStub);
-                SelectedBoundaryInputStub.Position.Column = FoundInnerStub.Column;
-                SelectedBoundaryInputStub.Position.Row = 3u;
+                BoundaryInputStub.Position.Row = 0u + RowCenterOffset;
+                BoundaryInputStub.Position.Column = FoundControlStub.Position.Column;
             }
         }
-        else (std::holds_alternative<ControlStub>(SelectedStub))
+        else
         {
-            ControlStub SelectedBoundaryControlStub;
+            BoundaryInputStub.Position.Column = 0u;
+            BoundaryInputStub.Position.Row = (1u+StubIndex) * RowHeight;
+        }
+        StubIndex++;
+    }
+    StubIndex = 0u;
+    for (Stub& BoundaryStub : Diagram.ControlBoundaryStubs)
+    {
+        Stub FoundStub;
+        bool FoundFlag;
+        ControlStub& BoundaryControlStub = std::get<ControlStub>(BoundaryStub);
 
-            if (std::holds_alternative<InputStub>(InnerStub))
+        FindInnerStub(Diagram, BoundaryControlStub, FoundStub, FoundFlag);
+        if (FoundFlag)
+        {
+            if (std::holds_alternative<InputStub>(FoundStub))
             {
-                InputStub FoundInnerStub;
+                InputStub& FoundInputStub = std::get<InputStub>(FoundStub);
                 
-                FoundInnerStub = std::get<InputStub>(FoundInnerStub);
-                SelectedBoundaryControlStub.Position.Column = 3u;
-                SelectedBoundaryControlStub.Position.Row = FoundInnerStub.Row;
+                BoundaryControlStub.Position.Row = 0u;
+                BoundaryControlStub.Position.Column = FoundInputStub.Position.Column - (BoxMargin/2u);
             }
-            else if (std::holds_alternative<ControlStub>(InnerStub))
+            else if (std::holds_alternative<ControlStub>(FoundStub))
             {
-                ControlStub FoundInnerStub;
+                ControlStub& FoundControlStub = std::get<ControlStub>(FoundStub);
 
-                FoundInnerStub = std::get<ControlStub>(FoundInnerStub);
-                SelectedBoundaryControlStub.Position.Column = FoundInnerStub.Column;
-                SelectedBoundaryControlStub.Position.Row = 3u;
+                BoundaryControlStub.Position.Row = 0u;
+                BoundaryControlStub.Position.Column = FoundControlStub.Position.Column;
             }
         }
+        else
+        {
+            BoundaryControlStub.Position.Column = (1u+StubIndex) * ColumnWidth;
+            BoundaryControlStub.Position.Row = 0u;
+        }
+        StubIndex++;
+    }
+    StubIndex = 0u;
+    for (Stub& BoundaryStub : Diagram.OutputBoundaryStubs)
+    {
+        Stub FoundStub;
+        bool FoundFlag;
+        OutputStub& BoundaryOutputStub = std::get<OutputStub>(BoundaryStub);
+
+        FindInnerStub(Diagram, BoundaryOutputStub, FoundStub, FoundFlag);
+        if (FoundFlag)
+        {
+            if (std::holds_alternative<OutputStub>(FoundStub))
+            {
+                OutputStub& FoundOutputStub = std::get<OutputStub>(FoundStub);
+                
+                BoundaryOutputStub.Position.Row = FoundOutputStub.Position.Row;
+                BoundaryOutputStub.Position.Column = BoxSectionWidth - 1u;
+            }
+        }
+        else
+        {
+            BoundaryOutputStub.Position.Column = BoxSectionWidth - 1u;
+            BoundaryOutputStub.Position.Row = (1u+StubIndex) * RowHeight;
+        }
+        StubIndex++;
+    }
+    StubIndex = 0u;
+    for (Stub& BoundaryStub : Diagram.MechanismBoundaryStubs)
+    {
+        Stub FoundStub;
+        bool FoundFlag;
+        MechanismStub& BoundaryMechanismStub = std::get<MechanismStub>(BoundaryStub);
+
+        FindInnerStub(Diagram, BoundaryMechanismStub, FoundStub, FoundFlag);
+        if (FoundFlag)
+        {
+            if (std::holds_alternative<MechanismStub>(FoundStub))
+            {
+                MechanismStub& FoundMechanismStub = std::get<MechanismStub>(FoundStub);
+                
+                BoundaryMechanismStub.Position.Row = BoxSectionHeight - 1u;
+                BoundaryMechanismStub.Position.Column = FoundMechanismStub.Position.Column;
+            }
+        }
+        else
+        {
+            BoundaryMechanismStub.Position.Column = (1u+StubIndex) * ColumnWidth;
+            BoundaryMechanismStub.Position.Row = BoxSectionHeight - 1u;
+        }
+        StubIndex++;
+    }
+    StubIndex = 0u;
+    for (Stub& BoundaryStub : Diagram.CallBoundaryStubs)
+    {
+        Stub FoundStub;
+        bool FoundFlag;
+        CallStub& BoundaryCallStub = std::get<CallStub>(BoundaryStub);
+
+        FindInnerStub(Diagram, BoundaryCallStub, FoundStub, FoundFlag);
+        if (FoundFlag)
+        {
+            if (std::holds_alternative<CallStub>(FoundStub))
+            {
+                CallStub& FoundCallStub = std::get<CallStub>(FoundStub);
+                
+                BoundaryCallStub.Position.Row = BoxSectionHeight - 1u;
+                BoundaryCallStub.Position.Column = FoundCallStub.Position.Column;
+            }
+        }
+        else
+        {
+            BoundaryCallStub.Position.Column = (1u+StubIndex) * ColumnWidth;
+            BoundaryCallStub.Position.Row = BoxSectionHeight - 1u;
+        }
+        StubIndex++;
     }
 }
 
 void LayoutActivityDiagram(ActivityDiagram &LoadedDiagram, 
-    uint32_t Width, uint32_t Height, uint32_t Padding, 
+    uint32_t Width, uint32_t Height, 
     uint32_t BoxWidth, uint32_t BoxHeight, uint32_t BoxMargin)
 {
     LoadedDiagram.Width = Width;
     LoadedDiagram.Height = Height;
-    LoadedDiagram.Padding = Padding
     LayoutFrame(LoadedDiagram);
     LayoutBoxes(LoadedDiagram, BoxWidth, BoxHeight, BoxMargin);
     LayoutBoxStubs(LoadedDiagram);
     LayoutBoundaryStubs(LoadedDiagram, BoxWidth, BoxHeight, BoxMargin);
 } 
 
-std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& LayedOutDiagram)
+std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& LayedOutDiagram, uint32_t BoxWidth, uint32_t BoxHeight, uint32_t BoxMargin)
 {
     const uint32_t StubLength = 3u;
     std::map<Stub, Avoid::ConnEnd> BoxStubsMap;
-    uint32_t NumActivityBoxes;
-
-    NumActivityBoxes = LayedOutDiagram.Boxes.size();
+    
     for (const ActivityBox& SelectedBox : LayedOutDiagram.Boxes)
     {
         for (Stub SelectedStub : SelectedBox.InputStubs)
@@ -726,7 +988,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
             StubColumn = SelectedOutputStub.Position.Column + StubLength;
             StubRow = SelectedOutputStub.Position.Row;
             AvoidX = StubColumn;
-            AvoidY = LayedOutDiagram.Height - StubColumn;
+            AvoidY = LayedOutDiagram.Height - StubRow;
             ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
             BoxStubsMap.insert({SelectedStub, ConnectionEnd});
         }
@@ -786,11 +1048,11 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
     return BoxStubsMap;
 }
 
-std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& LayedOutDiagram)
+std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& LayedOutDiagram, const uint32_t BoxWidth, const uint32_t BoxHeight, const uint32_t BoxMargin)
 {
     const uint32_t StubLength = 3u;
     std::map<Stub, Avoid::ConnEnd> BoundaryStubsMap;
-   
+
     for (const Stub& BoundaryStub : LayedOutDiagram.InputBoundaryStubs)
     {
         uint32_t StubColumn;
@@ -806,8 +1068,6 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& 
         AvoidY = LayedOutDiagram.Height - StubRow;
         ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
         BoundaryStubsMap.insert({BoundaryInputStub, ConnectionEnd});
-        std::cout << "Found input boundary stub at (" << StubColumn << "," << StubRow << ")" << std::endl;
-        std::cout << "Placing input boundary stub at (" << AvoidX << "," << AvoidY << ")" << std::endl;
     }
     for (const Stub BoundaryStub : LayedOutDiagram.OutputBoundaryStubs)
     {
@@ -824,8 +1084,6 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& 
         AvoidY = LayedOutDiagram.Height - StubRow;
         ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
         BoundaryStubsMap.insert({BoundaryOutputStub, ConnectionEnd});
-        std::cout << "Found output boundary stub at (" << StubColumn << "," << StubRow << ")" << std::endl;
-        std::cout << "Placing output boundary stub at (" << AvoidX << "," << AvoidY << ")" << std::endl;
     }
     for (const Stub BoundaryStub : LayedOutDiagram.ControlBoundaryStubs)
     {
@@ -842,8 +1100,6 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& 
         AvoidY = LayedOutDiagram.Height - StubRow;
         ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
         BoundaryStubsMap.insert({BoundaryControlStub, ConnectionEnd});
-        std::cout << "Found control boundary stub at (" << StubColumn << "," << StubRow << ")" << std::endl;
-        std::cout << "Placing control boundary stub at (" << AvoidX << "," << AvoidY << ")" << std::endl;
     }
     for (const Stub BoundaryStub : LayedOutDiagram.MechanismBoundaryStubs)
     {
@@ -860,8 +1116,6 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& 
         AvoidY = LayedOutDiagram.Height - StubRow;
         ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
         BoundaryStubsMap.insert({BoundaryMechanismStub, ConnectionEnd});
-        std::cout << "Found mechanism boundary stub at (" << StubColumn << "," << StubRow << ")" << std::endl;    
-        std::cout << "Placing mechanism boundary stub at (" << AvoidX << "," << AvoidY << ")" << std::endl;
     }
     for (const Stub BoundaryStub : LayedOutDiagram.CallBoundaryStubs)
     {
@@ -878,14 +1132,12 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& 
         AvoidY = LayedOutDiagram.Height - StubRow;
         ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
         BoundaryStubsMap.insert({BoundaryCallStub, ConnectionEnd});
-        std::cout << "Found mechanism boundary stub at (" << StubColumn << "," << StubRow << ")" << std::endl;
-        std::cout << "Placing call  boundary stub at (" << AvoidX << "," << AvoidY << ")" << std::endl;
     }
    
     return BoundaryStubsMap;
 }
 
-void PlaceObstacles(const ActivityDiagram &LayedoutDiagram, std::vector<Avoid::Rectangle> &Rectangles)
+void PlaceObstacles(const ActivityDiagram &LayedoutDiagram, std::vector<Avoid::Rectangle> &Rectangles, uint32_t BoxWidth, uint32_t BoxHeight, uint32_t BoxMargin)
 {
     uint32_t NumBoxes;
 
@@ -908,6 +1160,11 @@ void PlaceObstacles(const ActivityDiagram &LayedoutDiagram, std::vector<Avoid::R
         BoxBottomRightAvoid.x = BoxBottomRight.Column;
         BoxBottomRightAvoid.y = LayedoutDiagram.Height - BoxBottomRight.Row;
         NewRect = Avoid::Rectangle(BoxTopLeftAvoid, BoxBottomRightAvoid);
+        std::cout << "Making a rectangle at: " << std::endl;
+        std::cout << "  Top Left (" << BoxTopLeft.Column << ", " << BoxTopLeft.Row << ")" << std::endl;
+        std::cout << "  Bottom Right (" << BoxBottomRight.Column << ", " << BoxBottomRight.Row << ")" << std::endl;
+        std::cout << "  Avoid Top Left (" << BoxTopLeftAvoid.x << "," << BoxTopLeftAvoid.y << ")" << std::endl;
+        std::cout << "  Avoid Bottom Right (" << BoxBottomRightAvoid.x << "," << BoxBottomRightAvoid.y << ")" << std::endl;
         Rectangles.push_back(NewRect);
     }
 }
@@ -949,8 +1206,13 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                     if (BoxInputStub.Name == BoundaryInputStub.Name)
                     {
                         Avoid::ConnRef* NewConn;
-
+                        
+                        std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoundaryStubPair.second.position().x << "," << BoundaryStubPair.second.position().y << ")";
+                        std::cout << " to (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")" << std::endl;
                         NewConn = new Avoid::ConnRef(ConstructedRouter, BoundaryStubPair.second, BoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                     }
                     else
                     {
@@ -959,8 +1221,13 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                             if (BoxInputSource.StubName == BoundaryInputStub.Name)
                             {
                                 Avoid::ConnRef* NewConn;
-
+                                
+                                std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoundaryStubPair.second.position().x << "," << BoundaryStubPair.second.position().y << ")";
+                        std::cout << " to (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")" << std::endl;
                                 NewConn = new Avoid::ConnRef(ConstructedRouter, BoundaryStubPair.second, BoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                             }
                         }
                     }
@@ -972,8 +1239,13 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                     if (BoxControlStub.Name == BoundaryInputStub.Name)
                     {
                         Avoid::ConnRef* NewConn;
-
+                        
+                        std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoundaryStubPair.second.position().x << "," << BoundaryStubPair.second.position().y << ")";
+                        std::cout << " to (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")" << std::endl;
                         NewConn = new Avoid::ConnRef(ConstructedRouter, BoundaryStubPair.second, BoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                     }
                     else
                     {
@@ -982,8 +1254,13 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                             if (BoxControlSource.StubName == BoundaryInputStub.Name)
                             {
                                 Avoid::ConnRef* NewConn;
-
+                                
+                                std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoundaryStubPair.second.position().x << "," << BoundaryStubPair.second.position().y << ")";
+                        std::cout << " to (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")" << std::endl;
                                 NewConn = new Avoid::ConnRef(ConstructedRouter, BoundaryStubPair.second, BoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                             }
                         }
                     }
@@ -1001,7 +1278,12 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                     { 
                         Avoid::ConnRef* NewConn;
 
+                        std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoundaryStubPair.second.position().x << "," << BoundaryStubPair.second.position().y << ")";
+                        std::cout << " to (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")" << std::endl;
                         NewConn = new Avoid::ConnRef(ConstructedRouter, BoundaryStubPair.second, BoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                     }
                     else
                     {
@@ -1010,8 +1292,13 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                             if (BoxInputSource.StubName == BoundaryControlStub.Name)
                             {
                                 Avoid::ConnRef* NewConn;
-
+                             
+                                std::cout << "Adding a connection ref" << std::endl;  
+                        std::cout << "From (" << BoundaryStubPair.second.position().x << "," << BoundaryStubPair.second.position().y << ")";
+                        std::cout << " to (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")" << std::endl; 
                                 NewConn = new Avoid::ConnRef(ConstructedRouter, BoundaryStubPair.second, BoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                             }
                         }
                     }
@@ -1024,7 +1311,12 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                     {
                         Avoid::ConnRef* NewConn;
 
+                        std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoundaryStubPair.second.position().x << "," << BoundaryStubPair.second.position().y << ")";
+                        std::cout << " to (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")" << std::endl;
                         NewConn = new Avoid::ConnRef(ConstructedRouter, BoundaryStubPair.second, BoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                     }
                     else
                     {
@@ -1033,8 +1325,13 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                             if (BoxControlSource.StubName == BoundaryControlStub.Name)
                             {
                                 Avoid::ConnRef* NewConn;
-
+                          
+                                std::cout << "Adding a connection ref" << std::endl;      
+                        std::cout << "From (" << BoundaryStubPair.second.position().x << "," << BoundaryStubPair.second.position().y << ")";
+                        std::cout << " to (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")" << std::endl;
                                 NewConn = new Avoid::ConnRef(ConstructedRouter, BoundaryStubPair.second, BoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                             }
                         }
                     }
@@ -1052,7 +1349,12 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                     { 
                         Avoid::ConnRef* NewConn;
 
+                        std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoundaryStubPair.second.position().x << "," << BoundaryStubPair.second.position().y << ")";
+                        std::cout << " to (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")" << std::endl;
                         NewConn = new Avoid::ConnRef(ConstructedRouter, BoundaryStubPair.second, BoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                     }
                     else
                     {
@@ -1061,8 +1363,13 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                             if (BoxMechanismSource.StubName == BoundaryMechanismStub.Name)
                             {
                                 Avoid::ConnRef* NewConn;
-
+                                
+                                std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoundaryStubPair.second.position().x << "," << BoundaryStubPair.second.position().y << ")";
+                        std::cout << " to (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")" << std::endl;
                                 NewConn = new Avoid::ConnRef(ConstructedRouter, BoundaryStubPair.second, BoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                             }
                         }
                     }
@@ -1086,12 +1393,17 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                 if (std::holds_alternative<InputStub>(OtherStub))
                 {
                     const InputStub& OtherInputStub = std::get<InputStub>(OtherStub);
-                    
+    
                     if (FirstOutputStub.Name == OtherInputStub.Name)
                     {
                         Avoid::ConnRef* NewRef;
-
+    
+                        std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")";
+                        std::cout << " to (" << OtherBoxStubPair.second.position().x << "," << OtherBoxStubPair.second.position().y << ")" << std::endl;
                         NewRef = new Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, OtherBoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                     }
                     else
                     {
@@ -1101,7 +1413,12 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                             {
                                 Avoid::ConnRef* NewRef;
 
+                                std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")";
+                        std::cout << " to (" << OtherBoxStubPair.second.position().x << "," << OtherBoxStubPair.second.position().y << ")" << std::endl;
                                 NewRef = new Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, OtherBoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                             }
                         }
                     }
@@ -1113,8 +1430,13 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                     if (FirstOutputStub.Name == OtherControlStub.Name)
                     {
                         Avoid::ConnRef* NewRef;
-
+                        
+                        std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")";
+                        std::cout << " to (" << OtherBoxStubPair.second.position().x << "," << OtherBoxStubPair.second.position().y << ")" << std::endl;
                         NewRef = new Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, OtherBoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                     }
                     else
                     {
@@ -1124,7 +1446,12 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                             {
                                 Avoid::ConnRef* NewRef;
 
+                                std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")";
+                        std::cout << " to (" << OtherBoxStubPair.second.position().x << "," << OtherBoxStubPair.second.position().y << ")" << std::endl;
                                 NewRef = new Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, OtherBoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                             }
                         }
                     }
@@ -1147,7 +1474,12 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                     {
                         Avoid::ConnRef* NewRef;
 
+                        std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")";
+                        std::cout << " to (" << BoundaryBoxStubPair.second.position().x << "," << BoundaryBoxStubPair.second.position().y << ")" << std::endl;
                         NewRef = new Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, BoundaryBoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                     }
                     else
                     {
@@ -1156,8 +1488,13 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                             if (Source.StubName == FirstOutputStub.Name)
                             {
                                 Avoid::ConnRef* NewRef;
-
+    
+                                std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")";
+                        std::cout << " to (" << BoundaryBoxStubPair.second.position().x << "," << BoundaryBoxStubPair.second.position().y << ")" << std::endl;
                                 NewRef = new Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, BoundaryBoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                             }
                         }
                     }
@@ -1175,7 +1512,12 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                     {
                         Avoid::ConnRef* NewRef;
 
+                        std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")";
+                        std::cout << " to (" << BoundaryBoxStubPair.second.position().x << "," << BoundaryBoxStubPair.second.position().y << ")" << std::endl;
                         NewRef = new Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, BoundaryBoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                     }
                     else
                     {
@@ -1185,25 +1527,41 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                             {
                                 Avoid::ConnRef* NewRef;
 
+                                std::cout << "Adding a connection ref" << std::endl;
+                        std::cout << "From (" << BoxStubPair.second.position().x << "," << BoxStubPair.second.position().y << ")";
+                        std::cout << " to (" << BoundaryBoxStubPair.second.position().x << "," << BoundaryBoxStubPair.second.position().y << ")" << std::endl;
                                 NewRef = new Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, BoundaryBoxStubPair.second);
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
                             }
                         }
                     }
                 }
             }
         }
-    }   
+    }
+    Avoid::ConnRefList ConnRefs = ConstructedRouter->connRefs;
+    std::cout << ConnRefs.size() << std::endl;
+    for (Avoid::ConnRef* ConnRef : ConnRefs)
+    {
+        std::pair<Avoid::ConnEnd, Avoid::ConnEnd> ConnEnds = ConnRef->endpointConnEnds();
+        std::cout << "From " << ConnEnds.first.position().x << "," << ConnEnds.first.position().y << ")";
+        std::cout << "To " << ConnEnds.second.position().x << "," << ConnEnds.second.position(). y << ")" << std::endl;
+    }
+    std::cout << "Routing connections" << std::endl;
     ConstructedRouter->processTransaction();
     
     return ConstructedRouter;
 }
 
-std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid::Router *ConnectedRouter)
+std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid::Router *ConnectedRouter, uint32_t BoxHeight, uint32_t BoxWidth, uint32_t BoxMargin)
 {
     std::vector<std::string> Diagram;
     uint32_t ActivityBoxNum;
     std::string BlankDiagramRow(TargetDiagram.Width, ' ');
-    
+    uint32_t NumBoxes;
+
+    NumBoxes = TargetDiagram.Boxes.size();
     for (uint32_t RowNum = 0u; RowNum < TargetDiagram.Height; RowNum++)
     {
         Diagram.push_back(BlankDiagramRow);
@@ -1598,8 +1956,7 @@ int main(int argc, char **argv)
     const uint32_t DiagramHeight = 400;
     const uint32_t BoxWidth = 32;
     const uint32_t BoxHeight = 4;
-    const uint32_t ColumMargin = 5;
-    const uint32_t RowMargin = 5;
+    const uint32_t BoxMargin = 5;
     std::vector<IDEF::Model> Models;
 
     InputFilePath = argv[1u];
@@ -1617,15 +1974,12 @@ int main(int argc, char **argv)
             std::vector<std::string> Diagram;
             uint32_t RowNumber;
 
-            IDEF::LayoutActivityDiagram(SelectedActivityDiagram, 
-                                        DiagramWidth, DiagramHeight, 
-                                        BoxWidth, BoxHeight,
-                                        ColumnMargin, RowMargin);
-            IDEF::PlaceObstacles(SelectedActivityDiagram, Obstacles);
-            BoxStubsMap = IDEF::PlaceBoxStubConnEnds(SelectedActivityDiagram);
-            BoundaryStubsMap = IDEF::PlaceBoundaryStubConnEnds(SelectedActivityDiagram);
+            IDEF::LayoutActivityDiagram(SelectedActivityDiagram, DiagramWidth, DiagramHeight, BoxWidth, BoxHeight, BoxMargin);
+            IDEF::PlaceObstacles(SelectedActivityDiagram, Obstacles, BoxWidth, BoxHeight, BoxMargin);
+            BoxStubsMap = IDEF::PlaceBoxStubConnEnds(SelectedActivityDiagram, BoxWidth, BoxHeight, BoxMargin);
+            BoundaryStubsMap = IDEF::PlaceBoundaryStubConnEnds(SelectedActivityDiagram, BoxWidth, BoxHeight, BoxMargin);
             Router = IDEF::ConstructRouter(BoxStubsMap,BoundaryStubsMap, Obstacles);
-            Diagram = IDEF::DrawDiagram(SelectedActivityDiagram, Router);
+            Diagram = IDEF::DrawDiagram(SelectedActivityDiagram, Router, BoxWidth, BoxHeight, BoxMargin);
             RowNumber = 0u;
             OutputFileStream.open(OutputFilePath, std::ios_base::out);
             for (const std::string &Line : Diagram)
