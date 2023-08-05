@@ -38,7 +38,11 @@ void LayoutFrame(ActivityDiagram &Diagram)
     std::get<CNumberSection>(Diagram.Frame.BottomBar.CNumberSection).TopLeft.Column = Diagram.Frame.BottomBar.TopLeft.Column + std::get<CNumberSection>(Diagram.Frame.BottomBar.CNumberSection).Width;
 }
 
-void LayoutBoxes(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t BoxHeight, uint32_t BoxMargin)
+void LayoutBoxes(ActivityDiagram &Diagram, 
+    uint32_t BoxWidth, 
+    uint32_t BoxHeight, 
+    uint32_t BoxXGap,
+    uint32_t BoxYGap)
 {
     uint32_t NumBoxes;
     FilePosition Cursor;
@@ -50,8 +54,8 @@ void LayoutBoxes(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t BoxHeight
     uint32_t BoxSectionWidth;
     
     NumBoxes = Diagram.Boxes.size();
-    BoxSectionHeight = (NumBoxes * BoxHeight) + (NumBoxes * BoxMargin);
-    BoxSectionWidth = (NumBoxes * BoxWidth) + (NumBoxes * BoxMargin);
+    BoxSectionHeight = (NumBoxes * BoxHeight) + ((NumBoxes-1u) * BoxYGap);
+    BoxSectionWidth = (NumBoxes * BoxWidth) + ((NumBoxes-1u) * BoxXGap);
     RowHeight = BoxSectionHeight / (1u+NumBoxes);
     ColumnWidth = BoxSectionWidth / (1u+NumBoxes);
     ColumnCenterOffset = (Diagram.Width / 2u) - (BoxSectionWidth / 2u);
@@ -68,8 +72,8 @@ void LayoutBoxes(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t BoxHeight
         SelectedBox.Height = BoxHeight;
         SelectedBox.Center.Column = Cursor.Column;
         SelectedBox.Center.Row = Cursor.Row;
-        Cursor.Column += BoxWidth + BoxMargin;
-        Cursor.Row += BoxHeight + BoxMargin;
+        Cursor.Column += BoxWidth + BoxXGap;
+        Cursor.Row += BoxHeight + BoxYGap;
     }
 }
 
@@ -352,7 +356,11 @@ void FindInnerStub(const ActivityDiagram& Diagram,
     }
 }
 
-void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t BoxHeight, uint32_t BoxMargin)
+void LayoutBoundaryStubs(ActivityDiagram &Diagram, 
+    uint32_t BoxWidth, 
+    uint32_t BoxHeight, 
+    uint32_t BoxXGap,
+    uint32_t BoxYGap)
 {
     uint32_t BoxSectionHeight;
     uint32_t BoxSectionWidth;
@@ -364,8 +372,8 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
     uint32_t RowCenterOffset;
     
     NumBoxes = Diagram.Boxes.size();
-    BoxSectionHeight = (NumBoxes * BoxHeight) + (NumBoxes * BoxMargin);
-    BoxSectionWidth = (NumBoxes * BoxWidth) + (NumBoxes * BoxMargin);
+    BoxSectionHeight = (NumBoxes * BoxHeight) + ((NumBoxes-1u) * BoxYGap);
+    BoxSectionWidth = (NumBoxes * BoxWidth) + ((NumBoxes-1u) * BoxXGap);
     RowHeight = BoxSectionHeight / (1u+NumBoxes);
     ColumnWidth = BoxSectionWidth / (1u+NumBoxes);
     ColumnCenterOffset = (Diagram.Width / 2u) - (BoxSectionWidth / 2u);
@@ -417,7 +425,7 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
                 InputStub& FoundInputStub = std::get<InputStub>(FoundStub);
                 
                 BoundaryControlStub.Position.Row = 0u;
-                BoundaryControlStub.Position.Column = FoundInputStub.Position.Column - (BoxMargin/2u);
+                BoundaryControlStub.Position.Column = FoundInputStub.Position.Column - (BoxXGap/2u);
             }
             else if (std::holds_alternative<ControlStub>(FoundStub))
             {
@@ -512,15 +520,19 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
 }
 
 void LayoutActivityDiagram(ActivityDiagram &LoadedDiagram, 
-    uint32_t Width, uint32_t Height, 
-    uint32_t BoxWidth, uint32_t BoxHeight, uint32_t BoxMargin)
+    uint32_t Width, 
+    uint32_t Height, 
+    uint32_t BoxWidth, 
+    uint32_t BoxHeight, 
+    uint32_t BoxXGap, 
+    uint32_t BoxYGap)
 {
     LoadedDiagram.Width = Width;
     LoadedDiagram.Height = Height;
     LayoutFrame(LoadedDiagram);
-    LayoutBoxes(LoadedDiagram, BoxWidth, BoxHeight, BoxMargin);
+    LayoutBoxes(LoadedDiagram, BoxWidth, BoxHeight, BoxXGap, BoxYGap);
     LayoutBoxStubs(LoadedDiagram);
-    LayoutBoundaryStubs(LoadedDiagram, BoxWidth, BoxHeight, BoxMargin);
+    LayoutBoundaryStubs(LoadedDiagram, BoxWidth, BoxHeight, BoxXGap, BoxYGap);
 } 
 
 }

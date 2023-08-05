@@ -24,7 +24,8 @@ int main(int argc, char **argv)
     uint32_t DiagramHeight;
     uint32_t BoxWidth;
     uint32_t BoxHeight;
-    uint32_t BoxMargin;
+    uint32_t BoxXGap;
+    uint32_t BoxYGap;
     std::vector<IDEF::Model> Models;
 
     InputFilePath = argv[1u];
@@ -33,7 +34,8 @@ int main(int argc, char **argv)
     DiagramHeight = std::atoi(argv[4u]);
     BoxWidth = std::atoi(argv[5u]);
     BoxHeight = std::atoi(argv[6u]);
-    BoxMargin = std::atoi(argv[7u]);
+    BoxXGap = std::atoi(argv[7u]);
+    BoxYGap = std::atoi(argv[8u]);
     Models = IDEF::LoadModelsFile(InputFilePath);
     for (IDEF::Model &SelectedModel : Models)
     {
@@ -47,12 +49,12 @@ int main(int argc, char **argv)
             std::vector<std::string> Diagram;
             uint32_t RowNumber;
 
-            IDEF::LayoutActivityDiagram(SelectedActivityDiagram, DiagramWidth, DiagramHeight, BoxWidth, BoxHeight, BoxMargin);
-            IDEF::PlaceObstacles(SelectedActivityDiagram, Obstacles, BoxWidth, BoxHeight, BoxMargin);
-            BoxStubsMap = IDEF::PlaceBoxStubConnEnds(SelectedActivityDiagram, BoxWidth, BoxHeight, BoxMargin);
-            BoundaryStubsMap = IDEF::PlaceBoundaryStubConnEnds(SelectedActivityDiagram, BoxWidth, BoxHeight, BoxMargin);
+            IDEF::LayoutActivityDiagram(SelectedActivityDiagram, DiagramWidth, DiagramHeight, BoxWidth, BoxHeight, BoxXGap, BoxYGap);
+            IDEF::PlaceObstacles(SelectedActivityDiagram, Obstacles);
+            BoxStubsMap = IDEF::PlaceBoxStubConnEnds(SelectedActivityDiagram);
+            BoundaryStubsMap = IDEF::PlaceBoundaryStubConnEnds(SelectedActivityDiagram);
             Router = IDEF::ConstructRouter(BoxStubsMap,BoundaryStubsMap, Obstacles);
-            Diagram = IDEF::DrawDiagram(SelectedActivityDiagram, Router, BoxWidth, BoxHeight, BoxMargin);
+            Diagram = IDEF::DrawDiagram(SelectedActivityDiagram, Router);
             RowNumber = 0u;
             OutputFileStream.open(OutputFilePath, std::ios_base::out);
             for (const std::string &Line : Diagram)
