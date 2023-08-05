@@ -34,11 +34,11 @@ void LayoutFrame(ActivityDiagram &Diagram)
     TargetNodeNumberSection.Height = Diagram.Frame.BottomBar.Height;
     TargetTitleSection.Width = 2u * (Diagram.Width / 4u);
     TargetTitleSection.TopLeft.Row = Diagram.Frame.BottomBar.TopLeft.Row;
-    TargetTitleSection.TopLeft.Column = (Diagram.Width / 4u) + Diagram.Frame.BottomBar.TopLeft.Column;
+    TargetTitleSection.TopLeft.Column = TargetNodeNumberSection.TopLeft.Column + TargetNodeNumberSection.Width;
     TargetTitleSection.Height = Diagram.Frame.BottomBar.Height;
     TargetCNumberSection.Width = Diagram.Width / 4u;
     TargetCNumberSection.TopLeft.Row = Diagram.Frame.BottomBar.TopLeft.Row;
-    TargetCNumberSection.TopLeft.Column = Diagram.Frame.BottomBar.TopLeft.Column + TargetCNumberSection.Width;
+    TargetCNumberSection.TopLeft.Column = TargetTitleSection.TopLeft.Column + TargetTitleSection.Width;
     TargetCNumberSection.Height = Diagram.Frame.BottomBar.Height;
 }
 

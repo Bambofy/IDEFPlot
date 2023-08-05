@@ -586,6 +586,50 @@ void DrawTitleSection(std::vector<std::string>& Diagram, const ActivityDiagram& 
     }
 }
 
+
+void DrawCNumberSection(std::vector<std::string>& Diagram,
+    const ActivityDiagram& TargetDiagram)
+{
+    const CNumberSection& CNumSection = std::get<CNumberSection>(TargetDiagram.Frame.BottomBar.CNumberSection);
+    FilePosition Cursor;
+    uint32_t NumChars;
+
+    for (uint32_t Row = CNumSection.TopLeft.Row; Row < CNumSection.TopLeft.Row + CNumSection.Height; Row++)
+    {
+        Diagram[Row][CNumSection.TopLeft.Column + CNumSection.Width] = '|'; 
+    }
+    Diagram[CNumSection.TopLeft.Row][CNumSection.TopLeft.Column] = '+';
+    Diagram[CNumSection.TopLeft.Row][CNumSection.TopLeft.Column + CNumSection.Width] = '+';
+    Diagram[CNumSection.TopLeft.Row + (CNumSection.Height-1u)][0u] = '+';
+    Diagram[CNumSection.TopLeft.Row + (CNumSection.Height-1u)][CNumSection.TopLeft.Column + CNumSection.Width] = '+';
+    Cursor.Row = CNumSection.TopLeft.Row;
+    Cursor.Column = CNumSection.TopLeft.Column;
+    Cursor.Row += 1u;
+    Cursor.Column += 1u;
+    Diagram[Cursor.Row][Cursor.Column] = 'C';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = 'N';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = 'u';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = 'm';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = 'b';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = 'e';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = 'r';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = ':';
+    Cursor.Column++;
+    NumChars = CNumSection.Content.length();
+    for (uint32_t CharIndex = 0u; CharIndex < NumChars; CharIndex++)
+    {
+        Diagram[Cursor.Row][Cursor.Column] = CNumSection.Content[CharIndex];
+        Cursor.Column++;
+    }
+}
+
 void DrawBottomBar(std::vector<std::string>& Diagram, const ActivityDiagram& TargetDiagram)
 {
     for (uint32_t Column = TargetDiagram.Frame.BottomBar.TopLeft.Column; Column < TargetDiagram.Width-1u; Column++)
@@ -594,6 +638,7 @@ void DrawBottomBar(std::vector<std::string>& Diagram, const ActivityDiagram& Tar
     }
     DrawNodeNumberSection(Diagram, TargetDiagram);
     DrawTitleSection(Diagram, TargetDiagram);
+    DrawCNumberSection(Diagram, TargetDiagram);
 }
 
 void DrawFrame(std::vector<std::string>& Diagram, const ActivityDiagram& TargetDiagram)
