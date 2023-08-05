@@ -28,6 +28,7 @@
 #define _USE_MATH_DEFINES
 #endif
 #include <cmath>
+#include <numbers>
 
 #include <algorithm>
 #include <vector>
@@ -199,7 +200,7 @@ static double angleBetween(const Point& p1, const Point& p2, const Point& p3)
     {
         // If two of the points are the same, then we can't say anything
         // about the angle between.  Treat them as being collinear.
-        return M_PI;
+        return std::numbers::pi_v<double>;
     }
 
     Point v1(p1.x - p2.x, p1.y - p2.y);
@@ -329,21 +330,21 @@ static double cost(ConnRef *lineRef, const double dist, VertInf *inf2,
             Point p2 = inf2->point;
             Point p3 = inf3->point;
 
-            double rad = M_PI - angleBetween(p1, p2, p3);
+            double rad = std::numbers::pi_v<double> - angleBetween(p1, p2, p3);
 
             if ((rad > 0) && !isOrthogonal)
             {
                 // Make `xval' between 0--10 then take its log so small
                 // angles are not penalised as much as large ones.
                 //
-                double xval = rad * 10 / M_PI;
+                double xval = rad * 10 / std::numbers::pi_v<double>;
                 double yval = xval * log10(xval + 1) / 10.5;
                 result += (angle_penalty * yval);
                 //db_printf("deg from straight: %g\tpenalty: %g\n",
                 //        rad * 180 / M_PI, (angle_penalty * yval));
             }
 
-            if (rad == M_PI)
+            if (rad == std::numbers::pi_v<double>)
             {
                 // Needs to double back
                 result += (2 * segmt_penalty);

@@ -38,7 +38,7 @@
 #define _USE_MATH_DEFINES
 #endif
 #include <cmath>
-
+#include <numbers>
 #include <limits>
 
 #include "libavoid/graph.h"
@@ -622,7 +622,7 @@ double rotationalAngle(const Point& p)
     }
     
     double ang = atan(p.y / p.x);
-    ang = (ang * 180) / M_PI;
+    ang = (ang * 180) / std::numbers::pi_v<double>;
 
     if (p.x < 0)
     {
