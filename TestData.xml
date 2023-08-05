@@ -8,6 +8,7 @@
 			<Output Name="Group of IDEF ASCII diagrams">
 				<Source Name="Set of IDEF diagrams"></Source>
 			</Output>
+			<Mechanism Name="PugiXML"></Mechanism>
 
 			<Activity Number="1" Name="Loads a source XML file">
 				<Input Name="Section of memory">
@@ -15,6 +16,7 @@
                 </Input>
 				<Control Name="IDEF model's text"/>
 				<Output Name="Loaded IDEF diagram object"/>
+				<Mechanism Name="PugiXML"></Mechanism>
 			</Activity>
 			<Activity Number="2" Name="Positions a loaded IDEF diagram object">
 				<Input Name="Loaded IDEF diagram object">

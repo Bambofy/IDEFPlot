@@ -492,14 +492,14 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram,
             {
                 MechanismStub& FoundMechanismStub = std::get<MechanismStub>(FoundStub);
                 
-                BoundaryMechanismStub.Position.Row = BoxSectionHeight - 1u;
+                BoundaryMechanismStub.Position.Row = Diagram.Height - 1u - Diagram.Frame.BottomBar.Height;
                 BoundaryMechanismStub.Position.Column = FoundMechanismStub.Position.Column;
             }
         }
         else
         {
             BoundaryMechanismStub.Position.Column = (1u+StubIndex) * ColumnWidth;
-            BoundaryMechanismStub.Position.Row = BoxSectionHeight - 1u;
+            BoundaryMechanismStub.Position.Row = Diagram.Height - 1u - Diagram.Frame.BottomBar.Height;
         }
         BoundaryMechanismStub.Length = 3u + StubIndex;
         StubIndex++;
@@ -518,14 +518,14 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram,
             {
                 CallStub& FoundCallStub = std::get<CallStub>(FoundStub);
                 
-                BoundaryCallStub.Position.Row = BoxSectionHeight - 1u;
+                BoundaryCallStub.Position.Row = Diagram.Height - 1u;
                 BoundaryCallStub.Position.Column = FoundCallStub.Position.Column;
             }
         }
         else
         {
             BoundaryCallStub.Position.Column = (1u+StubIndex) * ColumnWidth;
-            BoundaryCallStub.Position.Row = BoxSectionHeight - 1u;
+            BoundaryCallStub.Position.Row = Diagram.Height - 1u;
         }
         BoundaryCallStub.Length = 3u + StubIndex;
         StubIndex++;
