@@ -32,6 +32,7 @@ InputStub LoadInputStub(const pugi::xml_node& InputStubXMLNode)
     }
     NewStub.Position.Row = 0u;
     NewStub.Position.Column = 0u;
+    NewStub.Length = 0u;
 
     return NewStub;   
 }
@@ -50,6 +51,7 @@ OutputStub LoadOutputStub(const pugi::xml_node& OutputStubXMLNode)
     }
     NewStub.Position.Row = 0u;
     NewStub.Position.Column = 0u;
+    NewStub.Length = 0u;
 
     return NewStub;   
 }
@@ -68,6 +70,7 @@ ControlStub LoadControlStub(const pugi::xml_node& ControlStubXMLNode)
     }
     NewStub.Position.Row = 0u;
     NewStub.Position.Column = 0u;
+    NewStub.Length = 0u;
 
     return NewStub;   
 }
@@ -86,6 +89,7 @@ MechanismStub LoadMechanismStub(const pugi::xml_node& MechanismStubXMLNode)
     }
     NewStub.Position.Row = 0u;
     NewStub.Position.Column = 0u;
+    NewStub.Length = 0u;
 
     return NewStub;   
 }
@@ -104,6 +108,7 @@ CallStub LoadCallStub(const pugi::xml_node& CallStubXMLNode)
     }
     NewStub.Position.Row = 0u;
     NewStub.Position.Column = 0u;
+    NewStub.Length = 0u;
 
     return NewStub;   
 }
@@ -159,19 +164,23 @@ ActivityBox LoadActivity(const pugi::xml_node &ActivityNode)
 ActivityDiagram LoadActivityDiagram(const pugi::xml_node &ActivityDiagramNode)
 {
     ActivityDiagram NewDiagram;
-
     NewDiagram.Frame.BottomBar.NodeNumberSection = NodeNumberSection();
-    std::get<NodeNumberSection>(NewDiagram.Frame.BottomBar.NodeNumberSection).Content = ActivityDiagramNode.attribute("Number").as_string();
-    std::get<NodeNumberSection>(NewDiagram.Frame.BottomBar.NodeNumberSection).TopLeft.Row = 0u;
-    std::get<NodeNumberSection>(NewDiagram.Frame.BottomBar.NodeNumberSection).TopLeft.Column = 0u;
     NewDiagram.Frame.BottomBar.TitleSection = TitleSection();
-    std::get<TitleSection>(NewDiagram.Frame.BottomBar.TitleSection).Content = ActivityDiagramNode.attribute("Title").as_string();
-    std::get<TitleSection>(NewDiagram.Frame.BottomBar.TitleSection).TopLeft.Row = 0u;
-    std::get<TitleSection>(NewDiagram.Frame.BottomBar.TitleSection).TopLeft.Column = 0u;
     NewDiagram.Frame.BottomBar.CNumberSection = CNumberSection();
-    std::get<CNumberSection>(NewDiagram.Frame.BottomBar.CNumberSection).Content = ActivityDiagramNode.attribute("CNumber").as_string();
-    std::get<CNumberSection>(NewDiagram.Frame.BottomBar.CNumberSection).TopLeft.Row = 0u;
-    std::get<CNumberSection>(NewDiagram.Frame.BottomBar.CNumberSection).TopLeft.Column = 0u;
+    NodeNumberSection& TargetNodeNumberSection = std::get<NodeNumberSection>(NewDiagram.Frame.BottomBar.NodeNumberSection);
+    TitleSection& TargetTitleSection = std::get<TitleSection>(NewDiagram.Frame.BottomBar.TitleSection);
+    CNumberSection& TargetCNumberSection = std::get<CNumberSection>(NewDiagram.Frame.BottomBar.CNumberSection);
+
+    NewDiagram.Frame.BottomBar.Height = 4u;
+    TargetNodeNumberSection.Content = ActivityDiagramNode.attribute("Number").as_string();
+    TargetNodeNumberSection.TopLeft.Row = 0u;
+    TargetNodeNumberSection.TopLeft.Column = 0u;
+    TargetTitleSection.Content = ActivityDiagramNode.attribute("Title").as_string();
+    TargetTitleSection.TopLeft.Row = 0u;
+    TargetTitleSection.TopLeft.Column = 0u;
+    TargetCNumberSection.Content = ActivityDiagramNode.attribute("CNumber").as_string();
+    TargetCNumberSection.TopLeft.Row = 0u;
+    TargetCNumberSection.TopLeft.Column = 0u;
     NewDiagram.Width = 0u;
     NewDiagram.Height = 0u;
     for (const pugi::xml_node &ChildXMLNode : ActivityDiagramNode.children())

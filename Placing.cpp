@@ -20,8 +20,8 @@ namespace IDEF
 
 std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& LayedOutDiagram)
 {
-    const uint32_t StubLength = 3u;
     std::map<Stub, Avoid::ConnEnd> BoxStubsMap;
+    uint32_t StubCount;
     
     for (const ActivityBox& SelectedBox : LayedOutDiagram.Boxes)
     {
@@ -35,7 +35,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
             Avoid::ConnEnd ConnectionEnd;
 
             SelectedInputStub = std::get<InputStub>(SelectedStub);
-            StubColumn = SelectedInputStub.Position.Column - StubLength;
+            StubColumn = SelectedInputStub.Position.Column - SelectedInputStub.Length;
             StubRow = SelectedInputStub.Position.Row;
             AvoidX = StubColumn;
             AvoidY = LayedOutDiagram.Height - StubRow;
@@ -52,7 +52,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
             Avoid::ConnEnd ConnectionEnd;
            
             SelectedOutputStub = std::get<OutputStub>(SelectedStub);
-            StubColumn = SelectedOutputStub.Position.Column + StubLength;
+            StubColumn = SelectedOutputStub.Position.Column + SelectedOutputStub.Length;
             StubRow = SelectedOutputStub.Position.Row;
             AvoidX = StubColumn;
             AvoidY = LayedOutDiagram.Height - StubRow;
@@ -70,7 +70,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
 
             SelectedControlStub = std::get<ControlStub>(SelectedStub);
             StubColumn = SelectedControlStub.Position.Column;
-            StubRow = SelectedControlStub.Position.Row - StubLength;
+            StubRow = SelectedControlStub.Position.Row - SelectedControlStub.Length;
             AvoidX = StubColumn;
             AvoidY = LayedOutDiagram.Height - StubRow;
             ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
@@ -87,7 +87,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
 
             SelectedMechanismStub = std::get<MechanismStub>(SelectedStub);
             StubColumn = SelectedMechanismStub.Position.Column;
-            StubRow = SelectedMechanismStub.Position.Row + StubLength;
+            StubRow = SelectedMechanismStub.Position.Row + SelectedMechanismStub.Length;
             AvoidX = StubColumn;
             AvoidY = LayedOutDiagram.Height - StubRow;
             ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
@@ -104,7 +104,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
 
             SelectedCallStub = std::get<CallStub>(SelectedStub);
             StubColumn = SelectedCallStub.Position.Column;
-            StubRow = SelectedCallStub.Position.Row + StubLength;
+            StubRow = SelectedCallStub.Position.Row + SelectedCallStub.Length;
             AvoidX = StubColumn;
             AvoidY = LayedOutDiagram.Height - StubRow;
             ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
@@ -129,7 +129,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& 
         const InputStub& BoundaryInputStub = std::get<InputStub>(BoundaryStub);
         Avoid::ConnEnd ConnectionEnd;
 
-        StubColumn = BoundaryInputStub.Position.Column + StubLength;
+        StubColumn = BoundaryInputStub.Position.Column + BoundaryInputStub.Length;
         StubRow = BoundaryInputStub.Position.Row;
         AvoidX = StubColumn;
         AvoidY = LayedOutDiagram.Height - StubRow;
@@ -145,7 +145,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& 
         const OutputStub& BoundaryOutputStub = std::get<OutputStub>(BoundaryStub);
         Avoid::ConnEnd ConnectionEnd;
 
-        StubColumn = BoundaryOutputStub.Position.Column - StubLength;
+        StubColumn = BoundaryOutputStub.Position.Column - BoundaryOutputStub.Length;
         StubRow = BoundaryOutputStub.Position.Row;
         AvoidX = StubColumn;
         AvoidY = LayedOutDiagram.Height - StubRow;
@@ -162,7 +162,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& 
         Avoid::ConnEnd ConnectionEnd;
    
         StubColumn = BoundaryControlStub.Position.Column;
-        StubRow = BoundaryControlStub.Position.Row + StubLength;
+        StubRow = BoundaryControlStub.Position.Row + BoundaryControlStub.Length;
         AvoidX = StubColumn;
         AvoidY = LayedOutDiagram.Height - StubRow;
         ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
@@ -178,7 +178,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& 
         Avoid::ConnEnd ConnectionEnd;
 
         StubColumn = BoundaryMechanismStub.Position.Column;
-        StubRow = BoundaryMechanismStub.Position.Row - StubLength;
+        StubRow = BoundaryMechanismStub.Position.Row - BoundaryMechanismStub.Length;
         AvoidX = StubColumn;
         AvoidY = LayedOutDiagram.Height - StubRow;
         ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
@@ -194,7 +194,7 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& 
         Avoid::ConnEnd ConnectionEnd;
 
         StubColumn = BoundaryCallStub.Position.Column;
-        StubRow = BoundaryCallStub.Position.Row - StubLength;
+        StubRow = BoundaryCallStub.Position.Row - BoundaryCallStub.Length;
         AvoidX = StubColumn;
         AvoidY = LayedOutDiagram.Height - StubRow;
         ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));

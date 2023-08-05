@@ -21,21 +21,25 @@ namespace IDEF
 
 void LayoutFrame(ActivityDiagram &Diagram)
 {
-    static const uint32_t TopLeftRow = 0u;
-    static const uint32_t TopLeftColumn = 0u;
-    static const uint32_t BottomBarHeight = 3u;
-
-    Diagram.Frame.BottomBar.TopLeft.Row = Diagram.Height - BottomBarHeight;
-    Diagram.Frame.BottomBar.TopLeft.Column = TopLeftColumn;
-    std::get<NodeNumberSection>(Diagram.Frame.BottomBar.NodeNumberSection).Width = Diagram.Width / 3u;
-    std::get<NodeNumberSection>(Diagram.Frame.BottomBar.NodeNumberSection).TopLeft.Row = Diagram.Frame.BottomBar.TopLeft.Row;
-    std::get<NodeNumberSection>(Diagram.Frame.BottomBar.NodeNumberSection).TopLeft.Column = Diagram.Frame.BottomBar.TopLeft.Column;
-    std::get<TitleSection>(Diagram.Frame.BottomBar.TitleSection).Width = Diagram.Width / 3u;
-    std::get<TitleSection>(Diagram.Frame.BottomBar.TitleSection).TopLeft.Row = Diagram.Frame.BottomBar.TopLeft.Row;
-    std::get<TitleSection>(Diagram.Frame.BottomBar.TitleSection).TopLeft.Column = Diagram.Frame.BottomBar.TopLeft.Column + std::get<TitleSection>(Diagram.Frame.BottomBar.TitleSection).Width;
-    std::get<CNumberSection>(Diagram.Frame.BottomBar.CNumberSection).Width = Diagram.Width / 3u;
-    std::get<CNumberSection>(Diagram.Frame.BottomBar.CNumberSection).TopLeft.Row = Diagram.Frame.BottomBar.TopLeft.Row;
-    std::get<CNumberSection>(Diagram.Frame.BottomBar.CNumberSection).TopLeft.Column = Diagram.Frame.BottomBar.TopLeft.Column + std::get<CNumberSection>(Diagram.Frame.BottomBar.CNumberSection).Width;
+    NodeNumberSection& TargetNodeNumberSection = std::get<NodeNumberSection>(Diagram.Frame.BottomBar.NodeNumberSection);
+    TitleSection& TargetTitleSection = std::get<TitleSection>(Diagram.Frame.BottomBar.TitleSection);
+    CNumberSection& TargetCNumberSection = std::get<CNumberSection>(Diagram.Frame.BottomBar.CNumberSection);
+    
+    Diagram.Frame.BottomBar.Height = 3u;
+    Diagram.Frame.BottomBar.TopLeft.Row = Diagram.Height - Diagram.Frame.BottomBar.Height;
+    Diagram.Frame.BottomBar.TopLeft.Column = 0u;
+    TargetNodeNumberSection.Width = Diagram.Width / 4u;
+    TargetNodeNumberSection.TopLeft.Row = Diagram.Frame.BottomBar.TopLeft.Row;
+    TargetNodeNumberSection.TopLeft.Column = Diagram.Frame.BottomBar.TopLeft.Column;
+    TargetNodeNumberSection.Height = Diagram.Frame.BottomBar.Height;
+    TargetTitleSection.Width = (2u*Diagram.Width) / 4u;
+    TargetTitleSection.TopLeft.Row = Diagram.Frame.BottomBar.TopLeft.Row;
+    TargetTitleSection.TopLeft.Column = Diagram.Frame.BottomBar.TopLeft.Column + TargetTitleSection.Width;
+    TargetTitleSection.Height = Diagram.Frame.BottomBar.Height;
+    TargetCNumberSection.Width = Diagram.Width / 4u;
+    TargetCNumberSection.TopLeft.Row = Diagram.Frame.BottomBar.TopLeft.Row;
+    TargetCNumberSection.TopLeft.Column = Diagram.Frame.BottomBar.TopLeft.Column + TargetCNumberSection.Width;
+    TargetCNumberSection.Height = Diagram.Frame.BottomBar.Height;
 }
 
 void LayoutBoxes(ActivityDiagram &Diagram, 
@@ -117,6 +121,7 @@ void LayoutBoxStubs(ActivityDiagram &Diagram)
             SelectedInputStub.Position.Column = SelectedBox.Center.Column - (SelectedBox.Width / 2u);
             SelectedInputStub.Position.Row = SelectedBox.Center.Row - (SelectedBox.Height / 2u);
             SelectedInputStub.Position.Row = SelectedInputStub.Position.Row + RowOffset;
+            SelectedInputStub.Length = 3u + InputStubIndex;
         }
         OutputInterfaceDivisions = NumOutputStubs + 1u;
         OutputInterfaceDivisionWidth = SelectedBox.Height / OutputInterfaceDivisions;
@@ -129,6 +134,7 @@ void LayoutBoxStubs(ActivityDiagram &Diagram)
             SelectedOutputStub.Position.Column = SelectedBox.Center.Column + (SelectedBox.Width / 2u);
             SelectedOutputStub.Position.Row = SelectedBox.Center.Row - (SelectedBox.Height / 2u);
             SelectedOutputStub.Position.Row = SelectedOutputStub.Position.Row + RowOffset;
+            SelectedOutputStub.Length = 3u + OutputStubIndex;
         }
         ControlInterfaceDivisions = NumControlStubs + 1u;
         ControlInterfaceDivisionWidth = SelectedBox.Width / ControlInterfaceDivisions;
@@ -141,6 +147,7 @@ void LayoutBoxStubs(ActivityDiagram &Diagram)
             SelectedControlStub.Position.Column = SelectedBox.Center.Column - (SelectedBox.Width / 2u);
             SelectedControlStub.Position.Row = SelectedBox.Center.Row - (SelectedBox.Height / 2u);
             SelectedControlStub.Position.Column = SelectedControlStub.Position.Column + ColumnOffset;
+            SelectedControlStub.Length = 3u + ControlStubIndex;
         }
         MechanismInterfaceDivisions = NumMechanismStubs + 1u;
         MechanismInterfaceDivisionWidth = (SelectedBox.Width / 2u) / MechanismInterfaceDivisions;
@@ -152,7 +159,8 @@ void LayoutBoxStubs(ActivityDiagram &Diagram)
             ColumnOffset = MechanismInterfaceDivisionWidth * (1u + MechanismStubIndex);
             SelectedMechanismStub.Position.Column = SelectedBox.Center.Column - (SelectedBox.Width / 2u);
             SelectedMechanismStub.Position.Row = SelectedBox.Center.Row + (SelectedBox.Height / 2u);
-            SelectedMechanismStub.Position.Column = SelectedMechanismStub.Position.Row + ColumnOffset;
+            SelectedMechanismStub.Position.Column = SelectedMechanismStub.Position.Column + ColumnOffset;
+            SelectedMechanismStub.Length = 3u + MechanismStubIndex;
         }
         CallInterfaceDivisions = NumCallStubs + 1u;
         CallInterfaceDivisionWidth = (SelectedBox.Width / 2) / CallInterfaceDivisions;
@@ -408,6 +416,7 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram,
             BoundaryInputStub.Position.Column = 0u;
             BoundaryInputStub.Position.Row = (1u+StubIndex) * RowHeight;
         }
+        BoundaryInputStub.Length = 3u + StubIndex;
         StubIndex++;
     }
     StubIndex = 0u;
@@ -440,6 +449,7 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram,
             BoundaryControlStub.Position.Column = (1u+StubIndex) * ColumnWidth;
             BoundaryControlStub.Position.Row = 0u;
         }
+        BoundaryControlStub.Length = 3u + StubIndex;
         StubIndex++;
     }
     StubIndex = 0u;
@@ -465,6 +475,7 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram,
             BoundaryOutputStub.Position.Column = Diagram.Width - 1u;
             BoundaryOutputStub.Position.Row = (1u+StubIndex) * RowHeight;
         }
+        BoundaryOutputStub.Length = 3u + StubIndex;
         StubIndex++;
     }
     StubIndex = 0u;
@@ -490,6 +501,7 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram,
             BoundaryMechanismStub.Position.Column = (1u+StubIndex) * ColumnWidth;
             BoundaryMechanismStub.Position.Row = BoxSectionHeight - 1u;
         }
+        BoundaryMechanismStub.Length = 3u + StubIndex;
         StubIndex++;
     }
     StubIndex = 0u;
@@ -515,6 +527,7 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram,
             BoundaryCallStub.Position.Column = (1u+StubIndex) * ColumnWidth;
             BoundaryCallStub.Position.Row = BoxSectionHeight - 1u;
         }
+        BoundaryCallStub.Length = 3u + StubIndex;
         StubIndex++;
     }
 }

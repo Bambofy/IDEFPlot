@@ -19,6 +19,9 @@
 namespace IDEF
 {
 
+/*
+ * - Split this procedure into multiple, one for each drawing part.
+ */
 std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, 
     Avoid::Router *ConnectedRouter)
 {
@@ -472,9 +475,46 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram,
         Diagram[Row][TargetDiagram.Width - 1u] = '|';
     }
     Diagram[0u][0u] = '+';
-    Diagram[0u][TargetDiagram.Width-1u] = '+';
+    Diagram[0u][TargetDiagram.Width - 1u] = '+';
     Diagram[TargetDiagram.Height - 1u][TargetDiagram.Width - 1u] = '+';
     Diagram[TargetDiagram.Height - 1u][0u] = '+';
+    for (uint32_t Column = TargetDiagram.Frame.BottomBar.TopLeft.Column; Column < TargetDiagram.Width-1u; Column++)
+    {
+        Diagram[TargetDiagram.Frame.BottomBar.TopLeft.Row][Column] = '-';
+    }
+    const NodeNumberSection& NumberBarSection = std::get<NodeNumberSection>(TargetDiagram.Frame.BottomBar.NodeNumberSection);
+    for (uint32_t Row = NumberBarSection.TopLeft.Row; Row < NumberBarSection.TopLeft.Row + NumberBarSection.Height; Row++)
+    {
+        Diagram[Row][NumberBarSection.TopLeft.Column + NumberBarSection.Width] = '|'; 
+    }
+    Diagram[NumberBarSection.TopLeft.Row][0u] = '+';
+    Diagram[NumberBarSection.TopLeft.Row][NumberBarSection.TopLeft.Column + NumberBarSection.Width] = '+';
+    Diagram[NumberBarSection.TopLeft.Row + (NumberBarSection.Height-1u)][0u] = '+';
+    Diagram[NumberBarSection.TopLeft.Row + (NumberBarSection.Height-1u)][NumberBarSection.TopLeft.Column + NumberBarSection.Width] = '+';
+    FilePosition Cursor;
+    uint32_t NumChars;
+
+    Cursor.Row = NumberBarSection.TopLeft.Row;
+    Cursor.Column = NumberBarSection.TopLeft.Column;
+    Cursor.Row += 1u;
+    Cursor.Column += 1u;
+    Diagram[Cursor.Row][Cursor.Column] = 'N';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = 'o';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = 'd';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = 'e';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = ':';
+    Cursor.Column++;
+    NumChars = NumberBarSection.Content.length();
+    for (uint32_t CharIndex = 0u; CharIndex < NumChars; CharIndex++)
+    {
+        Diagram[Cursor.Row][Cursor.Column] = NumberBarSection.Content[CharIndex];
+        Cursor.Column++;
+    }
+
 
     return Diagram;
 }

@@ -20,6 +20,8 @@ struct InputStub
     std::string Name;
     FilePosition Position;
     std::vector<StubSource> Sources;
+    uint32_t Length;
+    
     bool operator<(const InputStub& RHS) const
     {
         uint32_t ThisEncodedPosition;
@@ -37,6 +39,7 @@ struct OutputStub
     std::string Name;
     FilePosition Position;
     std::vector<StubSource> Sources;
+    uint32_t Length;
 
     bool operator<(const OutputStub& RHS) const
     {
@@ -55,6 +58,7 @@ struct ControlStub
     std::string Name;
     FilePosition Position;
     std::vector<StubSource> Sources;
+    uint32_t Length;
 
     bool operator<(const ControlStub& RHS) const
     {
@@ -73,6 +77,7 @@ struct MechanismStub
     std::string Name;
     FilePosition Position;
     std::vector<StubSource> Sources;
+    uint32_t Length;
 
     bool operator<(const MechanismStub& RHS) const
     {
@@ -91,6 +96,7 @@ struct CallStub
     std::string Name;
     FilePosition Position;
     std::vector<StubSource> Sources;
+    uint32_t Length;
 
     bool operator<(const CallStub& RHS) const
     {

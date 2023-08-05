@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="3208" height="1440" class="svgbob">
+<svg xmlns="http://www.w3.org/2000/svg" width="2408" height="976" class="svgbob">
   <style>
     .svgbob line, .svgbob path, .svgbob circle, .svgbob rect, .svgbob polygon {
     stroke: black;
@@ -81,126 +81,136 @@
       <circle cx="4" cy="4" r="3" class="bg_filled"></circle>
     </marker>
   </defs>
-  <rect class="backdrop" x="0" y="0" width="3208" height="1440"></rect>
-  <line x1="900" y1="0" x2="900" y2="176" class="solid"></line>
-  <text x="898" y="188" >IDEF</text>
-  <text x="938" y="188" >model&#39;s</text>
-  <text x="1002" y="188" >text</text>
-  <text x="634" y="220" >Section</text>
-  <text x="698" y="220" >of</text>
-  <text x="722" y="220" >memory</text>
-  <text x="1034" y="220" >Loaded</text>
-  <text x="1090" y="220" >IDEF</text>
-  <text x="1130" y="220" >diagram</text>
-  <polygon points="760,228 768,232 760,236" class="filled"></polygon>
-  <line x1="1268" y1="544" x2="1268" y2="560" class="solid"></line>
-  <text x="1346" y="556" >Maximum</text>
-  <text x="1410" y="556" >diagram</text>
-  <text x="1266" y="572" >Maximum</text>
-  <text x="1330" y="572" >diVgram</text>
-  <text x="1394" y="572" >width</text>
-  <text x="1138" y="604" >object</text>
-  <text x="1450" y="604" >Positioned</text>
-  <text x="1538" y="604" >IDEF</text>
-  <text x="1578" y="604" >diagram</text>
-  <text x="1642" y="604" >object</text>
-  <line x1="1160" y1="616" x2="1176" y2="616" class="solid"></line>
-  <polygon points="1176,612 1184,616 1176,620" class="filled"></polygon>
-  <text x="1210" y="620" >Positions</text>
-  <text x="1290" y="620" >a</text>
-  <text x="1306" y="620" >loaded</text>
-  <text x="1266" y="636" >gram</text>
-  <text x="1306" y="636" >object</text>
-  <text x="1730" y="956" >Positioned</text>
-  <text x="1818" y="956" >IDEF</text>
-  <text x="1858" y="956" >diagram</text>
-  <text x="1466" y="988" >Section</text>
-  <text x="1530" y="988" >of</text>
-  <text x="1554" y="988" >memory</text>
-  <text x="1866" y="988" >Set</text>
-  <text x="1898" y="988" >of</text>
-  <text x="1922" y="988" >LibAvoid</text>
-  <text x="1994" y="988" >connectors</text>
-  <polygon points="1592,996 1600,1000 1592,1004" class="filled"></polygon>
-  <text x="1626" y="1004" >Generates</text>
-  <text x="1706" y="1004" >a</text>
-  <text x="1722" y="1004" >set</text>
-  <text x="1754" y="1004" >of</text>
-  <text x="1690" y="1020" >connectors</text>
-  <text x="2178" y="1324" >Positioned</text>
-  <text x="2266" y="1324" >IDEF</text>
-  <text x="2306" y="1324" >diagram</text>
-  <text x="2098" y="1340" >Set</text>
-  <text x="2130" y="1340" >of</text>
-  <text x="2154" y="1340" >LibVvoid</text>
-  <text x="2226" y="1340" >connectors</text>
-  <text x="1898" y="1372" >Section</text>
-  <text x="1962" y="1372" >of</text>
-  <text x="1986" y="1372" >disk</text>
-  <text x="2282" y="1372" >Set</text>
-  <text x="2314" y="1372" >of</text>
-  <text x="2338" y="1372" >IDEF</text>
-  <text x="2378" y="1372" >diagrams</text>
-  <line x1="0" y1="1384" x2="2008" y2="1384" class="solid"></line>
-  <polygon points="2008,1380 2016,1384 2008,1388" class="filled"></polygon>
-  <text x="2114" y="1388" >set</text>
-  <text x="2146" y="1388" >of</text>
-  <text x="2170" y="1388" >IDEF</text>
-  <text x="2114" y="1404" >m</text>
-  <text x="2130" y="1404" >files.</text>
-  <text x="1194" y="220" >object</text>
-  <text x="810" y="236" >Loads</text>
-  <text x="858" y="236" >a</text>
-  <text x="874" y="236" >source</text>
-  <text x="930" y="236" >XML</text>
-  <text x="962" y="236" >file</text>
-  <text x="1474" y="556" >height</text>
-  <text x="978" y="604" >Loaded</text>
-  <text x="1034" y="604" >IDEF</text>
-  <text x="1074" y="604" >diagram</text>
-  <text x="1362" y="620" >IDEF</text>
-  <text x="1402" y="620" >dia</text>
-  <text x="1922" y="956" >object</text>
-  <text x="1778" y="1004" >LibAvoid</text>
-  <text x="2370" y="1324" >object</text>
-  <text x="2042" y="1388" >Writes</text>
-  <text x="2098" y="1388" >a</text>
-  <text x="2210" y="1388" >diagra</text>
+  <rect class="backdrop" x="0" y="0" width="2408" height="976"></rect>
+  <line x1="580" y1="16" x2="580" y2="160" class="solid"></line>
+  <text x="578" y="172" >IDEF</text>
+  <text x="618" y="172" >model&#39;s</text>
+  <text x="682" y="172" >text</text>
+  <text x="314" y="220" >Section</text>
+  <text x="378" y="220" >of</text>
+  <text x="402" y="220" >memory</text>
+  <text x="714" y="220" >Loaded</text>
+  <text x="770" y="220" >IDEF</text>
+  <text x="810" y="220" >diagram</text>
+  <polygon points="440,228 448,232 440,236" class="filled"></polygon>
+  <line x1="948" y1="320" x2="948" y2="336" class="solid"></line>
+  <text x="1026" y="332" >Maximum</text>
+  <text x="1090" y="332" >diagram</text>
+  <text x="946" y="348" >Maximum</text>
+  <text x="1010" y="348" >diVgram</text>
+  <text x="1074" y="348" >width</text>
+  <text x="818" y="396" >object</text>
+  <text x="1130" y="396" >Positioned</text>
+  <text x="1218" y="396" >IDEF</text>
+  <text x="1258" y="396" >diagram</text>
+  <text x="1322" y="396" >object</text>
+  <line x1="840" y1="408" x2="856" y2="408" class="solid"></line>
+  <polygon points="856,404 864,408 856,412" class="filled"></polygon>
+  <text x="1410" y="524" >Positioned</text>
+  <text x="1498" y="524" >IDEF</text>
+  <text x="1538" y="524" >diagram</text>
+  <text x="1146" y="572" >Section</text>
+  <text x="1210" y="572" >of</text>
+  <text x="1234" y="572" >memory</text>
+  <text x="1546" y="572" >Set</text>
+  <text x="1578" y="572" >of</text>
+  <text x="1602" y="572" >LibAvoid</text>
+  <text x="1674" y="572" >connectors</text>
+  <polygon points="1272,580 1280,584 1272,588" class="filled"></polygon>
+  <text x="1858" y="684" >Positioned</text>
+  <text x="1946" y="684" >IDEF</text>
+  <text x="1986" y="684" >diagram</text>
+  <text x="1778" y="700" >Set</text>
+  <text x="1810" y="700" >of</text>
+  <text x="1834" y="700" >LibVvoid</text>
+  <text x="1906" y="700" >connectors</text>
+  <text x="1578" y="748" >Section</text>
+  <text x="1642" y="748" >of</text>
+  <text x="1666" y="748" >disk</text>
+  <text x="1962" y="748" >Set</text>
+  <text x="1994" y="748" >of</text>
+  <text x="2018" y="748" >IDEF</text>
+  <text x="2058" y="748" >diagrams</text>
+  <polygon points="1688,756 1696,760 1688,764" class="filled"></polygon>
+  <text x="10" y="940" >Node:A</text>
+  <line x1="56" y1="936" x2="64" y2="936" class="solid"></line>
+  <text x="66" y="940" >0</text>
+  <text x="874" y="220" >object</text>
+  <text x="490" y="236" >Loads</text>
+  <text x="538" y="236" >a</text>
+  <text x="554" y="236" >source</text>
+  <text x="610" y="236" >XML</text>
+  <text x="642" y="236" >file</text>
+  <text x="1154" y="332" >height</text>
+  <text x="658" y="396" >Loaded</text>
+  <text x="714" y="396" >IDEF</text>
+  <text x="754" y="396" >diagram</text>
+  <text x="890" y="412" >Positions</text>
+  <text x="970" y="412" >a</text>
+  <text x="946" y="428" >gram</text>
+  <text x="986" y="412" >loaded</text>
+  <text x="986" y="428" >object</text>
+  <text x="1042" y="412" >IDEF</text>
+  <text x="1082" y="412" >dia</text>
+  <text x="1602" y="524" >object</text>
+  <text x="1306" y="588" >Generates</text>
+  <text x="1386" y="588" >a</text>
+  <text x="1402" y="588" >set</text>
+  <text x="1434" y="588" >of</text>
+  <text x="1370" y="604" >connectors</text>
+  <text x="1458" y="588" >LibAvoid</text>
+  <text x="2050" y="684" >object</text>
+  <text x="1722" y="764" >Writes</text>
+  <text x="1778" y="764" >a</text>
+  <text x="1794" y="764" >set</text>
+  <text x="1826" y="764" >of</text>
+  <text x="1850" y="764" >IDEF</text>
+  <text x="1794" y="780" >m</text>
+  <text x="1810" y="780" >files.</text>
+  <text x="1890" y="764" >diagra</text>
   <g>
-    <line x1="772" y1="200" x2="1028" y2="200" class="solid"></line>
-    <line x1="772" y1="200" x2="772" y2="264" class="solid"></line>
-    <line x1="1028" y1="200" x2="1028" y2="264" class="solid"></line>
-    <line x1="1028" y1="232" x2="1164" y2="232" class="solid"></line>
-    <line x1="1164" y1="232" x2="1164" y2="592" class="solid"></line>
-    <line x1="772" y1="264" x2="1028" y2="264" class="solid"></line>
+    <line x1="4" y1="8" x2="2396" y2="8" class="solid"></line>
+    <line x1="4" y1="8" x2="4" y2="952" class="solid"></line>
+    <line x1="2396" y1="8" x2="2396" y2="952" class="solid"></line>
+    <line x1="4" y1="232" x2="24" y2="232" class="solid"></line>
+    <line x1="4" y1="760" x2="1688" y2="760" class="solid"></line>
+    <line x1="4" y1="920" x2="2396" y2="920" class="solid"></line>
+    <line x1="604" y1="920" x2="604" y2="952" class="solid"></line>
+    <line x1="4" y1="952" x2="2396" y2="952" class="solid"></line>
+    <line x1="1700" y1="712" x2="1956" y2="712" class="solid"></line>
+    <line x1="1700" y1="712" x2="1700" y2="808" class="solid"></line>
+    <line x1="1956" y1="712" x2="1956" y2="808" class="solid"></line>
+    <line x1="1956" y1="760" x2="2396" y2="760" class="solid"></line>
+    <line x1="1700" y1="808" x2="1956" y2="808" class="solid"></line>
   </g>
   <g>
-    <line x1="0" y1="232" x2="760" y2="232" class="solid"></line>
-    <line x1="28" y1="232" x2="28" y2="1000" class="solid"></line>
-    <line x1="28" y1="1000" x2="1592" y2="1000" class="solid"></line>
+    <line x1="452" y1="184" x2="708" y2="184" class="solid"></line>
+    <line x1="452" y1="184" x2="452" y2="280" class="solid"></line>
+    <line x1="708" y1="184" x2="708" y2="280" class="solid"></line>
+    <line x1="708" y1="232" x2="844" y2="232" class="solid"></line>
+    <line x1="844" y1="232" x2="844" y2="384" class="solid"></line>
+    <line x1="452" y1="280" x2="708" y2="280" class="solid"></line>
   </g>
   <g>
-    <line x1="1188" y1="584" x2="1444" y2="584" class="solid"></line>
-    <line x1="1188" y1="584" x2="1188" y2="648" class="solid"></line>
-    <line x1="1444" y1="584" x2="1444" y2="648" class="solid"></line>
-    <line x1="1444" y1="616" x2="2180" y2="616" class="solid"></line>
-    <line x1="1732" y1="616" x2="1732" y2="944" class="solid"></line>
-    <line x1="2180" y1="616" x2="2180" y2="1304" class="solid"></line>
-    <line x1="1188" y1="648" x2="1444" y2="648" class="solid"></line>
+    <line x1="36" y1="232" x2="440" y2="232" class="solid"></line>
+    <line x1="36" y1="232" x2="36" y2="584" class="solid"></line>
+    <line x1="36" y1="584" x2="1272" y2="584" class="solid"></line>
   </g>
   <g>
-    <line x1="1604" y1="968" x2="1860" y2="968" class="solid"></line>
-    <line x1="1604" y1="968" x2="1604" y2="1032" class="solid"></line>
-    <line x1="1860" y1="968" x2="1860" y2="1032" class="solid"></line>
-    <line x1="1860" y1="1000" x2="2100" y2="1000" class="solid"></line>
-    <line x1="2100" y1="1000" x2="2100" y2="1328" class="solid"></line>
-    <line x1="1604" y1="1032" x2="1860" y2="1032" class="solid"></line>
+    <line x1="868" y1="360" x2="1124" y2="360" class="solid"></line>
+    <line x1="868" y1="360" x2="868" y2="456" class="solid"></line>
+    <line x1="1124" y1="360" x2="1124" y2="456" class="solid"></line>
+    <line x1="1124" y1="408" x2="1860" y2="408" class="solid"></line>
+    <line x1="1412" y1="408" x2="1412" y2="512" class="solid"></line>
+    <line x1="1860" y1="408" x2="1860" y2="648" class="solid"></line>
+    <line x1="868" y1="456" x2="1124" y2="456" class="solid"></line>
   </g>
   <g>
-    <line x1="2020" y1="1352" x2="2276" y2="1352" class="solid"></line>
-    <line x1="2020" y1="1352" x2="2020" y2="1416" class="solid"></line>
-    <line x1="2276" y1="1352" x2="2276" y2="1416" class="solid"></line>
-    <line x1="2276" y1="1384" x2="3200" y2="1384" class="solid"></line>
-    <line x1="2020" y1="1416" x2="2276" y2="1416" class="solid"></line>
+    <line x1="1284" y1="536" x2="1540" y2="536" class="solid"></line>
+    <line x1="1284" y1="536" x2="1284" y2="632" class="solid"></line>
+    <line x1="1540" y1="536" x2="1540" y2="632" class="solid"></line>
+    <line x1="1540" y1="584" x2="1780" y2="584" class="solid"></line>
+    <line x1="1780" y1="584" x2="1780" y2="688" class="solid"></line>
+    <line x1="1284" y1="632" x2="1540" y2="632" class="solid"></line>
   </g>
 </svg>
