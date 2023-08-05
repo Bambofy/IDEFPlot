@@ -461,6 +461,21 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram,
             Diagram[BoundaryCallStub.Position.Row][BoundaryCallStub.Position.Column] = 'V';
         }
     }
+    for (uint32_t Column = 0u; Column < TargetDiagram.Width; Column++)
+    {
+        Diagram[0u][Column] = '-';
+        Diagram[TargetDiagram.Height - 1][Column] = '-';
+    }
+    for (uint32_t Row = 0u; Row < TargetDiagram.Height; Row++)
+    {
+        Diagram[Row][0u] = '|';
+        Diagram[Row][TargetDiagram.Width - 1u] = '|';
+    }
+    Diagram[0u][0u] = '+';
+    Diagram[0u][TargetDiagram.Width-1u] = '+';
+    Diagram[TargetDiagram.Height - 1u][TargetDiagram.Width - 1u] = '+';
+    Diagram[TargetDiagram.Height - 1u][0u] = '+';
+
     return Diagram;
 }
 }
