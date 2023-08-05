@@ -162,16 +162,21 @@ ActivityBox LoadActivity(const pugi::xml_node &ActivityNode)
     return NewActivityBox;
 }
 
-ActivityDiagram LoadActivityDiagram(const pugi::xml_node &ActivityDiagramNode)
+ActivityDiagram LoadActivityDiagram(const std::string &FilePath)
 {
+    pugi::xml_document DiagramXMLDocument;
+    pugi::xml_parse_result ParseResult;
+    pugi::xml_node ActivityDiagramNode;
     ActivityDiagram NewDiagram;
+
+    ParseResult = DiagramXMLDocument.load_file(FilePath.c_str());
+    ActivityDiagramNode = DiagramXMLDocument.child("Diagram");
     NewDiagram.Frame.BottomBar.NodeNumberSection = NodeNumberSection();
     NewDiagram.Frame.BottomBar.TitleSection = TitleSection();
     NewDiagram.Frame.BottomBar.CNumberSection = CNumberSection();
     NodeNumberSection& TargetNodeNumberSection = std::get<NodeNumberSection>(NewDiagram.Frame.BottomBar.NodeNumberSection);
     TitleSection& TargetTitleSection = std::get<TitleSection>(NewDiagram.Frame.BottomBar.TitleSection);
     CNumberSection& TargetCNumberSection = std::get<CNumberSection>(NewDiagram.Frame.BottomBar.CNumberSection);
-
     NewDiagram.Frame.BottomBar.Height = 4u;
     TargetNodeNumberSection.Content = ActivityDiagramNode.attribute("Number").as_string();
     TargetNodeNumberSection.TopLeft.Row = 0u;
@@ -232,42 +237,6 @@ ActivityDiagram LoadActivityDiagram(const pugi::xml_node &ActivityDiagramNode)
     }
 
     return NewDiagram;
-}
-
-Model LoadModel(const pugi::xml_node &ModelNode)
-{
-    Model NewModel;
-
-    NewModel.Title = ModelNode.attribute("Name").as_string();
-    for (const pugi::xml_node &ChildNode : ModelNode.children())
-    {
-        ActivityDiagram NewDiagram;
-
-        NewDiagram = LoadActivityDiagram(ChildNode);
-        NewModel.ActivityDiagrams.push_back(NewDiagram);
-    }
-
-    return NewModel;
-}
-
-std::vector<Model> LoadModelsFile(const std::string &FilePath)
-{
-    pugi::xml_document ModelsXMLDocument;
-    pugi::xml_node RootXMLNode;
-    pugi::xml_parse_result ParseResult;
-    std::vector<Model> LoadedModels;
-
-    ParseResult = ModelsXMLDocument.load_file(FilePath.c_str());
-    RootXMLNode = ModelsXMLDocument.child("Models");
-    for (const pugi::xml_node &ChildXMLNode : RootXMLNode.children())
-    {
-        Model LoadedModel;
-
-        LoadedModel = LoadModel(ChildXMLNode);
-        LoadedModels.push_back(LoadedModel);
-    }
-
-    return LoadedModels;
 }
 
 }

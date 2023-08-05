@@ -1,44 +1,40 @@
 <?xml version="1.0"?>
-<Models>
-	<Model Title="IDEF Executor">
-        <ActivityDiagram Number="0" Name="Creates IDEF0 Diagrams" CNumber="RB000">
-			<Input Name="Section of disk"/>
-			<Input Name="Section of memory"/>
-			<Control Name="IDEF model's text"/>
-			<Output Name="Group of IDEF ASCII diagrams">
-				<Source Name="Set of IDEF diagrams"></Source>
-			</Output>
-			<Mechanism Name="PugiXML"></Mechanism>
+<Diagram Number="0" Title="Creates IDEF0 Diagrams" CNumber="RB000">
+	<Input Name="Section of disk"/>
+	<Input Name="Section of memory"/>
+	<Control Name="IDEF model's text"/>
+	<Output Name="Group of IDEF ASCII diagrams">
+		<Source Name="Set of IDEF diagrams"></Source>
+	</Output>
+	<Mechanism Name="PugiXML"></Mechanism>
 
-			<Activity Number="1" Name="Loads a source XML file">
-				<Input Name="Section of memory">
-                    <Source Name="Section of memory"/>
-                </Input>
-				<Control Name="IDEF model's text"/>
-				<Output Name="Loaded IDEF diagram object"/>
-				<Mechanism Name="PugiXML"></Mechanism>
-			</Activity>
-			<Activity Number="2" Name="Positions a loaded IDEF diagram object">
-				<Input Name="Loaded IDEF diagram object">
-                    <Source Name="Loaded IDEF diagram object"></Source>
-                </Input>
-				<Control Name="Maximum diagram width"></Control>
-				<Control Name="Maximum diagram height"/>
-				<Output Name="Positioned IDEF diagram object"/>
-			</Activity>
-			<Activity Number="3" Name="Generates a set of LibAvoid connectors">
-				<Input Name="Section of memory"/>
-				<Control Name="Positioned IDEF diagram object"/>
-				<Output Name="Set of LibAvoid connectors"/>
-			</Activity>
-			<Activity Number="4" Name="Writes a set of IDEF diagram files.">
-				<Input Name="Section of disk">
-                    <Source Name="Section of disk"/>
-                </Input>
-				<Control Name="Set of LibAvoid connectors"/>
-				<Control Name="Positioned IDEF diagram object"/>
-				<Output Name="Set of IDEF diagrams"/>
-			</Activity>
-		</ActivityDiagram>
-	</Model>
-</Models>
+	<Activity Number="1" Name="Loads a source XML file">
+		<Input Name="Section of memory">
+            <Source Name="Section of memory"/>
+        </Input>
+		<Control Name="IDEF model's text"/>
+		<Output Name="Loaded IDEF diagram object"/>
+		<Mechanism Name="PugiXML"></Mechanism>
+	</Activity>
+	<Activity Number="2" Name="Positions a loaded IDEF diagram object">
+		<Input Name="Loaded IDEF diagram object">
+            <Source Name="Loaded IDEF diagram object"></Source>
+        </Input>
+		<Control Name="Maximum diagram width"></Control>
+		<Control Name="Maximum diagram height"/>
+		<Output Name="Positioned IDEF diagram object"/>
+	</Activity>
+	<Activity Number="3" Name="Generates a set of LibAvoid connectors">
+		<Input Name="Section of memory"/>
+		<Control Name="Positioned IDEF diagram object"/>
+		<Output Name="Set of LibAvoid connectors"/>
+	</Activity>
+	<Activity Number="4" Name="Writes a set of IDEF diagram files.">
+		<Input Name="Section of disk">
+            <Source Name="Section of disk"/>
+        </Input>
+		<Control Name="Set of LibAvoid connectors"/>
+		<Control Name="Positioned IDEF diagram object"/>
+		<Output Name="Set of IDEF diagrams"/>
+	</Activity>
+</Diagram>

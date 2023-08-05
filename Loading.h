@@ -192,10 +192,7 @@ OutputStub LoadOutputStub(const pugi::xml_node& OutputStubXMLNode);
 ControlStub LoadControlStub(const pugi::xml_node& ControlStubXMLNode);
 MechanismStub LoadMechanismStub(const pugi::xml_node& MechanismStubXMLNode);
 CallStub LoadCallStub(const pugi::xml_node& CallStubXMLNode);
-ActivityBox LoadActivity(const pugi::xml_node &ActivityNode);
-ActivityDiagram LoadActivityDiagram(const pugi::xml_node &ActivityDiagramNode);
-Model LoadModel(const pugi::xml_node &ModelNode);
-std::vector<Model> LoadModelsFile(const std::string &FilePath);
+ActivityDiagram LoadActivityDiagram(const std::string &FilePath);
 
 }
 
