@@ -333,9 +333,21 @@ void DrawBoxStubs(std::vector<std::string>& Diagram,
         const InputStub& SelectedInputStub = std::get<InputStub>(SelectedStub);
         uint32_t LabelLength;
 
-        Diagram[SelectedInputStub.Position.Row][SelectedInputStub.Position.Column - 3u] = '-';
-        Diagram[SelectedInputStub.Position.Row][SelectedInputStub.Position.Column - 2u] = '-';
-        Diagram[SelectedInputStub.Position.Row][SelectedInputStub.Position.Column - 1u] = '>';
+        for (uint32_t StubCharIndex = 0u; StubCharIndex < SelectedInputStub.Length; StubCharIndex++)
+        {
+            if (StubCharIndex == 0u)
+            {
+                Diagram[SelectedInputStub.Position.Row][SelectedInputStub.Position.Column - 1u - StubCharIndex] = '>';
+            }
+            else if (StubCharIndex == (SelectedInputStub.Length-1u))
+            {   
+                Diagram[SelectedInputStub.Position.Row - 1u - StubCharIndex][SelectedInputStub.Position.Column] = '+';
+            }
+            else
+            {
+                Diagram[SelectedInputStub.Position.Row][SelectedInputStub.Position.Column - 1u - StubCharIndex] = '-';
+            }
+        }
         LabelLength = SelectedInputStub.Name.length();
         for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
         {
@@ -352,8 +364,17 @@ void DrawBoxStubs(std::vector<std::string>& Diagram,
         const OutputStub& SelectedOutputStub = std::get<OutputStub>(SelectedStub);
         uint32_t LabelLength;
 
-        Diagram[SelectedOutputStub.Position.Row][SelectedOutputStub.Position.Column + 2u] = '-';
-        Diagram[SelectedOutputStub.Position.Row][SelectedOutputStub.Position.Column + 1u] = '-';
+        for (uint32_t StubCharIndex = 0u; StubCharIndex < SelectedOutputStub.Length; StubCharIndex++)
+        {
+            if (StubCharIndex == (SelectedOutputStub.Length-1u))
+            {   
+                Diagram[SelectedOutputStub.Position.Row - 1u - StubCharIndex][SelectedOutputStub.Position.Column] = '+';
+            }
+            else
+            {
+                Diagram[SelectedOutputStub.Position.Row][SelectedOutputStub.Position.Column + 1u + StubCharIndex] = '-';
+            }
+        }
         LabelLength = SelectedOutputStub.Name.length();
         for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
         {
@@ -371,8 +392,21 @@ void DrawBoxStubs(std::vector<std::string>& Diagram,
         const ControlStub &SelectedControlStub = std::get<ControlStub>(SelectedBox.ControlStubs[ControlStubIndex]);
         uint32_t LabelLength;
 
-        Diagram[SelectedControlStub.Position.Row - 2u][SelectedControlStub.Position.Column] = '|';
-        Diagram[SelectedControlStub.Position.Row - 1u][SelectedControlStub.Position.Column] = 'V';
+        for (uint32_t StubCharIndex = 0u; StubCharIndex < SelectedControlStub.Length; StubCharIndex++)
+        {
+            if (StubCharIndex == 0u)
+            {
+                Diagram[SelectedControlStub.Position.Row - 1u - StubCharIndex][SelectedControlStub.Position.Column] = 'V';
+            }
+            else if (StubCharIndex == (SelectedControlStub.Length-1u))
+            {   
+                Diagram[SelectedControlStub.Position.Row - 1u - StubCharIndex][SelectedControlStub.Position.Column] = '+';
+            }
+            else
+            {
+                Diagram[SelectedControlStub.Position.Row - 1u - StubCharIndex][SelectedControlStub.Position.Column] = '|';
+            }
+        }
         LabelLength = SelectedControlStub.Name.length();
         for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
         {
@@ -390,8 +424,21 @@ void DrawBoxStubs(std::vector<std::string>& Diagram,
         const MechanismStub &SelectedMechanismStub = std::get<MechanismStub>(SelectedBox.MechanismStubs[MechanismStubIndex]);
         uint32_t LabelLength;
 
-        Diagram[SelectedMechanismStub.Position.Row + 2u][SelectedMechanismStub.Position.Column] = '|';
-        Diagram[SelectedMechanismStub.Position.Row + 1u][SelectedMechanismStub.Position.Column] = '^';
+        for (uint32_t StubCharIndex = 0u; StubCharIndex < SelectedMechanismStub.Length; StubCharIndex++)
+        {
+            if (StubCharIndex == 0u)
+            {
+                Diagram[SelectedMechanismStub.Position.Row - 1u - StubCharIndex][SelectedMechanismStub.Position.Column] = '^';
+            }
+            else if (StubCharIndex == (SelectedMechanismStub.Length-1u))
+            {   
+                Diagram[SelectedMechanismStub.Position.Row - 1u - StubCharIndex][SelectedMechanismStub.Position.Column] = '+';
+            }
+            else
+            {
+                Diagram[SelectedMechanismStub.Position.Row - 1u - StubCharIndex][SelectedMechanismStub.Position.Column] = '|';
+            }
+        }
         LabelLength = SelectedMechanismStub.Name.length();
         for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
         {
@@ -409,8 +456,21 @@ void DrawBoxStubs(std::vector<std::string>& Diagram,
         const CallStub &SelectedCallStub = std::get<CallStub>(SelectedBox.CallStubs[CallStubIndex]);
         uint32_t LabelLength;
 
-        Diagram[SelectedCallStub.Position.Row + 2u][SelectedCallStub.Position.Column] = '-';
-        Diagram[SelectedCallStub.Position.Row + 1u][SelectedCallStub.Position.Column] = '^';
+        for (uint32_t StubCharIndex = 0u; StubCharIndex < SelectedCallStub.Length; StubCharIndex++)
+        {
+            if (StubCharIndex == 0u)
+            {
+                Diagram[SelectedCallStub.Position.Row - 1u - StubCharIndex][SelectedCallStub.Position.Column] = '^';
+            }
+            else if (StubCharIndex == (SelectedCallStub.Length-1u))
+            {   
+                Diagram[SelectedCallStub.Position.Row - 1u - StubCharIndex][SelectedCallStub.Position.Column] = '+';
+            }
+            else
+            {
+                Diagram[SelectedCallStub.Position.Row - 1u - StubCharIndex][SelectedCallStub.Position.Column] = '|';
+            }
+        }
         LabelLength = SelectedCallStub.Name.length();
         for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
         {
