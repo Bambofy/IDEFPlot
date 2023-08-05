@@ -310,6 +310,15 @@ void DrawBoxLabel(std::vector<std::string>& Diagram,
             Cursor.Column++;
         }
     }
+    Cursor.Row = BoxBottomRight.Row - 1u;
+    Cursor.Column = BoxBottomRight.Column - 1u;
+    NumChars = SelectedBox.NodeNumber.length();
+    for (uint32_t CharIndex = 0u; CharIndex < NumChars; CharIndex++)
+    {
+        Diagram[Cursor.Row][Cursor.Column] = SelectedBox.NodeNumber[(NumChars-1u) - CharIndex];
+        Cursor.Column--;
+    }
+    Diagram[Cursor.Row][Cursor.Column] = 'A';
 }
 
 void DrawBoxStubs(std::vector<std::string>& Diagram, 
@@ -471,6 +480,7 @@ void DrawBoundaryStubs(std::vector<std::string>& Diagram,
         const Stub& IteratedStub = TargetDiagram.MechanismBoundaryStubs[StubIndex];
         const MechanismStub& BoundaryMechanismStub = std::get<MechanismStub>(IteratedStub);
         
+        Diagram[BoundaryMechanismStub.Position.Row][BoundaryMechanismStub.Position.Column] = 'V';
         for (uint32_t StubCharIndex = 0u; StubCharIndex < BoundaryMechanismStub.Length; StubCharIndex++)
         {
             Diagram[BoundaryMechanismStub.Position.Row - StubCharIndex][BoundaryMechanismStub.Position.Column] = '|';
@@ -485,11 +495,11 @@ void DrawBoundaryStubs(std::vector<std::string>& Diagram,
         {
             if (StubCharIndex == 0u)
             {
-                Diagram[BoundaryCallStub.Position.Row][BoundaryCallStub.Position.Column] = '>';
+                Diagram[BoundaryCallStub.Position.Row][BoundaryCallStub.Position.Column] = '^';
             }
             else
             {
-                Diagram[BoundaryCallStub.Position.Row][BoundaryCallStub.Position.Column - StubCharIndex] = '-';
+                Diagram[BoundaryCallStub.Position.Row][BoundaryCallStub.Position.Column - StubCharIndex] = '|';
             }
         }
     }   
