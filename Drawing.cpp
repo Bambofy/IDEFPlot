@@ -483,11 +483,12 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram,
         Diagram[TargetDiagram.Frame.BottomBar.TopLeft.Row][Column] = '-';
     }
     const NodeNumberSection& NumberBarSection = std::get<NodeNumberSection>(TargetDiagram.Frame.BottomBar.NodeNumberSection);
+    
     for (uint32_t Row = NumberBarSection.TopLeft.Row; Row < NumberBarSection.TopLeft.Row + NumberBarSection.Height; Row++)
     {
         Diagram[Row][NumberBarSection.TopLeft.Column + NumberBarSection.Width] = '|'; 
     }
-    Diagram[NumberBarSection.TopLeft.Row][0u] = '+';
+    Diagram[NumberBarSection.TopLeft.Row][NumberBarSection.TopLeft.Column] = '+';
     Diagram[NumberBarSection.TopLeft.Row][NumberBarSection.TopLeft.Column + NumberBarSection.Width] = '+';
     Diagram[NumberBarSection.TopLeft.Row + (NumberBarSection.Height-1u)][0u] = '+';
     Diagram[NumberBarSection.TopLeft.Row + (NumberBarSection.Height-1u)][NumberBarSection.TopLeft.Column + NumberBarSection.Width] = '+';
@@ -514,7 +515,38 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram,
         Diagram[Cursor.Row][Cursor.Column] = NumberBarSection.Content[CharIndex];
         Cursor.Column++;
     }
-
+    const TitleSection& TitleBarSection = std::get<TitleSection>(TargetDiagram.Frame.BottomBar.TitleSection);
+    
+    for (uint32_t Row = TitleBarSection.TopLeft.Row; Row < TitleBarSection.TopLeft.Row + TitleBarSection.Height; Row++)
+    {
+        Diagram[Row][TitleBarSection.TopLeft.Column + TitleBarSection.Width] = '|'; 
+    }
+    Diagram[TitleBarSection.TopLeft.Row][TitleBarSection.TopLeft.Column] = '+';
+    Diagram[TitleBarSection.TopLeft.Row][TitleBarSection.TopLeft.Column + TitleBarSection.Width] = '+';
+    Diagram[TitleBarSection.TopLeft.Row + (TitleBarSection.Height-1u)][0u] = '+';
+    Diagram[TitleBarSection.TopLeft.Row + (TitleBarSection.Height-1u)][TitleBarSection.TopLeft.Column + TitleBarSection.Width] = '+';
+    Cursor.Row = TitleBarSection.TopLeft.Row;
+    Cursor.Column = TitleBarSection.TopLeft.Column;
+    Cursor.Row += 1u;
+    Cursor.Column += 1u;
+    Diagram[Cursor.Row][Cursor.Column] = 'T';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = 'i';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = 't';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = 'l';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = 'e';
+    Cursor.Column++;
+    Diagram[Cursor.Row][Cursor.Column] = ':';
+    Cursor.Column++;
+    NumChars = TitleBarSection.Content.length();
+    for (uint32_t CharIndex = 0u; CharIndex < NumChars; CharIndex++)
+    {
+        Diagram[Cursor.Row][Cursor.Column] = TitleBarSection.Content[CharIndex];
+        Cursor.Column++;
+    }
 
     return Diagram;
 }

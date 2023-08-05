@@ -135,6 +135,7 @@
   <text x="10" y="940" >Node:A</text>
   <line x1="56" y1="936" x2="64" y2="936" class="solid"></line>
   <text x="66" y="940" >0</text>
+  <text x="610" y="940" >Title:</text>
   <text x="874" y="220" >object</text>
   <text x="490" y="236" >Loads</text>
   <text x="538" y="236" >a</text>
@@ -176,6 +177,7 @@
     <line x1="4" y1="760" x2="1688" y2="760" class="solid"></line>
     <line x1="4" y1="920" x2="2396" y2="920" class="solid"></line>
     <line x1="604" y1="920" x2="604" y2="952" class="solid"></line>
+    <line x1="1804" y1="920" x2="1804" y2="952" class="solid"></line>
     <line x1="4" y1="952" x2="2396" y2="952" class="solid"></line>
     <line x1="1700" y1="712" x2="1956" y2="712" class="solid"></line>
     <line x1="1700" y1="712" x2="1700" y2="808" class="solid"></line>
