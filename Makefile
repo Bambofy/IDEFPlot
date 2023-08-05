@@ -28,4 +28,8 @@ LibAvoidTarget:
 
 IDEFPlotTarget:
 	$(CC) -g -std=c++17 -c main.cpp -Ipugixml/src/ -Iadaptagrams/cola/
-	$(CC) -g -std=c++17 main.o pugixml.o actioninfo.o connectionpin.o connector.o connend.o geometry.o geomtypes.o graph.o hyperedge.o hyperedgeimprover.o hyperedgetree.o junction.o makepath.o mtst.o obstacle.o orthogonal.o router.o scanline.o shape.o timer.o vertices.o viscluster.o visibility.o vpsc.o
+	$(CC) -g -std=c++17 -c Placing.cpp -Ipugixml/src/ -Iadaptagrams/cola/
+	$(CC) -g -std=c++17 -c Drawing.cpp -Ipugixml/src/ -Iadaptagrams/cola/
+	$(CC) -g -std=c++17 -c Layouting.cpp -Ipugixml/src/ -Iadaptagrams/cola/
+	$(CC) -g -std=c++17 -c Loading.cpp -Ipugixml/src/ -Iadaptagrams/cola/
+	$(CC) -g -std=c++17 main.o Placing.o Drawing.o Layouting.o Loading.o pugixml.o actioninfo.o connectionpin.o connector.o connend.o geometry.o geomtypes.o graph.o hyperedge.o hyperedgeimprover.o hyperedgetree.o junction.o makepath.o mtst.o obstacle.o orthogonal.o router.o scanline.o shape.o timer.o vertices.o viscluster.o visibility.o vpsc.o

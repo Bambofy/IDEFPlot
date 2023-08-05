@@ -40,6 +40,17 @@ diagram onto a file, routing connections between the boxes and drawing the eleme
 ## Using
 IDEF0 is a complex functional modelling tool and the XML specification is a description of the IDEF0 diagrams.
 
+The parameters for IDEFPlot are as follows:
+
+./IDEFPlot {InputFilePath} {OutputFilePath} {DiagramWidth} {DiagramHeight} {BoxWidth} {BoxHeight} {BoxMargin}
+
+Example parameters:
+1. DiagramWidth = 300
+2. DiagramHeight = 100
+3. BoxWidth = 32
+4. BoxHeight = 6
+5. BoxMargin = 20
+
 ## XML Specification
 The XML specification describes a complete IDEF0 functional model. Each element of the specification represents different parts of the actual diagram elements for example; `<Activity>` `<Input>`.
 
