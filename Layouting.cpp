@@ -900,7 +900,6 @@ void ChangeBoundaryStubLengths(ActivityDiagram& Diagram)
     NumControlStubs = Diagram.ControlBoundaryStubs.size();
     NumMechanismStubs = Diagram.MechanismBoundaryStubs.size();
     NumCallStubs = Diagram.CallBoundaryStubs.size();
-    std::cout << "Changing the control boundary stub lengths" << std::endl;
     for (uint32_t I = 0u; I < NumControlStubs; I++)
     {
         std::vector<Stub> NeighbourStubs;
@@ -928,7 +927,6 @@ void ChangeBoundaryStubLengths(ActivityDiagram& Diagram)
         ControlBoundaryStub.Length = 3u + StubsLeftwards;
         Diagram.ControlBoundaryStubs[I] = ControlBoundaryStub;
     }
-    std::cout << "Changing the mechanism boundary stub lengths" << std::endl;
     for (uint32_t I = 0u; I < NumMechanismStubs; I++)
     {
         std::vector<Stub> NeighbourStubs;
@@ -966,7 +964,6 @@ void ChangeBoundaryStubLengths(ActivityDiagram& Diagram)
         MechanismBoundaryStub.Length = 3u + StubsLeftwards;
         Diagram.MechanismBoundaryStubs[I] = MechanismBoundaryStub;
     }
-    std::cout << "Changing the call boundary stub lengths" << std::endl;
     for (uint32_t I = 0u; I < NumCallStubs; I++)
     {
         std::vector<Stub> NeighbourStubs;

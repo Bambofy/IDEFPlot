@@ -631,6 +631,7 @@ void DrawBoundaryStubLabels(std::vector<std::string>& Diagram,
 
         NameLength = InputBoundaryStub.Name.length();
         Cursor.Column = InputBoundaryStub.Position.Column;
+        Cursor.Column++;
         Cursor.Row = InputBoundaryStub.Position.Row;
         Cursor.Row--;
         for (uint32_t CharIndex = 0u; CharIndex < NameLength; CharIndex++)
