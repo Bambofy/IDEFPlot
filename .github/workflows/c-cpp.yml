@@ -6,9 +6,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: make
@@ -17,3 +15,8 @@ jobs:
       run: make LibAvoidTarget CC=g++
     - name: make
       run: make IDEFPlotTarget CC=g++
+  run:
+    runs-on: ubuntu-latest
+    steps:
+    - name: runcommand
+      run: ./a.out TestData.xml Diagram.txt 400 300 32 6 10 10
