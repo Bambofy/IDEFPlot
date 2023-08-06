@@ -9,11 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: make
+    - name: Compile pugi
       run: make PugiXMLTarget CC=g++ 
-    - name: make
+    - name: Compile lib avoid
       run: make LibAvoidTarget CC=g++
-    - name: make
+    - name: Compile IDEFPlot target
       run: make IDEFPlotTarget CC=g++
     - name: Upload build output
       uses: actions/upload-artifact@v3
@@ -24,9 +24,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-    - name: Download a single artifact
+    - name: Download the binary artifact
       uses: actions/download-artifact@v3
       with:
         name: idefplot-binary
-    - name: runcommand
+    - name: Enable binary execution
+      run: chmod +x a.out
+    - name: Run IDEFPlot
       run: ./a.out TestData.xml Diagram.txt 400 300 32 6 10 10
