@@ -15,9 +15,18 @@ jobs:
       run: make LibAvoidTarget CC=g++
     - name: make
       run: make IDEFPlotTarget CC=g++
+    - name: Upload build output
+      uses: actions/upload-artifact@v3
+      with:
+        name: idefplot-binary
+        path: a.out
   run:
     runs-on: ubuntu-latest
     needs: build
     steps:
+    - name: Download a single artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: idefplot-binary
     - name: runcommand
       run: ./a.out TestData.xml Diagram.txt 400 300 32 6 10 10
