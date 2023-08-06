@@ -364,6 +364,19 @@ void FindInnerStub(const ActivityDiagram& Diagram,
     }
 }
 
+void LocateConnectedBoxes(ActivityDiagram& Diagram,
+    Stub& TargetStub,
+    std::vector<ActivityBox&>& ConnectedBoxes)
+{
+
+}
+
+void LocateNeighbourArrows(ActivityDiagram& Diagram, 
+    Stub& TargetStub, 
+    std::vector<Stub&>& NeighbourStubs)
+{
+}
+
 void LayoutBoundaryStubs(ActivityDiagram &Diagram, 
     uint32_t BoxWidth, 
     uint32_t BoxHeight, 
@@ -532,6 +545,130 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram,
     }
 }
 
+void ChangeBoundaryStubLengths(ActivityDiagram &Diagram)
+{
+    for (Stub& BoundaryStub : Diagram.InputBoundaryStubs)
+    {
+        InputStub& InputBoundaryStub = std::get<InputStub>(BoundaryStub);
+        uint32_t StubsAbove;
+
+        StubsAbove = 0u;
+        for (Stub& OtherBoundaryStub : Diagram.InputBoundaryStubs)
+        {
+            InputStub& OtherInputBoundaryStub = std::get<InputStub>(OtherBoundaryStub);
+
+            if (InputBoundaryStub.Position == OtherInputBoundaryStub.Position)
+            {
+                continue;
+            }
+            else
+            {
+                if (OtherInputBoundaryStub.Position.Column < InputBoundaryStub.Position.Column)
+                {
+                    StubsAbove++;
+                }
+            }
+        }
+        InputBoundaryStub.Length = 3u + StubsAbove;
+    }
+    for (Stub& BoundaryStub : Diagram.OutputBoundaryStubs)
+    {
+        OutputStub& OutputBoundaryStub = std::get<OutputStub>(BoundaryStub);
+        uint32_t StubsAbove;
+
+        StubsAbove = 0u;
+        for (Stub& OtherBoundaryStub : Diagram.OutputBoundaryStubs)
+        {
+            OutputStub& OtherOutputBoundaryStub = std::get<OutputStub>(OtherBoundaryStub);
+
+            if (OutputBoundaryStub.Position == OtherOutputBoundaryStub.Position)
+            {
+                continue;
+            }
+            else
+            {
+                if (OtherOutputBoundaryStub.Position.Column < OutputBoundaryStub.Position.Column)
+                {
+                    StubsAbove++;
+                }
+            }
+        }
+        OutputBoundaryStub.Length = 3u + StubsAbove;
+    }
+    for (Stub& BoundaryStub : Diagram.ControlBoundaryStubs)
+    {
+        ControlStub& ControlBoundaryStub = std::get<ControlStub>(BoundaryStub);
+        uint32_t StubsLeftwards;
+
+        StubsLeftwards = 0u;
+        for (Stub& OtherBoundaryStub : Diagram.ControlBoundaryStubs)
+        {
+            ControlStub& OtherControlBoundaryStub = std::get<ControlStub>(OtherBoundaryStub);
+
+            if (ControlBoundaryStub.Position == OtherControlBoundaryStub.Position)
+            {
+                continue;
+            }
+            else
+            {
+                if (OtherControlBoundaryStub.Position.Column < ControlBoundaryStub.Position.Column)
+                {
+                    StubsLeftwards++;
+                }
+            }
+        }
+        ControlBoundaryStub.Length = 3u + StubsLeftwards;
+    }
+    for (Stub& BoundaryStub : Diagram.MechanismBoundaryStubs)
+    {
+        MechanismStub& MechanismBoundaryStub = std::get<MechanismStub>(BoundaryStub);
+        uint32_t StubsLeftwards;
+
+        StubsLeftwards = 0u;
+        for (Stub& OtherBoundaryStub : Diagram.MechanismBoundaryStubs)
+        {
+            MechanismStub& OtherMechanismBoundaryStub = std::get<MechanismStub>(OtherBoundaryStub);
+
+            if (MechanismBoundaryStub.Position == OtherMechanismBoundaryStub.Position)
+            {
+                continue;
+            }
+            else
+            {
+                if (OtherMechanismBoundaryStub.Position.Column < MechanismBoundaryStub.Position.Column)
+                {
+                    StubsLeftwards++;
+                }
+            }
+        }
+        MechanismBoundaryStub.Length = 3u + StubsLeftwards;
+    }
+    for (Stub& BoundaryStub : Diagram.CallBoundaryStubs)
+    {
+        CallStub& CallBoundaryStub = std::get<CallStub>(BoundaryStub);
+        uint32_t StubsLeftwards;
+
+        StubsLeftwards = 0u;
+        for (Stub& OtherBoundaryStub : Diagram.CallBoundaryStubs)
+        {
+            CallStub& OtherCallBoundaryStub = std::get<CallStub>(OtherBoundaryStub);
+
+            if (CallBoundaryStub.Position == OtherCallBoundaryStub.Position)
+            {
+                continue;
+            }
+            else
+            {
+                if (OtherCallBoundaryStub.Position.Column < CallBoundaryStub.Position.Column)
+                {
+                    StubsLeftwards++;
+                }
+            }
+        }
+        CallBoundaryStub.Length = 3u + StubsLeftwards;
+    }
+}
+
 void LayoutActivityDiagram(ActivityDiagram &LoadedDiagram, 
     uint32_t Width, 
     uint32_t Height, 
@@ -546,6 +683,7 @@ void LayoutActivityDiagram(ActivityDiagram &LoadedDiagram,
     LayoutBoxes(LoadedDiagram, BoxWidth, BoxHeight, BoxXGap, BoxYGap);
     LayoutBoxStubs(LoadedDiagram);
     LayoutBoundaryStubs(LoadedDiagram, BoxWidth, BoxHeight, BoxXGap, BoxYGap);
-} 
+    ChangeBoundaryStubLengths(LoadedDiagram);
+}
 
 }

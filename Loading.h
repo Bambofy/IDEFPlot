@@ -8,6 +8,11 @@ struct FilePosition
 {
     uint32_t Row;
     uint32_t Column;
+
+    bool operator==(const FilePosition& RHS) const
+    {
+        return (Row == RHS.Row) && (Column == RHS.Column);
+    }
 };
 
 struct StubSource

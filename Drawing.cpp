@@ -609,6 +609,108 @@ void DrawBoundaryStubs(std::vector<std::string>& Diagram,
     }
 }
 
+void DrawBoundaryStubLabels(std::vector<std::string>& Diagram,
+    const ActivityDiagram& TargetDiagram)
+{
+    uint32_t InputBoundaryStubCount;
+    uint32_t OutputBoundaryStubCount;
+    uint32_t ControlBoundaryStubCount;
+    uint32_t MechanismBoundaryStubCount;
+    uint32_t CallBoundaryStubCount;
+
+    InputBoundaryStubCount = TargetDiagram.InputBoundaryStubs.size();
+    OutputBoundaryStubCount = TargetDiagram.OutputBoundaryStubs.size();
+    ControlBoundaryStubCount = TargetDiagram.ControlBoundaryStubs.size();
+    MechanismBoundaryStubCount = TargetDiagram.MechanismBoundaryStubs.size();
+    CallBoundaryStubCount = TargetDiagram.CallBoundaryStubs.size();
+    for (uint32_t InputBoundaryStubIndex = 0u; InputBoundaryStubIndex < InputBoundaryStubCount; InputBoundaryStubIndex++)
+    {
+        const InputStub& InputBoundaryStub = std::get<InputStub>(TargetDiagram.InputBoundaryStubs[InputBoundaryStubIndex]);
+        FilePosition Cursor;
+        uint32_t NameLength;
+
+        NameLength = InputBoundaryStub.Name.length();
+        Cursor.Column = InputBoundaryStub.Position.Column;
+        Cursor.Row = InputBoundaryStub.Position.Row;
+        Cursor.Row--;
+        for (uint32_t CharIndex = 0u; CharIndex < NameLength; CharIndex++)
+        {
+            Diagram[Cursor.Row][Cursor.Column] = InputBoundaryStub.Name[CharIndex];
+            Cursor.Column++;
+        }
+    }
+    for (uint32_t OutputBoundaryStubIndex = 0u; OutputBoundaryStubIndex < OutputBoundaryStubCount; OutputBoundaryStubIndex++)
+    {
+        const OutputStub& OutputBoundaryStub = std::get<OutputStub>(TargetDiagram.OutputBoundaryStubs[OutputBoundaryStubIndex]);
+        FilePosition Cursor;
+        uint32_t NameLength;
+
+        NameLength = OutputBoundaryStub.Name.length();
+        Cursor.Column = OutputBoundaryStub.Position.Column - NameLength;
+        Cursor.Row = OutputBoundaryStub.Position.Row;
+        Cursor.Row--;
+        for (uint32_t CharIndex = 0u; CharIndex < NameLength; CharIndex++)
+        {
+            Diagram[Cursor.Row][Cursor.Column] = OutputBoundaryStub.Name[CharIndex];
+            Cursor.Column++;
+        } 
+    }
+    for (uint32_t ControlBoundaryStubIndex = 0u; ControlBoundaryStubIndex < ControlBoundaryStubCount; ControlBoundaryStubIndex++)
+    {
+        const ControlStub& ControlBoundaryStub = std::get<ControlStub>(TargetDiagram.ControlBoundaryStubs[ControlBoundaryStubIndex]);
+        FilePosition Cursor;
+        uint32_t NameLength;
+
+        NameLength = ControlBoundaryStub.Name.length();
+        Cursor.Column = ControlBoundaryStub.Position.Column;
+        Cursor.Column++;
+        Cursor.Row = ControlBoundaryStub.Position.Row;
+        Cursor.Row++;
+        Cursor.Row += ControlBoundaryStub.Length - 3u;
+        for (uint32_t CharIndex = 0u; CharIndex < NameLength; CharIndex++)
+        {
+            Diagram[Cursor.Row][Cursor.Column] = ControlBoundaryStub.Name[CharIndex];
+            Cursor.Column++;
+        }
+    }
+    for (uint32_t MechanismBoundaryStubIndex = 0u; MechanismBoundaryStubIndex < MechanismBoundaryStubCount; MechanismBoundaryStubIndex++)
+    {
+        const MechanismStub& MechanismBoundaryStub = std::get<MechanismStub>(TargetDiagram.MechanismBoundaryStubs[MechanismBoundaryStubIndex]);
+        FilePosition Cursor;
+        uint32_t NameLength;
+
+        NameLength = MechanismBoundaryStub.Name.length();
+        Cursor.Column = MechanismBoundaryStub.Position.Column;
+        Cursor.Column++;
+        Cursor.Row = MechanismBoundaryStub.Position.Row;
+        Cursor.Row--;
+        Cursor.Row -= MechanismBoundaryStub.Length - 3u;
+        for (uint32_t CharIndex = 0u; CharIndex < NameLength; CharIndex++)
+        {
+            Diagram[Cursor.Row][Cursor.Column] = MechanismBoundaryStub.Name[CharIndex];
+            Cursor.Column++;
+        }
+    }
+    for (uint32_t CallBoundaryStubIndex = 0u; CallBoundaryStubIndex < CallBoundaryStubCount; CallBoundaryStubIndex++)
+    {
+        const CallStub& CallBoundaryStub = std::get<CallStub>(TargetDiagram.CallBoundaryStubs[CallBoundaryStubIndex]);
+        FilePosition Cursor;
+        uint32_t NameLength;
+
+        NameLength = CallBoundaryStub.Name.length();
+        Cursor.Column = CallBoundaryStub.Position.Column;
+        Cursor.Column++;
+        Cursor.Row = CallBoundaryStub.Position.Row;
+        Cursor.Row--;
+        Cursor.Row -= CallBoundaryStub.Length - 3u;
+        for (uint32_t CharIndex = 0u; CharIndex < NameLength; CharIndex++)
+        {
+            Diagram[Cursor.Row][Cursor.Column] = CallBoundaryStub.Name[CharIndex];
+            Cursor.Column++;
+        }
+    }
+}
+
 void DrawBoxes(std::vector<std::string>& Diagram,
     const ActivityDiagram& TargetDiagram)
 {
@@ -790,6 +892,7 @@ std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram,
     DrawRoutes(ConnectedRouter, Diagram, TargetDiagram);
     DrawBoxes(Diagram, TargetDiagram);
     DrawBoundaryStubs(Diagram, TargetDiagram);
+    DrawBoundaryStubLabels(Diagram, TargetDiagram);
     DrawFrame(Diagram, TargetDiagram);
 
     return Diagram;
