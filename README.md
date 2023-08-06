@@ -7,6 +7,7 @@ XML tags. It may not be 100% bug-free and feature complete but hopefully it will
 Made by Richard Bamford 2023
 
 github.com/Bambofy/IDEFPlot
+[![C/C++ CI](https://github.com/Bambofy/IDEFPlot/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/Bambofy/IDEFPlot/actions/workflows/c-cpp.yml)
 
 ## Building
 The operating system used to develop this program was Debian GNU/Linux 12 (bookworm) however the code is platform independent as far as i am aware. The compiler used to was GNU gcc version 12.2.0 (Debian 12.2.0-14) and the target architecture is "x86_64-linux-gnu".
