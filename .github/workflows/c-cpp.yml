@@ -1,0 +1,19 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: make
+      run: make PugiXMLTarget CC=g++ 
+    - name: make
+      run: make LibAvoidTarget CC=g++
+    - name: make
+      run: make IDEFPlotTarget CC=g++
