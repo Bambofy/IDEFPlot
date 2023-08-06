@@ -32,3 +32,8 @@ jobs:
       run: chmod +x a.out
     - name: Run IDEFPlot
       run: ./a.out TestData.xml Diagram.txt 400 300 32 6 10 10
+    - name: Upload diagram
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-diagram
+        path: Diagram.txt
