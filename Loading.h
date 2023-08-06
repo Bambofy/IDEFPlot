@@ -192,6 +192,15 @@ struct Model
     std::vector<ActivityDiagram> ActivityDiagrams;
 };
 
+enum Interface
+{
+    InputInterface,
+    OutputInterface,
+    ControlInterface,
+    MechanismInterface,
+    CallInterface
+};
+
 InputStub LoadInputStub(const pugi::xml_node& InputStubXMLNode);
 OutputStub LoadOutputStub(const pugi::xml_node& OutputStubXMLNode);
 ControlStub LoadControlStub(const pugi::xml_node& ControlStubXMLNode);
