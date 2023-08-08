@@ -428,8 +428,30 @@ void DrawBoxStubArrows(std::vector<std::string>& Diagram,
     }  
 }
 
-void DrawBoxStubLabels(std::vector<std::string>& Diagram,
-    const ActivityBox& SelectedBox)
+bool CheckForCharacters(std::vector<std::string>& Diagram, FilePosition WriteStartPosition, uint32_t CheckLength, uint32_t ColumnOffset)
+{
+    FilePosition Cursor;
+    bool HitCharacterFlag;
+
+    HitCharacterFlag = false;
+    Cursor.Column = WriteStartPosition.Column + ColumnOffset;
+    Cursor.Row = WriteStartPosition.Row;
+    for (uint32_t CharIndex = 0u; CharIndex < CheckLength; CharIndex++)
+    {
+        char CharUnderCursor;
+
+        CharUnderCursor = Diagram[Cursor.Row][Cursor.Column + CharIndex];
+        if (std::isalnum(CharUnderCursor))
+        {
+            HitCharacterFlag = true;
+            break;
+        }
+    }
+
+    return HitCharacterFlag;
+}
+
+void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& SelectedBox)
 {
     uint32_t ControlStubCount;
     uint32_t MechanismStubCount;
@@ -438,84 +460,199 @@ void DrawBoxStubLabels(std::vector<std::string>& Diagram,
     for (const Stub &SelectedStub : SelectedBox.InputStubs)
     {
         const InputStub& SelectedInputStub = std::get<InputStub>(SelectedStub);
-        uint32_t LabelLength;
+        FilePosition WriteStartPosition;
 
-        LabelLength = SelectedInputStub.Name.length();
-        for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
+        WriteStartPosition.Column = SelectedInputStub.Position.Column;
+        WriteStartPosition.Row = SelectedInputStub.Position.Row - 1u;
+        for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
         {
-            uint32_t CharColumn;
-            uint32_t CharRow;
+            bool HitCharacterFlag;
 
-            CharColumn = (SelectedInputStub.Position.Column - LabelLength) + CharIndex;
-            CharRow = SelectedInputStub.Position.Row - 1u;
-            Diagram[CharRow][CharColumn] = SelectedInputStub.Name[CharIndex];
+            HitCharacterFlag = CheckForCharacters(Diagram, WriteStartPosition, SelectedInputStub.Name.length(), -2u);
+            if (HitCharacterFlag == true)
+            {
+                WriteStartPosition.Row--;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (WriteStartPosition.Row == 0u)
+        {
+            throw std::runtime_error("Could not find space to draw the box input label.");
+        }
+        else
+        {
+            uint32_t NameLength;
+            FilePosition Cursor;
+
+            NameLength = SelectedInputStub.Name.length();
+            Cursor.Column = WriteStartPosition.Column;
+            Cursor.Row = WriteStartPosition.Row;
+            for (uint32_t ColumnOffset = 0u; ColumnOffset < NameLength; ColumnOffset++)
+            {
+                Diagram[Cursor.Row][Cursor.Column + ColumnOffset] = SelectedInputStub.Name[ColumnOffset];
+            }
         }
     }
     for (const Stub &SelectedStub : SelectedBox.OutputStubs)
     {
+        uint32_t NameLength;
         const OutputStub& SelectedOutputStub = std::get<OutputStub>(SelectedStub);
-        uint32_t LabelLength;
+        FilePosition WriteStartPosition;        
 
-        LabelLength = SelectedOutputStub.Name.length();
-        for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
+        NameLength = SelectedOutputStub.Name.length();
+        WriteStartPosition.Column = SelectedOutputStub.Position.Column - NameLength - 1u;
+        WriteStartPosition.Row = SelectedOutputStub.Position.Row - 1u;
+        for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
         {
-            uint32_t CharColumn;
-            uint32_t CharRow;
+            bool HitCharacterFlag;
 
-            CharColumn = SelectedOutputStub.Position.Column + CharIndex + 1u;
-            CharRow = SelectedOutputStub.Position.Row - 1u;
-            Diagram[CharRow][CharColumn] = SelectedOutputStub.Name[CharIndex];
+            HitCharacterFlag = CheckForCharacters(Diagram, WriteStartPosition, SelectedOutputStub.Name.length(), -2u);
+            if (HitCharacterFlag == true)
+            {
+                WriteStartPosition.Row--;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (WriteStartPosition.Row == 0u)
+        {
+            throw std::runtime_error("Could not find space to draw the box output label.");            
+        }
+        else
+        {
+            FilePosition Cursor;
+
+            Cursor.Column = WriteStartPosition.Column;
+            Cursor.Row = WriteStartPosition.Row;
+            for (uint32_t ColumnOffset = 0u; ColumnOffset < NameLength; ColumnOffset++)
+            {
+                Diagram[Cursor.Row][Cursor.Column + ColumnOffset] = SelectedOutputStub.Name[ColumnOffset];
+            }
         }
     }
     ControlStubCount = SelectedBox.ControlStubs.size();
     for (uint32_t ControlStubIndex = 0u; ControlStubIndex < ControlStubCount; ControlStubIndex++)
     {
+        uint32_t NameLength;
         const ControlStub &SelectedControlStub = std::get<ControlStub>(SelectedBox.ControlStubs[ControlStubIndex]);
-        uint32_t LabelLength;
+        FilePosition WriteStartPosition;        
 
-        LabelLength = SelectedControlStub.Name.length();
-        for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
+        NameLength = SelectedControlStub.Name.length();
+        WriteStartPosition.Column = SelectedControlStub.Position.Column + 1u;
+        WriteStartPosition.Row = SelectedControlStub.Position.Row - 2u;
+        for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
         {
-            uint32_t CharColumn;
-            uint32_t CharRow;
+            bool HitCharacterFlag;
 
-            CharColumn = SelectedControlStub.Position.Column + CharIndex + 1u;
-            CharRow = SelectedControlStub.Position.Row - 2u - ControlStubIndex;
-            Diagram[CharRow][CharColumn] = SelectedControlStub.Name[CharIndex];
+            HitCharacterFlag = CheckForCharacters(Diagram, WriteStartPosition, SelectedControlStub.Name.length(), -2u);
+            if (HitCharacterFlag == true)
+            {
+                WriteStartPosition.Row--;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (WriteStartPosition.Row == 0u)
+        {
+            throw std::runtime_error("Could not find space to draw the box control label.");            
+        }
+        else
+        {
+            FilePosition Cursor;
+
+            Cursor.Column = WriteStartPosition.Column;
+            Cursor.Row = WriteStartPosition.Row;
+            for (uint32_t ColumnOffset = 0u; ColumnOffset < NameLength; ColumnOffset++)
+            {
+                Diagram[Cursor.Row][Cursor.Column + ColumnOffset] = SelectedControlStub.Name[ColumnOffset];
+            }
         }
     }
     MechanismStubCount = SelectedBox.MechanismStubs.size();
     for (uint32_t MechanismStubIndex = 0u; MechanismStubIndex < MechanismStubCount; MechanismStubIndex++)
     {
+        uint32_t NameLength;
         const MechanismStub &SelectedMechanismStub = std::get<MechanismStub>(SelectedBox.MechanismStubs[MechanismStubIndex]);
-        uint32_t LabelLength;
+        FilePosition WriteStartPosition;        
 
-        LabelLength = SelectedMechanismStub.Name.length();
-        for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
+        NameLength = SelectedMechanismStub.Name.length();
+        WriteStartPosition.Column = SelectedMechanismStub.Position.Column + 1u;
+        WriteStartPosition.Row = SelectedMechanismStub.Position.Row + 2u;
+        for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
         {
-            uint32_t CharColumn;
-            uint32_t CharRow;
+            bool HitCharacterFlag;
 
-            CharColumn = SelectedMechanismStub.Position.Column + CharIndex + 1u;
-            CharRow = SelectedMechanismStub.Position.Row + 2u + MechanismStubIndex;
-            Diagram[CharRow][CharColumn] = SelectedMechanismStub.Name[CharIndex];
+            HitCharacterFlag = CheckForCharacters(Diagram, WriteStartPosition, SelectedMechanismStub.Name.length(), -2u);
+            if (HitCharacterFlag == true)
+            {
+                WriteStartPosition.Row--;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (WriteStartPosition.Row == 0u)
+        {
+            throw std::runtime_error("Could not find space to draw the box mechanism label.");            
+        }
+        else
+        {
+            FilePosition Cursor;
+
+            Cursor.Column = WriteStartPosition.Column;
+            Cursor.Row = WriteStartPosition.Row;
+            for (uint32_t ColumnOffset = 0u; ColumnOffset < NameLength; ColumnOffset++)
+            {
+                Diagram[Cursor.Row][Cursor.Column + ColumnOffset] = SelectedMechanismStub.Name[ColumnOffset];
+            }
         }
     }
     CallStubCount = SelectedBox.CallStubs.size();
     for (uint32_t CallStubIndex = 0u; CallStubIndex < CallStubCount; CallStubIndex++)
     {
+        uint32_t NameLength;
         const CallStub &SelectedCallStub = std::get<CallStub>(SelectedBox.CallStubs[CallStubIndex]);
-        uint32_t LabelLength;
+        FilePosition WriteStartPosition;        
 
-        LabelLength = SelectedCallStub.Name.length();
-        for (uint32_t CharIndex = 0u; CharIndex < LabelLength; CharIndex++)
+        NameLength = SelectedCallStub.Name.length();
+        WriteStartPosition.Column = SelectedCallStub.Position.Column + 1u;
+        WriteStartPosition.Row = SelectedCallStub.Position.Row + 2u;
+        for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
         {
-            uint32_t CharColumn;
-            uint32_t CharRow;
+            bool HitCharacterFlag;
 
-            CharColumn = SelectedCallStub.Position.Column + CharIndex + 1u;
-            CharRow = SelectedCallStub.Position.Row + MechanismStubCount + 2u + CallStubIndex;
-            Diagram[CharRow][CharColumn] = SelectedCallStub.Name[CharIndex];
+            HitCharacterFlag = CheckForCharacters(Diagram, WriteStartPosition, SelectedCallStub.Name.length(), -2u);
+            if (HitCharacterFlag == true)
+            {
+                WriteStartPosition.Row--;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (WriteStartPosition.Row == 0u)
+        {
+            throw std::runtime_error("Could not find space to draw the box call label.");            
+        }
+        else
+        {
+            FilePosition Cursor;
+
+            Cursor.Column = WriteStartPosition.Column;
+            Cursor.Row = WriteStartPosition.Row;
+            for (uint32_t ColumnOffset = 0u; ColumnOffset < NameLength; ColumnOffset++)
+            {
+                Diagram[Cursor.Row][Cursor.Column + ColumnOffset] = SelectedCallStub.Name[ColumnOffset];
+            }
         }
     }
 }
