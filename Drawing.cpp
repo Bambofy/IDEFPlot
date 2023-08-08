@@ -461,14 +461,16 @@ void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& Sel
     {
         const InputStub& SelectedInputStub = std::get<InputStub>(SelectedStub);
         FilePosition WriteStartPosition;
+        uint32_t StubNameLength;
 
-        WriteStartPosition.Column = SelectedInputStub.Position.Column;
+        StubNameLength = SelectedInputStub.Name.length();
+        WriteStartPosition.Column = SelectedInputStub.Position.Column - StubNameLength;
         WriteStartPosition.Row = SelectedInputStub.Position.Row - 1u;
         for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
         {
             bool HitCharacterFlag;
 
-            HitCharacterFlag = CheckForCharacters(Diagram, WriteStartPosition, SelectedInputStub.Name.length(), -2u);
+            HitCharacterFlag = CheckForCharacters(Diagram, WriteStartPosition, StubNameLength, -2u);
             if (HitCharacterFlag == true)
             {
                 WriteStartPosition.Row--;
@@ -484,13 +486,11 @@ void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& Sel
         }
         else
         {
-            uint32_t NameLength;
             FilePosition Cursor;
 
-            NameLength = SelectedInputStub.Name.length();
             Cursor.Column = WriteStartPosition.Column;
             Cursor.Row = WriteStartPosition.Row;
-            for (uint32_t ColumnOffset = 0u; ColumnOffset < NameLength; ColumnOffset++)
+            for (uint32_t ColumnOffset = 0u; ColumnOffset < StubNameLength; ColumnOffset++)
             {
                 Diagram[Cursor.Row][Cursor.Column + ColumnOffset] = SelectedInputStub.Name[ColumnOffset];
             }
@@ -498,12 +498,12 @@ void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& Sel
     }
     for (const Stub &SelectedStub : SelectedBox.OutputStubs)
     {
-        uint32_t NameLength;
         const OutputStub& SelectedOutputStub = std::get<OutputStub>(SelectedStub);
-        FilePosition WriteStartPosition;        
+        FilePosition WriteStartPosition;     
+        uint32_t StubNameLength;   
 
-        NameLength = SelectedOutputStub.Name.length();
-        WriteStartPosition.Column = SelectedOutputStub.Position.Column - NameLength - 1u;
+        StubNameLength = SelectedOutputStub.Name.length();
+        WriteStartPosition.Column = SelectedOutputStub.Position.Column + 1u;
         WriteStartPosition.Row = SelectedOutputStub.Position.Row - 1u;
         for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
         {
@@ -529,7 +529,7 @@ void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& Sel
 
             Cursor.Column = WriteStartPosition.Column;
             Cursor.Row = WriteStartPosition.Row;
-            for (uint32_t ColumnOffset = 0u; ColumnOffset < NameLength; ColumnOffset++)
+            for (uint32_t ColumnOffset = 0u; ColumnOffset < StubNameLength; ColumnOffset++)
             {
                 Diagram[Cursor.Row][Cursor.Column + ColumnOffset] = SelectedOutputStub.Name[ColumnOffset];
             }
@@ -538,11 +538,11 @@ void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& Sel
     ControlStubCount = SelectedBox.ControlStubs.size();
     for (uint32_t ControlStubIndex = 0u; ControlStubIndex < ControlStubCount; ControlStubIndex++)
     {
-        uint32_t NameLength;
         const ControlStub &SelectedControlStub = std::get<ControlStub>(SelectedBox.ControlStubs[ControlStubIndex]);
-        FilePosition WriteStartPosition;        
+        FilePosition WriteStartPosition;    
+        uint32_t StubNameLength;    
 
-        NameLength = SelectedControlStub.Name.length();
+        StubNameLength = SelectedControlStub.Name.length();
         WriteStartPosition.Column = SelectedControlStub.Position.Column + 1u;
         WriteStartPosition.Row = SelectedControlStub.Position.Row - 2u;
         for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
@@ -569,7 +569,7 @@ void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& Sel
 
             Cursor.Column = WriteStartPosition.Column;
             Cursor.Row = WriteStartPosition.Row;
-            for (uint32_t ColumnOffset = 0u; ColumnOffset < NameLength; ColumnOffset++)
+            for (uint32_t ColumnOffset = 0u; ColumnOffset < StubNameLength; ColumnOffset++)
             {
                 Diagram[Cursor.Row][Cursor.Column + ColumnOffset] = SelectedControlStub.Name[ColumnOffset];
             }
@@ -578,11 +578,11 @@ void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& Sel
     MechanismStubCount = SelectedBox.MechanismStubs.size();
     for (uint32_t MechanismStubIndex = 0u; MechanismStubIndex < MechanismStubCount; MechanismStubIndex++)
     {
-        uint32_t NameLength;
         const MechanismStub &SelectedMechanismStub = std::get<MechanismStub>(SelectedBox.MechanismStubs[MechanismStubIndex]);
-        FilePosition WriteStartPosition;        
+        FilePosition WriteStartPosition;  
+        uint32_t StubNameLength;      
 
-        NameLength = SelectedMechanismStub.Name.length();
+        StubNameLength = SelectedMechanismStub.Name.length();
         WriteStartPosition.Column = SelectedMechanismStub.Position.Column + 1u;
         WriteStartPosition.Row = SelectedMechanismStub.Position.Row + 2u;
         for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
@@ -609,7 +609,7 @@ void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& Sel
 
             Cursor.Column = WriteStartPosition.Column;
             Cursor.Row = WriteStartPosition.Row;
-            for (uint32_t ColumnOffset = 0u; ColumnOffset < NameLength; ColumnOffset++)
+            for (uint32_t ColumnOffset = 0u; ColumnOffset < StubNameLength; ColumnOffset++)
             {
                 Diagram[Cursor.Row][Cursor.Column + ColumnOffset] = SelectedMechanismStub.Name[ColumnOffset];
             }
@@ -618,11 +618,11 @@ void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& Sel
     CallStubCount = SelectedBox.CallStubs.size();
     for (uint32_t CallStubIndex = 0u; CallStubIndex < CallStubCount; CallStubIndex++)
     {
-        uint32_t NameLength;
         const CallStub &SelectedCallStub = std::get<CallStub>(SelectedBox.CallStubs[CallStubIndex]);
-        FilePosition WriteStartPosition;        
+        FilePosition WriteStartPosition;    
+        uint32_t StubNameLength;    
 
-        NameLength = SelectedCallStub.Name.length();
+        StubNameLength = SelectedCallStub.Name.length();
         WriteStartPosition.Column = SelectedCallStub.Position.Column + 1u;
         WriteStartPosition.Row = SelectedCallStub.Position.Row + 2u;
         for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
@@ -649,7 +649,7 @@ void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& Sel
 
             Cursor.Column = WriteStartPosition.Column;
             Cursor.Row = WriteStartPosition.Row;
-            for (uint32_t ColumnOffset = 0u; ColumnOffset < NameLength; ColumnOffset++)
+            for (uint32_t ColumnOffset = 0u; ColumnOffset < StubNameLength; ColumnOffset++)
             {
                 Diagram[Cursor.Row][Cursor.Column + ColumnOffset] = SelectedCallStub.Name[ColumnOffset];
             }
