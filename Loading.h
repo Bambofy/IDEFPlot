@@ -26,7 +26,8 @@ struct InputStub
     FilePosition Position;
     std::vector<StubSource> Sources;
     uint32_t Length;
-    
+    bool Headed;
+      
     bool operator<(const InputStub& RHS) const
     {
         uint32_t ThisEncodedPosition;
@@ -45,6 +46,7 @@ struct OutputStub
     FilePosition Position;
     std::vector<StubSource> Sources;
     uint32_t Length;
+    bool Headed;
 
     bool operator<(const OutputStub& RHS) const
     {
@@ -64,6 +66,7 @@ struct ControlStub
     FilePosition Position;
     std::vector<StubSource> Sources;
     uint32_t Length;
+    bool Headed;
 
     bool operator<(const ControlStub& RHS) const
     {
@@ -83,6 +86,7 @@ struct MechanismStub
     FilePosition Position;
     std::vector<StubSource> Sources;
     uint32_t Length;
+    bool Headed;
 
     bool operator<(const MechanismStub& RHS) const
     {
@@ -102,6 +106,7 @@ struct CallStub
     FilePosition Position;
     std::vector<StubSource> Sources;
     uint32_t Length;
+    bool Headed;
 
     bool operator<(const CallStub& RHS) const
     {
@@ -201,11 +206,11 @@ enum Interface
     CallInterface
 };
 
-InputStub LoadInputStub(const pugi::xml_node& InputStubXMLNode);
-OutputStub LoadOutputStub(const pugi::xml_node& OutputStubXMLNode);
-ControlStub LoadControlStub(const pugi::xml_node& ControlStubXMLNode);
-MechanismStub LoadMechanismStub(const pugi::xml_node& MechanismStubXMLNode);
-CallStub LoadCallStub(const pugi::xml_node& CallStubXMLNode);
+InputStub LoadInputStub(const pugi::xml_node& InputStubXMLNode, bool Headed);
+OutputStub LoadOutputStub(const pugi::xml_node& OutputStubXMLNode, bool Headed);
+ControlStub LoadControlStub(const pugi::xml_node& ControlStubXMLNode, bool Headed);
+MechanismStub LoadMechanismStub(const pugi::xml_node& MechanismStubXMLNode, bool Headed);
+CallStub LoadCallStub(const pugi::xml_node& CallStubXMLNode, bool Headed);
 ActivityDiagram LoadActivityDiagram(const std::string &FilePath);
 
 }

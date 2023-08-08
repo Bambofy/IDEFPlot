@@ -470,262 +470,6 @@ std::vector<ActivityBox> LocateConnectedBoxes(ActivityDiagram& Diagram, std::str
     return ConnectedBoxes;
 }
 
-Interface LocateBoxInterface(ActivityBox& TargetBox, std::string& TargetStubName)
-{
-    Interface FoundInterface;
-
-    for (Stub& SelectedStub : TargetBox.InputStubs)
-    {
-        InputStub& SelectedInputStub = std::get<InputStub>(SelectedStub);
-
-        if (SelectedInputStub.Name == TargetStubName)
-        {
-            FoundInterface = InputInterface;
-        }
-        else
-        {
-            for (StubSource& SelectedSource : SelectedInputStub.Sources)
-            {
-                if (SelectedSource.StubName == TargetStubName)
-                {
-                    FoundInterface = InputInterface;
-                }
-            }
-        }
-    }
-    for (Stub& SelectedStub : TargetBox.OutputStubs)
-    {
-        OutputStub& SelectedOutputStub = std::get<OutputStub>(SelectedStub);
-
-        if (SelectedOutputStub.Name == TargetStubName)
-        {
-            FoundInterface = InputInterface;
-        }
-        else
-        {
-            for (StubSource& SelectedSource : SelectedOutputStub.Sources)
-            {
-                if (SelectedSource.StubName == TargetStubName)
-                {
-                    FoundInterface = InputInterface;
-                }
-            }
-        }
-    }
-    for (Stub& SelectedStub : TargetBox.ControlStubs)
-    {
-        ControlStub& SelectedControlStub = std::get<ControlStub>(SelectedStub);
-
-        if (SelectedControlStub.Name == TargetStubName)
-        {
-            FoundInterface = InputInterface;
-        }
-        else
-        {
-            for (StubSource& SelectedSource : SelectedControlStub.Sources)
-            {
-                if (SelectedSource.StubName == TargetStubName)
-                {
-                    FoundInterface = InputInterface;
-                }
-            }
-        }
-    }
-    for (Stub& SelectedStub : TargetBox.MechanismStubs)
-    {
-        MechanismStub& SelectedMechanismStub = std::get<MechanismStub>(SelectedStub);
-
-        if (SelectedMechanismStub.Name == TargetStubName)
-        {
-            FoundInterface = InputInterface;
-        }
-        else
-        {
-            for (StubSource& SelectedSource : SelectedMechanismStub.Sources)
-            {
-                if (SelectedSource.StubName == TargetStubName)
-                {
-                    FoundInterface = InputInterface;
-                }
-            }
-        }
-    }
-    for (Stub& SelectedStub : TargetBox.CallStubs)
-    {
-        CallStub& SelectedCallStub = std::get<CallStub>(SelectedStub);
-
-        if (SelectedCallStub.Name == TargetStubName)
-        {
-            FoundInterface = InputInterface;
-        }
-        else
-        {
-            for (StubSource& SelectedSource : SelectedCallStub.Sources)
-            {
-                if (SelectedSource.StubName == TargetStubName)
-                {
-                    FoundInterface = InputInterface;
-                }
-            }
-        }
-    }
-
-    return FoundInterface;
-}
-
-std::vector<Stub> LocateNeighbourStubs(ActivityDiagram& Diagram, std::string& TargetStubName)
-{
-    std::vector<Stub> NeighbourStubs;
-    std::vector<ActivityBox> ConnectedBoxes;
-    uint32_t NumConnectedBoxes;
-
-    ConnectedBoxes = LocateConnectedBoxes(Diagram, TargetStubName);
-    NumConnectedBoxes = ConnectedBoxes.size();
-    for (uint32_t SelectedBoxIndex = 0u; SelectedBoxIndex < NumConnectedBoxes; SelectedBoxIndex++)
-    {
-        Interface ConnectedInterface;
-        ActivityBox SelectedBox;
-
-        SelectedBox = ConnectedBoxes[SelectedBoxIndex];
-        ConnectedInterface = LocateBoxInterface(SelectedBox, TargetStubName);
-        switch (ConnectedInterface)
-        {
-            case InputInterface:
-            {
-                for (Stub BoxStub : SelectedBox.InputStubs)
-                {
-                    InputStub BoxInputStub = std::get<InputStub>(BoxStub);
-
-                    if (BoxInputStub.Name != TargetStubName)
-                    {
-                        bool SourceMatchFlag;
-
-                        SourceMatchFlag = false;
-                        for (StubSource SelectedSource : BoxInputStub.Sources)
-                        {
-                            if (SelectedSource.StubName == TargetStubName)
-                            {
-                                SourceMatchFlag = true;
-                            }
-                        }
-                        if (SourceMatchFlag == false)
-                        {
-                            NeighbourStubs.push_back(BoxInputStub);
-                        }
-                    }
-                }
-                break;
-            };
-            case OutputInterface:
-            {
-                for (Stub BoxStub : SelectedBox.OutputStubs)
-                {
-                    OutputStub BoxOutputStub = std::get<OutputStub>(BoxStub);
-
-                    if (BoxOutputStub.Name != TargetStubName)
-                    {
-                        bool SourceMatchFlag;
-
-                        SourceMatchFlag = false;
-                        for (StubSource SelectedSource : BoxOutputStub.Sources)
-                        {
-                            if (SelectedSource.StubName == TargetStubName)
-                            {
-                                SourceMatchFlag = true;
-                            }
-                        }
-                        if (SourceMatchFlag == false)
-                        {
-                            NeighbourStubs.push_back(BoxOutputStub);
-                        }
-                    }
-                }
-            };
-            case ControlInterface:
-            {
-                for (Stub BoxStub : SelectedBox.ControlStubs)
-                {
-                    ControlStub BoxControlStub = std::get<ControlStub>(BoxStub);
-
-                    if (BoxControlStub.Name != TargetStubName)
-                    {
-                        bool SourceMatchFlag;
-
-                        SourceMatchFlag = false;
-                        for (StubSource SelectedSource : BoxControlStub.Sources)
-                        {
-                            if (SelectedSource.StubName == TargetStubName)
-                            {
-                                SourceMatchFlag = true;
-                            }
-                        }
-                        if (SourceMatchFlag == false)
-                        {
-                            NeighbourStubs.push_back(BoxControlStub);
-                        }
-                    }
-                }
-            };
-            case MechanismInterface:
-            {
-                for (Stub BoxStub : SelectedBox.MechanismStubs)
-                {
-                    MechanismStub BoxMechanismStub = std::get<MechanismStub>(BoxStub);
-
-                    if (BoxMechanismStub.Name != TargetStubName)
-                    {
-                        bool SourceMatchFlag;
-
-                        SourceMatchFlag = false;
-                        for (StubSource SelectedSource : BoxMechanismStub.Sources)
-                        {
-                            if (SelectedSource.StubName == TargetStubName)
-                            {
-                                SourceMatchFlag = true;
-                            }
-                        }
-                        if (SourceMatchFlag == false)
-                        {
-                            NeighbourStubs.push_back(BoxMechanismStub);
-                        }
-                    }
-                }
-            };
-            case CallInterface:
-            {
-                for (Stub BoxStub : SelectedBox.CallStubs)
-                {
-                    CallStub BoxCallStub = std::get<CallStub>(BoxStub);
-
-                    if (BoxCallStub.Name != TargetStubName)
-                    {
-                        bool SourceMatchFlag;
-
-                        SourceMatchFlag = false;
-                        for (StubSource SelectedSource : BoxCallStub.Sources)
-                        {
-                            if (SelectedSource.StubName == TargetStubName)
-                            {
-                                SourceMatchFlag = true;
-                            }
-                        }
-                        if (SourceMatchFlag == false)
-                        {
-                            NeighbourStubs.push_back(BoxCallStub);
-                        }
-                    }
-                }
-            };
-            default:
-            {
-                break;
-            };
-        };
-    }
-
-    return NeighbourStubs;
-}
-
 void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t BoxHeight, uint32_t BoxXGap, uint32_t BoxYGap)
 {
     uint32_t BoxSectionHeight;
@@ -774,7 +518,6 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
             BoundaryInputStub.Position.Column = 0u;
             BoundaryInputStub.Position.Row = (1u+StubIndex) * RowHeight;
         }
-        BoundaryInputStub.Length = 3u + StubIndex;
         StubIndex++;
     }
     StubIndex = 0u;
@@ -807,7 +550,6 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
             BoundaryControlStub.Position.Column = (1u+StubIndex) * ColumnWidth;
             BoundaryControlStub.Position.Row = 0u;
         }
-        BoundaryControlStub.Length = 3u + StubIndex;
         StubIndex++;
     }
     StubIndex = 0u;
@@ -833,7 +575,6 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
             BoundaryOutputStub.Position.Column = Diagram.Width - 1u;
             BoundaryOutputStub.Position.Row = (1u+StubIndex) * RowHeight;
         }
-        BoundaryOutputStub.Length = 3u + StubIndex;
         StubIndex++;
     }
     StubIndex = 0u;
@@ -859,7 +600,6 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
             BoundaryMechanismStub.Position.Column = (1u+StubIndex) * ColumnWidth;
             BoundaryMechanismStub.Position.Row = Diagram.Height - 1u - Diagram.Frame.BottomBar.Height;
         }
-        BoundaryMechanismStub.Length = 3u + StubIndex;
         StubIndex++;
     }
     StubIndex = 0u;
@@ -885,7 +625,6 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
             BoundaryCallStub.Position.Column = (1u+StubIndex) * ColumnWidth;
             BoundaryCallStub.Position.Row = Diagram.Height - 1u;
         }
-        BoundaryCallStub.Length = 3u + StubIndex;
         StubIndex++;
     }
 }
@@ -896,29 +635,86 @@ void ChangeBoundaryStubLengths(ActivityDiagram& Diagram)
     uint32_t NumOutputStubs;
     uint32_t NumMechanismStubs;
     uint32_t NumCallStubs;
+    uint32_t NumInputStubs;
 
+    NumInputStubs = Diagram.InputBoundaryStubs.size();
+    NumOutputStubs = Diagram.OutputBoundaryStubs.size();
     NumControlStubs = Diagram.ControlBoundaryStubs.size();
     NumMechanismStubs = Diagram.MechanismBoundaryStubs.size();
     NumCallStubs = Diagram.CallBoundaryStubs.size();
+    for (uint32_t I = 0u; I < NumInputStubs; I++)
+    {
+        InputStub InputBoundaryStub;
+        uint32_t StubsAbove;
+
+        StubsAbove = 0u;
+        InputBoundaryStub = std::get<InputStub>(Diagram.InputBoundaryStubs[I]);
+        for (uint32_t K = 0u; K < NumInputStubs; K++)
+        {
+            if (I == K)
+            {
+                continue;
+            }
+            else
+            {
+                InputStub OtherInputBoundaryStub;
+
+                OtherInputBoundaryStub = std::get<InputStub>(Diagram.InputBoundaryStubs[K]);
+                if (OtherInputBoundaryStub.Position.Row < InputBoundaryStub.Position.Row)
+                {
+                    StubsAbove++;
+                }
+            }
+        }
+        InputBoundaryStub.Length = 3u + StubsAbove;
+        Diagram.InputBoundaryStubs[I] = InputBoundaryStub;
+    }
+    for (uint32_t I = 0u; I < NumOutputStubs; I++)
+    {
+        OutputStub OutputBoundaryStub;
+        uint32_t StubsAbove;
+
+        StubsAbove = 0u;
+        OutputBoundaryStub = std::get<OutputStub>(Diagram.OutputBoundaryStubs[I]);
+        for (uint32_t K = 0u; K < NumOutputStubs; K++)
+        {
+            if (I == K)
+            {
+                continue;
+            }
+            else
+            {
+                OutputStub OtherOutputBoundaryStub;
+
+                OtherOutputBoundaryStub = std::get<OutputStub>(Diagram.OutputBoundaryStubs[K]);
+                if (OtherOutputBoundaryStub.Position.Row < OutputBoundaryStub.Position.Row)
+                {
+                    StubsAbove++;
+                }
+            }
+        }
+        OutputBoundaryStub.Length = 3u + StubsAbove;
+        Diagram.OutputBoundaryStubs[I] = OutputBoundaryStub;
+    }
     for (uint32_t I = 0u; I < NumControlStubs; I++)
     {
-        std::vector<Stub> NeighbourStubs;
         ControlStub ControlBoundaryStub;
         uint32_t StubsLeftwards;
 
         StubsLeftwards = 0u;
         ControlBoundaryStub = std::get<ControlStub>(Diagram.ControlBoundaryStubs[I]);
-        NeighbourStubs = LocateNeighbourStubs(Diagram, ControlBoundaryStub.Name);
-        for (Stub NeighbourStub : NeighbourStubs)
+        for (uint32_t K = 0u; K < NumControlStubs; K++)
         {
-            FilePosition NeighbourStubPosition;
-
-            if (std::holds_alternative<ControlStub>(NeighbourStub))
+            if (I == K)
             {
-                ControlStub ControlNeighbourStub;
+                continue;
+            }
+            else
+            {
+                ControlStub OtherControlBoundaryStub;
 
-                ControlNeighbourStub = std::get<ControlStub>(NeighbourStub);
-                if (ControlNeighbourStub.Position.Row < ControlBoundaryStub.Position.Row)
+                OtherControlBoundaryStub = std::get<ControlStub>(Diagram.ControlBoundaryStubs[K]);
+                if (OtherControlBoundaryStub.Position.Column < ControlBoundaryStub.Position.Column)
                 {
                     StubsLeftwards++;
                 }
@@ -929,33 +725,23 @@ void ChangeBoundaryStubLengths(ActivityDiagram& Diagram)
     }
     for (uint32_t I = 0u; I < NumMechanismStubs; I++)
     {
-        std::vector<Stub> NeighbourStubs;
         MechanismStub MechanismBoundaryStub;
         uint32_t StubsLeftwards;
 
         StubsLeftwards = 0u;
         MechanismBoundaryStub = std::get<MechanismStub>(Diagram.MechanismBoundaryStubs[I]);
-        NeighbourStubs = LocateNeighbourStubs(Diagram, MechanismBoundaryStub.Name);
-        for (Stub NeighbourStub : NeighbourStubs)
+        for (uint32_t K = 0u; K < NumMechanismStubs; K++)
         {
-            FilePosition NeighbourStubPosition;
-
-            if (std::holds_alternative<MechanismStub>(NeighbourStub))
+            if (I == K)
             {
-                MechanismStub MechanismNeighbourStub;
-
-                MechanismNeighbourStub = std::get<MechanismStub>(NeighbourStub);
-                if (MechanismNeighbourStub.Position.Row < MechanismBoundaryStub.Position.Row)
-                {
-                    StubsLeftwards++;
-                }
+                continue;
             }
-            else if (std::holds_alternative<CallStub>(NeighbourStub))
+            else
             {
-                CallStub CallNeighbourStub;
+                MechanismStub OtherMechanismBoundaryStub;
 
-                CallNeighbourStub = std::get<CallStub>(NeighbourStub);
-                if (CallNeighbourStub.Position.Row < MechanismBoundaryStub.Position.Row)
+                OtherMechanismBoundaryStub = std::get<MechanismStub>(Diagram.MechanismBoundaryStubs[K]);
+                if (OtherMechanismBoundaryStub.Position.Column < MechanismBoundaryStub.Position.Column)
                 {
                     StubsLeftwards++;
                 }
@@ -966,31 +752,23 @@ void ChangeBoundaryStubLengths(ActivityDiagram& Diagram)
     }
     for (uint32_t I = 0u; I < NumCallStubs; I++)
     {
-        std::vector<Stub> NeighbourStubs;
         CallStub CallBoundaryStub;
         uint32_t StubsLeftwards;
 
         StubsLeftwards = 0u;
         CallBoundaryStub = std::get<CallStub>(Diagram.CallBoundaryStubs[I]);
-        NeighbourStubs = LocateNeighbourStubs(Diagram, CallBoundaryStub.Name);
-        for (Stub NeighbourStub : NeighbourStubs)
+        for (uint32_t K = 0u; K < NumCallStubs; K++)
         {
-            if (std::holds_alternative<MechanismStub>(NeighbourStub))
+            if (I == K)
             {
-                MechanismStub MechanismNeighbourStub;
-
-                MechanismNeighbourStub = std::get<MechanismStub>(NeighbourStub);
-                if (MechanismNeighbourStub.Position.Row < CallBoundaryStub.Position.Row)
-                {
-                    StubsLeftwards++;
-                }
+                continue;
             }
-            else if (std::holds_alternative<CallStub>(NeighbourStub))
+            else
             {
-                CallStub CallNeighbourStub;
+                CallStub OtherCallBoundaryStub;
 
-                CallNeighbourStub = std::get<CallStub>(NeighbourStub);
-                if (CallNeighbourStub.Position.Row < CallBoundaryStub.Position.Row)
+                OtherCallBoundaryStub = std::get<CallStub>(Diagram.CallBoundaryStubs[K]);
+                if (OtherCallBoundaryStub.Position.Column < CallBoundaryStub.Position.Column)
                 {
                     StubsLeftwards++;
                 }

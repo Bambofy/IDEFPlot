@@ -448,6 +448,28 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                         }
                     }
                 }
+                else if (std::holds_alternative<MechanismStub>(OtherStub))
+                {
+                    const MechanismStub& OtherMechanismStub = std::get<MechanismStub>(OtherStub);
+
+                    if (FirstOutputStub.Name == OtherMechanismStub.Name)
+                    {
+                        Avoid::ConnRef* NewRef;
+                        
+                        NewRef = new Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, OtherBoxStubPair.second);
+                    }
+                    else
+                    {
+                        for (const StubSource& Source : OtherMechanismStub.Sources)
+                        {
+                            if (Source.StubName == FirstOutputStub.Name)
+                            {
+                                Avoid::ConnRef* NewRef;
+
+                                NewRef = new Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, OtherBoxStubPair.second);                            }
+                        }
+                    }
+                }
             }
         }
         for (const std::pair<Stub, Avoid::ConnEnd> &BoundaryBoxStubPair : BoundaryStubsMap)

@@ -18,7 +18,7 @@
 namespace IDEF
 {
 
-InputStub LoadInputStub(const pugi::xml_node& InputStubXMLNode)
+InputStub LoadInputStub(const pugi::xml_node& InputStubXMLNode, bool Headed)
 {
     InputStub NewStub;
     
@@ -33,11 +33,12 @@ InputStub LoadInputStub(const pugi::xml_node& InputStubXMLNode)
     NewStub.Position.Row = 0u;
     NewStub.Position.Column = 0u;
     NewStub.Length = 0u;
+    NewStub.Headed = Headed;
 
     return NewStub;   
 }
 
-OutputStub LoadOutputStub(const pugi::xml_node& OutputStubXMLNode)
+OutputStub LoadOutputStub(const pugi::xml_node& OutputStubXMLNode, bool Headed)
 {
     OutputStub NewStub;
 
@@ -52,11 +53,12 @@ OutputStub LoadOutputStub(const pugi::xml_node& OutputStubXMLNode)
     NewStub.Position.Row = 0u;
     NewStub.Position.Column = 0u;
     NewStub.Length = 0u;
+    NewStub.Headed = Headed;
 
     return NewStub;   
 }
 
-ControlStub LoadControlStub(const pugi::xml_node& ControlStubXMLNode)
+ControlStub LoadControlStub(const pugi::xml_node& ControlStubXMLNode, bool Headed)
 {
     ControlStub NewStub;
 
@@ -71,11 +73,12 @@ ControlStub LoadControlStub(const pugi::xml_node& ControlStubXMLNode)
     NewStub.Position.Row = 0u;
     NewStub.Position.Column = 0u;
     NewStub.Length = 0u;
+    NewStub.Headed = Headed;
 
     return NewStub;   
 }
 
-MechanismStub LoadMechanismStub(const pugi::xml_node& MechanismStubXMLNode)
+MechanismStub LoadMechanismStub(const pugi::xml_node& MechanismStubXMLNode, bool Headed)
 {
     MechanismStub NewStub;
  
@@ -90,11 +93,12 @@ MechanismStub LoadMechanismStub(const pugi::xml_node& MechanismStubXMLNode)
     NewStub.Position.Row = 0u;
     NewStub.Position.Column = 0u;
     NewStub.Length = 0u;
+    NewStub.Headed = Headed;
 
     return NewStub;   
 }
 
-CallStub LoadCallStub(const pugi::xml_node& CallStubXMLNode)
+CallStub LoadCallStub(const pugi::xml_node& CallStubXMLNode, bool Headed)
 {
     CallStub NewStub;
 
@@ -109,6 +113,7 @@ CallStub LoadCallStub(const pugi::xml_node& CallStubXMLNode)
     NewStub.Position.Row = 0u;
     NewStub.Position.Column = 0u;
     NewStub.Length = 0u;
+    NewStub.Headed = Headed;
 
     return NewStub;   
 }
@@ -130,27 +135,27 @@ ActivityBox LoadActivity(const pugi::xml_node &ActivityNode)
 
         if (strcmp(XMLStub.name(), "Input") == 0)
         {
-            NewStub = LoadInputStub(XMLStub);
+            NewStub = LoadInputStub(XMLStub, true);
             NewActivityBox.InputStubs.push_back(NewStub);
         }
         else if (strcmp(XMLStub.name(), "Output") == 0)
         {
-            NewStub = LoadOutputStub(XMLStub);
+            NewStub = LoadOutputStub(XMLStub, false);
             NewActivityBox.OutputStubs.push_back(NewStub);
         }
         else if (strcmp(XMLStub.name(), "Control") == 0)
         {
-            NewStub = LoadControlStub(XMLStub);
+            NewStub = LoadControlStub(XMLStub, true);
             NewActivityBox.ControlStubs.push_back(NewStub);
         }
         else if (strcmp(XMLStub.name(), "Mechanism") == 0)
         {
-            NewStub = LoadMechanismStub(XMLStub);
+            NewStub = LoadMechanismStub(XMLStub, true);
             NewActivityBox.MechanismStubs.push_back(NewStub);
         }
         else if (strcmp(XMLStub.name(), "Call") == 0)
         {
-            NewStub = LoadCallStub(XMLStub);
+            NewStub = LoadCallStub(XMLStub, false);
             NewActivityBox.CallStubs.push_back(NewStub);
         }
         else
@@ -195,27 +200,27 @@ ActivityDiagram LoadActivityDiagram(const std::string &FilePath)
 
         if (strcmp(ChildXMLNode.name(), "Input") == 0)
         {
-            NewStub = LoadInputStub(ChildXMLNode);
+            NewStub = LoadInputStub(ChildXMLNode, false);
             NewDiagram.InputBoundaryStubs.push_back(NewStub);
         }
         else if (strcmp(ChildXMLNode.name(), "Output") == 0)
         {
-            NewStub = LoadOutputStub(ChildXMLNode);
+            NewStub = LoadOutputStub(ChildXMLNode, true);
             NewDiagram.OutputBoundaryStubs.push_back(NewStub);
         }
         else if (strcmp(ChildXMLNode.name(), "Control") == 0)
         {
-            NewStub = LoadControlStub(ChildXMLNode);
+            NewStub = LoadControlStub(ChildXMLNode, false);
             NewDiagram.ControlBoundaryStubs.push_back(NewStub);
         }
         else if (strcmp(ChildXMLNode.name(), "Mechanism") == 0)
         {
-            NewStub = LoadMechanismStub(ChildXMLNode);
+            NewStub = LoadMechanismStub(ChildXMLNode, false);
             NewDiagram.MechanismBoundaryStubs.push_back(NewStub);
         }
         else if (strcmp(ChildXMLNode.name(), "Call") == 0)
         {
-            NewStub = LoadCallStub(ChildXMLNode);
+            NewStub = LoadCallStub(ChildXMLNode, true);
             NewDiagram.CallBoundaryStubs.push_back(NewStub);
         }
         else if (strcmp(ChildXMLNode.name(), "Activity") == 0)
