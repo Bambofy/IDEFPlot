@@ -796,55 +796,121 @@ void DrawBoundaryStubLabels(std::vector<std::string>& Diagram,
     for (uint32_t ControlBoundaryStubIndex = 0u; ControlBoundaryStubIndex < ControlBoundaryStubCount; ControlBoundaryStubIndex++)
     {
         const ControlStub& ControlBoundaryStub = std::get<ControlStub>(TargetDiagram.ControlBoundaryStubs[ControlBoundaryStubIndex]);
-        FilePosition Cursor;
-        uint32_t NameLength;
+        uint32_t StubNameLength;
+        FilePosition WriteStartPosition;
 
-        NameLength = ControlBoundaryStub.Name.length();
-        Cursor.Column = ControlBoundaryStub.Position.Column;
-        Cursor.Column++;
-        Cursor.Row = ControlBoundaryStub.Position.Row;
-        Cursor.Row++;
-        Cursor.Row += ControlBoundaryStub.Length - 3u;
-        for (uint32_t CharIndex = 0u; CharIndex < NameLength; CharIndex++)
+        StubNameLength = ControlBoundaryStub.Name.length();
+        WriteStartPosition.Column = ControlBoundaryStub.Position.Column + 1u;
+        WriteStartPosition.Row = ControlBoundaryStub.Position.Row + 1u;
+        for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex < TargetDiagram.Height; RowIndex++)
         {
-            Diagram[Cursor.Row][Cursor.Column] = ControlBoundaryStub.Name[CharIndex];
-            Cursor.Column++;
+            bool HitCharacterFlag;
+
+            HitCharacterFlag = CheckForCharacters(Diagram, WriteStartPosition, StubNameLength, -2u);
+            if (HitCharacterFlag == true)
+            {
+                WriteStartPosition.Row++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (WriteStartPosition.Row == (TargetDiagram.Height - 1u))
+        {
+            throw std::runtime_error("Could not locate space for boundary control label");
+        }
+        else
+        {
+            FilePosition Cursor;
+
+            Cursor.Column = WriteStartPosition.Column;
+            Cursor.Row = WriteStartPosition.Row;        
+            for (uint32_t CharIndex = 0u; CharIndex < StubNameLength; CharIndex++)
+            {
+                Diagram[Cursor.Row][Cursor.Column] = ControlBoundaryStub.Name[CharIndex];
+                Cursor.Column++;
+            }
         }
     }
     for (uint32_t MechanismBoundaryStubIndex = 0u; MechanismBoundaryStubIndex < MechanismBoundaryStubCount; MechanismBoundaryStubIndex++)
     {
         const MechanismStub& MechanismBoundaryStub = std::get<MechanismStub>(TargetDiagram.MechanismBoundaryStubs[MechanismBoundaryStubIndex]);
-        FilePosition Cursor;
-        uint32_t NameLength;
+        uint32_t StubNameLength;
+        FilePosition WriteStartPosition;
 
-        NameLength = MechanismBoundaryStub.Name.length();
-        Cursor.Column = MechanismBoundaryStub.Position.Column;
-        Cursor.Column++;
-        Cursor.Row = MechanismBoundaryStub.Position.Row;
-        Cursor.Row--;
-        Cursor.Row -= MechanismBoundaryStub.Length - 3u;
-        for (uint32_t CharIndex = 0u; CharIndex < NameLength; CharIndex++)
+        StubNameLength = MechanismBoundaryStub.Name.length();
+        WriteStartPosition.Column = MechanismBoundaryStub.Position.Column + 1u;
+        WriteStartPosition.Row = MechanismBoundaryStub.Position.Row + 1u;
+        for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
         {
-            Diagram[Cursor.Row][Cursor.Column] = MechanismBoundaryStub.Name[CharIndex];
-            Cursor.Column++;
+            bool HitCharacterFlag;
+
+            HitCharacterFlag = CheckForCharacters(Diagram, WriteStartPosition, StubNameLength, -2u);
+            if (HitCharacterFlag == true)
+            {
+                WriteStartPosition.Row++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (WriteStartPosition.Row == 0u)
+        {
+            throw std::runtime_error("Could not locate space for boundary mechanism label");
+        }
+        else
+        {
+            FilePosition Cursor;
+
+            Cursor.Column = WriteStartPosition.Column;
+            Cursor.Row = WriteStartPosition.Row;        
+            for (uint32_t CharIndex = 0u; CharIndex < StubNameLength; CharIndex++)
+            {
+                Diagram[Cursor.Row][Cursor.Column] = MechanismBoundaryStub.Name[CharIndex];
+                Cursor.Column++;
+            }
         }
     }
     for (uint32_t CallBoundaryStubIndex = 0u; CallBoundaryStubIndex < CallBoundaryStubCount; CallBoundaryStubIndex++)
     {
         const CallStub& CallBoundaryStub = std::get<CallStub>(TargetDiagram.CallBoundaryStubs[CallBoundaryStubIndex]);
-        FilePosition Cursor;
-        uint32_t NameLength;
+        uint32_t StubNameLength;
+        FilePosition WriteStartPosition;
 
-        NameLength = CallBoundaryStub.Name.length();
-        Cursor.Column = CallBoundaryStub.Position.Column;
-        Cursor.Column++;
-        Cursor.Row = CallBoundaryStub.Position.Row;
-        Cursor.Row--;
-        Cursor.Row -= CallBoundaryStub.Length - 3u;
-        for (uint32_t CharIndex = 0u; CharIndex < NameLength; CharIndex++)
+        StubNameLength = CallBoundaryStub.Name.length();
+        WriteStartPosition.Column = CallBoundaryStub.Position.Column + 1u;
+        WriteStartPosition.Row = CallBoundaryStub.Position.Row + 1u;
+        for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
         {
-            Diagram[Cursor.Row][Cursor.Column] = CallBoundaryStub.Name[CharIndex];
-            Cursor.Column++;
+            bool HitCharacterFlag;
+
+            HitCharacterFlag = CheckForCharacters(Diagram, WriteStartPosition, StubNameLength, -2u);
+            if (HitCharacterFlag == true)
+            {
+                WriteStartPosition.Row++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (WriteStartPosition.Row == 0u)
+        {
+            throw std::runtime_error("Could not locate space for boundary call label");
+        }
+        else
+        {
+            FilePosition Cursor;
+
+            Cursor.Column = WriteStartPosition.Column;
+            Cursor.Row = WriteStartPosition.Row;        
+            for (uint32_t CharIndex = 0u; CharIndex < StubNameLength; CharIndex++)
+            {
+                Diagram[Cursor.Row][Cursor.Column] = CallBoundaryStub.Name[CharIndex];
+                Cursor.Column++;
+            }
         }
     }
 }
