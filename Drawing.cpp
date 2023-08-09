@@ -19,9 +19,7 @@
 namespace IDEF
 {
 
-void DrawRoutes(Avoid::Router* ConnectedRouter, 
-    std::vector<std::string>& Diagram, 
-    const ActivityDiagram& TargetDiagram)
+void DrawRoutes(Avoid::Router* ConnectedRouter, std::vector<std::string>& Diagram, const ActivityDiagram& TargetDiagram)
 {
     for (Avoid::ConnRef *ConnRef : ConnectedRouter->connRefs)
     {
@@ -657,16 +655,14 @@ void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& Sel
     }
 }
 
-void DrawBoxStubs(std::vector<std::string>& Diagram, 
-    const ActivityBox& SelectedBox)
+void DrawBoxStubs(std::vector<std::string>& Diagram, const ActivityBox& SelectedBox)
 {
     DrawBoxStubArrows(Diagram, SelectedBox);
     DrawBoxStubLabels(Diagram, SelectedBox);
 }
 
 
-void DrawBoundaryStubs(std::vector<std::string>& Diagram,
-    const ActivityDiagram& TargetDiagram)
+void DrawBoundaryStubs(std::vector<std::string>& Diagram, const ActivityDiagram& TargetDiagram)
 {
     uint32_t NumCallBoundaryStubs;
     uint32_t NumInputBoundaryStubs;
@@ -746,8 +742,7 @@ void DrawBoundaryStubs(std::vector<std::string>& Diagram,
     }
 }
 
-void DrawBoundaryStubLabels(std::vector<std::string>& Diagram,
-    const ActivityDiagram& TargetDiagram)
+void DrawBoundaryStubLabels(std::vector<std::string>& Diagram, const ActivityDiagram& TargetDiagram)
 {
     uint32_t InputBoundaryStubCount;
     uint32_t OutputBoundaryStubCount;
@@ -841,7 +836,7 @@ void DrawBoundaryStubLabels(std::vector<std::string>& Diagram,
 
         StubNameLength = MechanismBoundaryStub.Name.length();
         WriteStartPosition.Column = MechanismBoundaryStub.Position.Column + 1u;
-        WriteStartPosition.Row = MechanismBoundaryStub.Position.Row + 1u;
+        WriteStartPosition.Row = MechanismBoundaryStub.Position.Row - 1u;
         for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
         {
             bool HitCharacterFlag;
@@ -881,7 +876,7 @@ void DrawBoundaryStubLabels(std::vector<std::string>& Diagram,
 
         StubNameLength = CallBoundaryStub.Name.length();
         WriteStartPosition.Column = CallBoundaryStub.Position.Column + 1u;
-        WriteStartPosition.Row = CallBoundaryStub.Position.Row + 1u;
+        WriteStartPosition.Row = CallBoundaryStub.Position.Row - 1u;
         for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
         {
             bool HitCharacterFlag;
