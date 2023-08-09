@@ -424,16 +424,15 @@ void DrawBoxStubArrows(std::vector<std::string>& Diagram,
     for (uint32_t CallStubIndex = 0u; CallStubIndex < CallStubCount; CallStubIndex++)
     {
         const CallStub &SelectedCallStub = std::get<CallStub>(SelectedBox.CallStubs[CallStubIndex]);
-
         for (uint32_t StubCharIndex = 0u; StubCharIndex < SelectedCallStub.Length; StubCharIndex++)
         {
             if (StubCharIndex == 0u)
             {
-                Diagram[SelectedCallStub.Position.Row + 1u + StubCharIndex][SelectedCallStub.Position.Column] = '^';
+                Diagram[SelectedCallStub.Position.Row + 1u + StubCharIndex][SelectedCallStub.Position.Column] = '|';
             }
             else if (StubCharIndex == (SelectedCallStub.Length-1u))
             {   
-                Diagram[SelectedCallStub.Position.Row + 1u + StubCharIndex][SelectedCallStub.Position.Column] = '+';
+                Diagram[SelectedCallStub.Position.Row + 1u + StubCharIndex][SelectedCallStub.Position.Column] = 'V';
             }
             else
             {
@@ -681,13 +680,11 @@ void DrawBoxStubs(std::vector<std::string>& Diagram, const ActivityBox& Selected
 
 void DrawBoundaryStubs(std::vector<std::string>& Diagram, const ActivityDiagram& TargetDiagram)
 {
-    uint32_t NumCallBoundaryStubs;
     uint32_t NumInputBoundaryStubs;
     uint32_t NumOutputBoundaryStubs;
     uint32_t NumMechanismBoundaryStubs;
     uint32_t NumControlBoundaryStubs;
 
-    NumCallBoundaryStubs = TargetDiagram.CallBoundaryStubs.size();
     NumInputBoundaryStubs = TargetDiagram.InputBoundaryStubs.size();
     NumOutputBoundaryStubs = TargetDiagram.OutputBoundaryStubs.size();
     NumMechanismBoundaryStubs = TargetDiagram.MechanismBoundaryStubs.size();
@@ -740,23 +737,6 @@ void DrawBoundaryStubs(std::vector<std::string>& Diagram, const ActivityDiagram&
             Diagram[BoundaryMechanismStub.Position.Row - StubCharIndex][BoundaryMechanismStub.Position.Column] = '|';
         }
     }
-    for (uint32_t StubIndex = 0u; StubIndex < NumCallBoundaryStubs; StubIndex++)
-    {
-        const Stub& IteratedStub = TargetDiagram.CallBoundaryStubs[StubIndex];
-        const CallStub& BoundaryCallStub = std::get<CallStub>(IteratedStub);
-
-        for (uint32_t StubCharIndex = 0u; StubCharIndex < BoundaryCallStub.Length; StubCharIndex++)
-        {
-            if (StubCharIndex == 0u)
-            {
-                Diagram[BoundaryCallStub.Position.Row][BoundaryCallStub.Position.Column] = '^';
-            }
-            else
-            {
-                Diagram[BoundaryCallStub.Position.Row][BoundaryCallStub.Position.Column - StubCharIndex] = '|';
-            }
-        }
-    }
 }
 
 void DrawBoundaryStubLabels(std::vector<std::string>& Diagram, const ActivityDiagram& TargetDiagram)
@@ -765,13 +745,11 @@ void DrawBoundaryStubLabels(std::vector<std::string>& Diagram, const ActivityDia
     uint32_t OutputBoundaryStubCount;
     uint32_t ControlBoundaryStubCount;
     uint32_t MechanismBoundaryStubCount;
-    uint32_t CallBoundaryStubCount;
 
     InputBoundaryStubCount = TargetDiagram.InputBoundaryStubs.size();
     OutputBoundaryStubCount = TargetDiagram.OutputBoundaryStubs.size();
     ControlBoundaryStubCount = TargetDiagram.ControlBoundaryStubs.size();
     MechanismBoundaryStubCount = TargetDiagram.MechanismBoundaryStubs.size();
-    CallBoundaryStubCount = TargetDiagram.CallBoundaryStubs.size();
     for (uint32_t InputBoundaryStubIndex = 0u; InputBoundaryStubIndex < InputBoundaryStubCount; InputBoundaryStubIndex++)
     {
         const InputStub& InputBoundaryStub = std::get<InputStub>(TargetDiagram.InputBoundaryStubs[InputBoundaryStubIndex]);
@@ -881,46 +859,6 @@ void DrawBoundaryStubLabels(std::vector<std::string>& Diagram, const ActivityDia
             for (uint32_t CharIndex = 0u; CharIndex < StubNameLength; CharIndex++)
             {
                 Diagram[Cursor.Row][Cursor.Column] = MechanismBoundaryStub.Name[CharIndex];
-                Cursor.Column++;
-            }
-        }
-    }
-    for (uint32_t CallBoundaryStubIndex = 0u; CallBoundaryStubIndex < CallBoundaryStubCount; CallBoundaryStubIndex++)
-    {
-        const CallStub& CallBoundaryStub = std::get<CallStub>(TargetDiagram.CallBoundaryStubs[CallBoundaryStubIndex]);
-        uint32_t StubNameLength;
-        FilePosition WriteStartPosition;
-
-        StubNameLength = CallBoundaryStub.Name.length();
-        WriteStartPosition.Column = CallBoundaryStub.Position.Column + 1u;
-        WriteStartPosition.Row = CallBoundaryStub.Position.Row - 1u;
-        for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
-        {
-            bool HitCharacterFlag;
-
-            HitCharacterFlag = CheckForCharacters(Diagram, WriteStartPosition, StubNameLength, -2u);
-            if (HitCharacterFlag == true)
-            {
-                WriteStartPosition.Row++;
-            }
-            else
-            {
-                break;
-            }
-        }
-        if (WriteStartPosition.Row == 0u)
-        {
-            throw std::runtime_error("Could not locate space for boundary call label");
-        }
-        else
-        {
-            FilePosition Cursor;
-
-            Cursor.Column = WriteStartPosition.Column;
-            Cursor.Row = WriteStartPosition.Row;        
-            for (uint32_t CharIndex = 0u; CharIndex < StubNameLength; CharIndex++)
-            {
-                Diagram[Cursor.Row][Cursor.Column] = CallBoundaryStub.Name[CharIndex];
                 Cursor.Column++;
             }
         }

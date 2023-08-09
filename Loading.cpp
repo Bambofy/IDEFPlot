@@ -102,14 +102,6 @@ CallStub LoadCallStub(const pugi::xml_node& CallStubXMLNode, bool Headed)
 {
     CallStub NewStub;
 
-    NewStub.Name = CallStubXMLNode.attribute("Name").as_string();
-    for (const pugi::xml_node &StubSourceXMLNode : CallStubXMLNode.children())
-    {
-        StubSource NewStubSource;
-
-        NewStubSource.StubName = StubSourceXMLNode.attribute("Name").as_string();
-        NewStub.Sources.push_back(NewStubSource);
-    }
     NewStub.Position.Row = 0u;
     NewStub.Position.Column = 0u;
     NewStub.Length = 0u;
@@ -218,11 +210,6 @@ ActivityDiagram LoadActivityDiagram(const std::string &FilePath)
         {
             NewStub = LoadMechanismStub(ChildXMLNode, false);
             NewDiagram.MechanismBoundaryStubs.push_back(NewStub);
-        }
-        else if (strcmp(ChildXMLNode.name(), "Call") == 0)
-        {
-            NewStub = LoadCallStub(ChildXMLNode, true);
-            NewDiagram.CallBoundaryStubs.push_back(NewStub);
         }
         else if (strcmp(ChildXMLNode.name(), "Activity") == 0)
         {

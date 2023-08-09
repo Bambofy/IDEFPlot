@@ -93,23 +93,6 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoxStubConnEnds(const ActivityDiagram& Layed
             ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
             BoxStubsMap.insert({SelectedStub, ConnectionEnd});
         }
-        for (Stub SelectedStub : SelectedBox.CallStubs)
-        {
-            uint32_t StubColumn;
-            uint32_t StubRow;
-            uint32_t AvoidX;
-            uint32_t AvoidY;
-            Avoid::ConnEnd ConnectionEnd;
-            CallStub SelectedCallStub;
-
-            SelectedCallStub = std::get<CallStub>(SelectedStub);
-            StubColumn = SelectedCallStub.Position.Column;
-            StubRow = SelectedCallStub.Position.Row + SelectedCallStub.Length;
-            AvoidX = StubColumn;
-            AvoidY = LayedOutDiagram.Height - StubRow;
-            ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
-            BoxStubsMap.insert({SelectedStub, ConnectionEnd});
-        } 
     }
 
     return BoxStubsMap;
@@ -183,22 +166,6 @@ std::map<Stub, Avoid::ConnEnd> PlaceBoundaryStubConnEnds(const ActivityDiagram& 
         AvoidY = LayedOutDiagram.Height - StubRow;
         ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
         BoundaryStubsMap.insert({BoundaryMechanismStub, ConnectionEnd});
-    }
-    for (const Stub BoundaryStub : LayedOutDiagram.CallBoundaryStubs)
-    {
-        uint32_t StubColumn;
-        uint32_t StubRow;
-        uint32_t AvoidX;
-        uint32_t AvoidY;
-        const CallStub& BoundaryCallStub = std::get<CallStub>(BoundaryStub);
-        Avoid::ConnEnd ConnectionEnd;
-
-        StubColumn = BoundaryCallStub.Position.Column;
-        StubRow = BoundaryCallStub.Position.Row - BoundaryCallStub.Length;
-        AvoidX = StubColumn;
-        AvoidY = LayedOutDiagram.Height - StubRow;
-        ConnectionEnd = Avoid::ConnEnd(Avoid::Point(AvoidX, AvoidY));
-        BoundaryStubsMap.insert({BoundaryCallStub, ConnectionEnd});
     }
    
     return BoundaryStubsMap;
@@ -391,6 +358,7 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
         }
     }
     // This section connects box stubs to other boxes and boundary stubs.
+    // TODO move this to seperate functions. 
     for (const std::pair<Stub, Avoid::ConnEnd> &BoxStubPair : BoxStubsMap)
     {
         const Stub& FirstStub = BoxStubPair.first;
@@ -498,34 +466,6 @@ Avoid::Router *ConstructRouter(std::map<Stub, Avoid::ConnEnd> &BoxStubsMap,
                             {
                                 Avoid::ConnRef* NewRef;
     
-                                NewRef = new Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, BoundaryBoxStubPair.second);
-                            }
-                        }
-                    }
-                }
-            }
-            else if (std::holds_alternative<CallStub>(FirstStub))
-            {
-                const CallStub& FirstCallStub = std::get<CallStub>(FirstStub);
-
-                if (std::holds_alternative<CallStub>(BoundaryStub))
-                {
-                    const CallStub& BoundaryCallStub = std::get<CallStub>(BoundaryStub);
-
-                    if (FirstCallStub.Name == BoundaryCallStub.Name)
-                    {
-                        Avoid::ConnRef* NewRef;
-
-                        NewRef = new Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, BoundaryBoxStubPair.second);
-                    }
-                    else
-                    {
-                        for (const StubSource& Source : BoundaryCallStub.Sources)
-                        {
-                            if (Source.StubName == FirstCallStub.Name)
-                            {
-                                Avoid::ConnRef* NewRef;
-
                                 NewRef = new Avoid::ConnRef(ConstructedRouter, BoxStubPair.second, BoundaryBoxStubPair.second);
                             }
                         }

@@ -188,7 +188,6 @@ struct ActivityDiagram
     std::vector<Stub> OutputBoundaryStubs;
     std::vector<Stub> ControlBoundaryStubs;
     std::vector<Stub> MechanismBoundaryStubs;
-    std::vector<Stub> CallBoundaryStubs;
     DiagramFrame Frame;
 };
 
