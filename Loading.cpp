@@ -124,6 +124,7 @@ ActivityBox LoadActivity(const pugi::xml_node &ActivityNode)
 
     NewActivityBox.Name = ActivityNode.attribute("Name").as_string();
     NewActivityBox.NodeNumber = ActivityNode.attribute("Number").as_string();
+    NewActivityBox.DRE = ActivityNode.attribute("DRE").as_string();
     NewActivityBox.Width = 0u;
     NewActivityBox.Height = 0u;
     NewActivityBox.Center.Row = 0u;

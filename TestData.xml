@@ -36,5 +36,6 @@
 		<Control Name="Set of LibAvoid connectors"/>
 		<Control Name="Positioned IDEF diagram object"/>
 		<Output Name="Set of IDEF diagrams"/>
+		<Mechanism Name="File missing exception"></Mechanism>
 	</Activity>
 </Diagram>

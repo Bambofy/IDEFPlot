@@ -183,8 +183,7 @@ void DrawRoutes(Avoid::Router* ConnectedRouter, std::vector<std::string>& Diagra
     }
 }
 
-void DrawBoxOutline(std::vector<std::string>& Diagram,
-    const ActivityBox& SelectedBox)
+void DrawBoxOutline(std::vector<std::string>& Diagram, const ActivityBox& SelectedBox)
 {
     FilePosition BoxTopLeft;
     FilePosition BoxBottomRight;
@@ -242,8 +241,26 @@ void DrawBoxOutline(std::vector<std::string>& Diagram,
         }
 }
 
-void DrawBoxLabel(std::vector<std::string>& Diagram,
-    const ActivityBox& SelectedBox)
+void DrawBoxDRE(std::vector<std::string>& Diagram, const ActivityBox& SelectedBox)
+{
+    FilePosition Cursor;
+    uint32_t DRELabelsLength;
+
+    DRELabelsLength = SelectedBox.DRE.length();
+    Cursor.Column = SelectedBox.Center.Column;
+    Cursor.Row = SelectedBox.Center.Row;
+    Cursor.Column += (SelectedBox.Width / 2u);
+    Cursor.Row += (SelectedBox.Height / 2u);
+    Cursor.Row += 1u;
+    Cursor.Column -= DRELabelsLength;
+    for (uint32_t CharIndex = 0u; CharIndex < DRELabelsLength; CharIndex++)
+    {
+        Diagram[Cursor.Row][Cursor.Column] = SelectedBox.DRE[CharIndex];
+        Cursor.Column++;
+    }
+}
+
+void DrawBoxLabel(std::vector<std::string>& Diagram, const ActivityBox& SelectedBox)
 {
     FilePosition BoxTopLeft;
     FilePosition BoxBottomRight;
@@ -910,8 +927,7 @@ void DrawBoundaryStubLabels(std::vector<std::string>& Diagram, const ActivityDia
     }
 }
 
-void DrawBoxes(std::vector<std::string>& Diagram,
-    const ActivityDiagram& TargetDiagram)
+void DrawBoxes(std::vector<std::string>& Diagram, const ActivityDiagram& TargetDiagram)
 {
     uint32_t ActivityBoxNum;
 
@@ -921,6 +937,10 @@ void DrawBoxes(std::vector<std::string>& Diagram,
         const ActivityBox &SelectedBox = TargetDiagram.Boxes[ActivityBoxIndex];
 
         DrawBoxOutline(Diagram, SelectedBox);
+        if (SelectedBox.DRE != "")
+        {
+            DrawBoxDRE(Diagram, SelectedBox);
+        }
         DrawBoxLabel(Diagram, SelectedBox);
         DrawBoxStubs(Diagram, SelectedBox);
     }
@@ -1075,8 +1095,7 @@ void DrawFrame(std::vector<std::string>& Diagram, const ActivityDiagram& TargetD
     DrawBottomBar(Diagram, TargetDiagram);
 }
 
-std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, 
-    Avoid::Router *ConnectedRouter)
+std::vector<std::string> DrawDiagram(const ActivityDiagram &TargetDiagram, Avoid::Router *ConnectedRouter)
 {
     std::vector<std::string> Diagram;
     uint32_t ActivityBoxNum;

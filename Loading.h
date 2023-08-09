@@ -135,6 +135,7 @@ struct ActivityBox
     uint32_t Height;
     uint32_t Padding;
     std::string NodeNumber;
+    std::string DRE;
 };
 
 struct NodeNumberSection 
