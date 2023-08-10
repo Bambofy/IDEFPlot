@@ -178,10 +178,7 @@ void LayoutBoxStubs(ActivityDiagram &Diagram)
     }
 }
 
-void FindInnerStub(const ActivityDiagram& Diagram, 
-    const Stub& BoundaryStub, 
-    Stub& FoundStub, 
-    bool& FoundFlag)
+void FindInnerStub(const ActivityDiagram& Diagram, const Stub& BoundaryStub, Stub& FoundStub, bool& FoundFlag)
 {
     FoundFlag = false;
     for (const ActivityBox& SelectedBox : Diagram.Boxes)
@@ -471,6 +468,275 @@ std::vector<ActivityBox> LocateConnectedBoxes(ActivityDiagram& Diagram, std::str
     return ConnectedBoxes;
 }
 
+bool CheckStubOverlap(Stub FirstStub, Stub SecondStub)
+{
+    bool Overlaps;
+
+    Overlaps = false;
+    if (std::holds_alternative<InputStub>(FirstStub))
+    {
+        InputStub FirstInputStub;
+
+        FirstInputStub = std::get<InputStub>(FirstStub);
+        if (std::holds_alternative<InputStub>(SecondStub))
+        {
+            InputStub SecondInputStub;
+
+            SecondInputStub = std::get<InputStub>(SecondStub);
+            if (FirstInputStub.Position.Row == SecondInputStub.Position.Row)
+            {
+                Overlaps = true;
+            }
+            else if (FirstInputStub.Position.Row == (SecondInputStub.Position.Row - 1u))
+            {
+                Overlaps = true;
+            }
+            else if (FirstInputStub.Position.Row == (SecondInputStub.Position.Row + 1u))
+            {
+                Overlaps = true;
+            }
+        }
+    }
+    else if (std::holds_alternative<OutputStub>(FirstStub))
+    {
+        OutputStub FirstOutputStub;
+
+        FirstOutputStub = std::get<OutputStub>(FirstStub);
+        if (std::holds_alternative<OutputStub>(SecondStub))
+        {
+            OutputStub SecondOutputStub;
+
+            SecondOutputStub = std::get<OutputStub>(SecondStub);
+            if (FirstOutputStub.Position.Row == SecondOutputStub.Position.Row)
+            {
+                Overlaps = true;
+            }
+            else if (FirstOutputStub.Position.Row == (SecondOutputStub.Position.Row - 1u))
+            {
+                Overlaps = true;
+            }
+            else if (FirstOutputStub.Position.Row == (SecondOutputStub.Position.Row + 1u))
+            {
+                Overlaps = true;
+            }
+        }
+    }
+    else if (std::holds_alternative<ControlStub>(FirstStub))
+    {
+        ControlStub FirstControlStub;
+
+        FirstControlStub = std::get<ControlStub>(FirstStub);
+        if (std::holds_alternative<ControlStub>(SecondStub))
+        {
+            ControlStub SecondControlStub;
+
+            SecondControlStub = std::get<ControlStub>(SecondStub);
+            if (FirstControlStub.Position.Column == SecondControlStub.Position.Column)
+            {
+                Overlaps = true;
+            }
+            else if (FirstControlStub.Position.Column == (SecondControlStub.Position.Column - 1u))
+            {
+                Overlaps = true;
+            }
+            else if (FirstControlStub.Position.Column == (SecondControlStub.Position.Column + 1u))
+            {
+                Overlaps = true;
+            }
+        }
+    }
+    else if (std::holds_alternative<MechanismStub>(FirstStub))
+    {
+        MechanismStub FirstMechanismStub;
+
+        FirstMechanismStub = std::get<MechanismStub>(FirstStub);
+        if (std::holds_alternative<MechanismStub>(SecondStub))
+        {
+            MechanismStub SecondMechanismStub;
+
+            SecondMechanismStub = std::get<MechanismStub>(SecondStub);
+            if (FirstMechanismStub.Position.Column == SecondMechanismStub.Position.Column)
+            {
+                Overlaps = true;
+            }
+            else if (FirstMechanismStub.Position.Column == (SecondMechanismStub.Position.Column - 1u))
+            {
+                Overlaps = true;
+            }
+            else if (FirstMechanismStub.Position.Column == (SecondMechanismStub.Position.Column + 1u))
+            {
+                Overlaps = true;
+            }
+        }
+    }
+    else if (std::holds_alternative<CallStub>(FirstStub))
+    {
+        CallStub FirstCallStub;
+
+        FirstCallStub = std::get<CallStub>(FirstStub);
+        if (std::holds_alternative<CallStub>(SecondStub))
+        {
+            CallStub SecondCallStub;
+
+            SecondCallStub = std::get<CallStub>(SecondStub);
+            if (FirstCallStub.Position.Column == SecondCallStub.Position.Column)
+            {
+                Overlaps = true;
+            }
+            else if (FirstCallStub.Position.Column == (SecondCallStub.Position.Column - 1u))
+            {
+                Overlaps = true;
+            }
+            else if (FirstCallStub.Position.Column == (SecondCallStub.Position.Column + 1u))
+            {
+                Overlaps = true;
+            }
+        }
+    }
+
+    return Overlaps;
+}
+
+void ShiftInputStubs(ActivityDiagram& Diagram)
+{
+    uint32_t NumInputStubs;
+
+    NumInputStubs = Diagram.InputBoundaryStubs.size();
+    for (uint32_t InputStubIndex = 0u; InputStubIndex < NumInputStubs; InputStubIndex++)
+    {
+        for (uint32_t OtherInputStubIndex = 0u; OtherInputStubIndex < NumInputStubs; OtherInputStubIndex++)
+        {
+            if (InputStubIndex != OtherInputStubIndex)
+            {
+                InputStub FirstStub;
+                InputStub SecondStub;
+
+                FirstStub = std::get<InputStub>(Diagram.InputBoundaryStubs[InputStubIndex]);
+                SecondStub = std::get<InputStub>(Diagram.InputBoundaryStubs[OtherInputStubIndex]);
+                for (uint32_t RowOffset = FirstStub.Position.Row; RowOffset > 0u; RowOffset--)
+                {
+                    if (CheckStubOverlap(FirstStub, SecondStub))
+                    {
+                        FirstStub.Position.Row--;
+                    }
+                }
+                if (CheckStubOverlap(FirstStub, SecondStub))
+                {
+                    throw std::runtime_error("Could not shift input boundary stubs.");
+                }
+                Diagram.InputBoundaryStubs[InputStubIndex] = FirstStub;
+            }
+        }
+    }
+}
+
+void ShiftOutputStubs(ActivityDiagram& Diagram)
+{
+    uint32_t NumOutputStubs;
+
+    NumOutputStubs = Diagram.OutputBoundaryStubs.size();
+    for (uint32_t OutputStubIndex = 0u; OutputStubIndex < NumOutputStubs; OutputStubIndex++)
+    {
+        for (uint32_t OtherOutputStubIndex = 0u; OtherOutputStubIndex < NumOutputStubs; OtherOutputStubIndex++)
+        {
+            if (OutputStubIndex != OtherOutputStubIndex)
+            {
+                OutputStub FirstStub;
+                OutputStub SecondStub;
+
+                FirstStub = std::get<OutputStub>(Diagram.OutputBoundaryStubs[OutputStubIndex]);
+                SecondStub = std::get<OutputStub>(Diagram.OutputBoundaryStubs[OtherOutputStubIndex]);
+                for (uint32_t RowOffset = FirstStub.Position.Row; RowOffset > 0u; RowOffset--)
+                {
+                    if (CheckStubOverlap(FirstStub, SecondStub))
+                    {
+                        FirstStub.Position.Row--;
+                    }
+                }
+                if (CheckStubOverlap(FirstStub, SecondStub))
+                {
+                    throw std::runtime_error("Could not shift output boundary stubs.");
+                }
+                Diagram.OutputBoundaryStubs[OutputStubIndex] = FirstStub;
+            }
+        }
+    }
+}
+
+void ShiftControlStubs(ActivityDiagram& Diagram)
+{
+    uint32_t NumControlStubs;
+
+    NumControlStubs = Diagram.ControlBoundaryStubs.size();
+    for (uint32_t ControlStubIndex = 0u; ControlStubIndex < NumControlStubs; ControlStubIndex++)
+    {
+        for (uint32_t OtherControlStubIndex = 0u; OtherControlStubIndex < NumControlStubs; OtherControlStubIndex++)
+        {
+            if (ControlStubIndex != OtherControlStubIndex)
+            {
+                ControlStub FirstStub;
+                ControlStub SecondStub;
+
+                FirstStub = std::get<ControlStub>(Diagram.ControlBoundaryStubs[ControlStubIndex]);
+                SecondStub = std::get<ControlStub>(Diagram.ControlBoundaryStubs[OtherControlStubIndex]);
+                for (uint32_t ColumnOffset = FirstStub.Position.Column; ColumnOffset < Diagram.Width; ColumnOffset++)
+                {
+                    if (CheckStubOverlap(FirstStub, SecondStub))
+                    {
+                        FirstStub.Position.Column++;
+                    }
+                }
+                if (CheckStubOverlap(FirstStub, SecondStub))
+                {
+                    throw std::runtime_error("Could not shift control boundary stubs.");
+                }
+                Diagram.ControlBoundaryStubs[ControlStubIndex] = FirstStub;
+            }
+        }
+    }
+}
+
+void ShiftMechanismStubs(ActivityDiagram& Diagram)
+{
+    uint32_t NumMechanismStubs;
+
+    NumMechanismStubs = Diagram.MechanismBoundaryStubs.size();
+    for (uint32_t MechanismStubIndex = 0u; MechanismStubIndex < NumMechanismStubs; MechanismStubIndex++)
+    {
+        for (uint32_t OtherMechanismStubIndex = 0u; OtherMechanismStubIndex < NumMechanismStubs; OtherMechanismStubIndex++)
+        {
+            if (MechanismStubIndex != OtherMechanismStubIndex)
+            {
+                MechanismStub FirstStub;
+                MechanismStub SecondStub;
+
+                FirstStub = std::get<MechanismStub>(Diagram.MechanismBoundaryStubs[MechanismStubIndex]);
+                SecondStub = std::get<MechanismStub>(Diagram.MechanismBoundaryStubs[OtherMechanismStubIndex]);
+                for (uint32_t MechanismOffset = FirstStub.Position.Column; MechanismOffset < Diagram.Width; MechanismOffset++)
+                {
+                    if (CheckStubOverlap(FirstStub, SecondStub))
+                    {
+                        FirstStub.Position.Column++;
+                    }
+                }
+                if (CheckStubOverlap(FirstStub, SecondStub))
+                {
+                    throw std::runtime_error("Could not shift mechanism boundary stubs.");
+                }
+                Diagram.MechanismBoundaryStubs[MechanismStubIndex] = FirstStub;
+            }
+        }
+    }
+}
+
+void ShiftBoundaryStubs(ActivityDiagram &Diagram)
+{
+    ShiftInputStubs(Diagram);
+    ShiftOutputStubs(Diagram);
+    ShiftControlStubs(Diagram);
+    ShiftMechanismStubs(Diagram);
+}
+
 void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t BoxHeight, uint32_t BoxXGap, uint32_t BoxYGap)
 {
     uint32_t BoxSectionHeight;
@@ -495,14 +761,14 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
         Stub FoundStub;
         bool FoundFlag;
         InputStub& BoundaryInputStub = std::get<InputStub>(BoundaryStub);
-        
-        FindInnerStub(Diagram, BoundaryInputStub, FoundStub, FoundFlag);
+
+        FindInnerStub(Diagram, BoundaryStub, FoundStub, FoundFlag);
         if (FoundFlag)
         {
             if (std::holds_alternative<InputStub>(FoundStub))
             {
                 InputStub& FoundInputStub = std::get<InputStub>(FoundStub);
-                
+
                 BoundaryInputStub.Position.Row = FoundInputStub.Position.Row;
                 BoundaryInputStub.Position.Column = 0u;
             }
@@ -528,7 +794,7 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
         bool FoundFlag;
         ControlStub& BoundaryControlStub = std::get<ControlStub>(BoundaryStub);
 
-        FindInnerStub(Diagram, BoundaryControlStub, FoundStub, FoundFlag);
+        FindInnerStub(Diagram, BoundaryStub, FoundStub, FoundFlag);
         if (FoundFlag)
         {
             if (std::holds_alternative<InputStub>(FoundStub))
@@ -560,7 +826,7 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
         bool FoundFlag;
         OutputStub& BoundaryOutputStub = std::get<OutputStub>(BoundaryStub);
 
-        FindInnerStub(Diagram, BoundaryOutputStub, FoundStub, FoundFlag);
+        FindInnerStub(Diagram, BoundaryStub, FoundStub, FoundFlag);
         if (FoundFlag)
         {
             if (std::holds_alternative<OutputStub>(FoundStub))
@@ -585,7 +851,7 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
         bool FoundFlag;
         MechanismStub& BoundaryMechanismStub = std::get<MechanismStub>(BoundaryStub);
 
-        FindInnerStub(Diagram, BoundaryMechanismStub, FoundStub, FoundFlag);
+        FindInnerStub(Diagram, BoundaryStub, FoundStub, FoundFlag);
         if (FoundFlag)
         {
             if (std::holds_alternative<MechanismStub>(FoundStub))
@@ -741,6 +1007,7 @@ void LayoutActivityDiagram(ActivityDiagram &LoadedDiagram,
     LayoutBoxStubs(LoadedDiagram);
     LayoutBoundaryStubs(LoadedDiagram, BoxWidth, BoxHeight, BoxXGap, BoxYGap);
     ChangeBoundaryStubLengths(LoadedDiagram);
+    ShiftBoundaryStubs(LoadedDiagram);
 }
 
 }
