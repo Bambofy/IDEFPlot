@@ -877,12 +877,12 @@ void DrawBoxes(std::vector<std::string>& Diagram, const ActivityDiagram& TargetD
         const ActivityBox &SelectedBox = TargetDiagram.Boxes[ActivityBoxIndex];
 
         DrawBoxOutline(Diagram, SelectedBox);
+        DrawBoxLabel(Diagram, SelectedBox);
+        DrawBoxStubs(Diagram, SelectedBox);
         if (SelectedBox.DRE != "")
         {
             DrawBoxDRE(Diagram, SelectedBox);
         }
-        DrawBoxLabel(Diagram, SelectedBox);
-        DrawBoxStubs(Diagram, SelectedBox);
     }
 }
 
