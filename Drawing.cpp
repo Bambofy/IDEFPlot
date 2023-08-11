@@ -467,10 +467,12 @@ bool CheckForCharacters(std::vector<std::string>& Diagram, FilePosition WriteSta
 
 void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& SelectedBox)
 {
+    uint32_t DiagramHeight;
     uint32_t ControlStubCount;
     uint32_t MechanismStubCount;
     uint32_t CallStubCount;
 
+    DiagramHeight = Diagram.size();
     for (const Stub &SelectedStub : SelectedBox.InputStubs)
     {
         const InputStub& SelectedInputStub = std::get<InputStub>(SelectedStub);
@@ -599,14 +601,14 @@ void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& Sel
         StubNameLength = SelectedMechanismStub.Name.length();
         WriteStartPosition.Column = SelectedMechanismStub.Position.Column + 1u;
         WriteStartPosition.Row = SelectedMechanismStub.Position.Row + 2u;
-        for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
+        for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex < DiagramHeight; RowIndex++)
         {
             bool HitCharacterFlag;
 
             HitCharacterFlag = CheckForCharacters(Diagram, WriteStartPosition, SelectedMechanismStub.Name.length(), -2u);
             if (HitCharacterFlag == true)
             {
-                WriteStartPosition.Row--;
+                WriteStartPosition.Row++;
             }
             else
             {
@@ -639,14 +641,14 @@ void DrawBoxStubLabels(std::vector<std::string>& Diagram, const ActivityBox& Sel
         StubNameLength = SelectedCallStub.Name.length();
         WriteStartPosition.Column = SelectedCallStub.Position.Column + 1u;
         WriteStartPosition.Row = SelectedCallStub.Position.Row + 2u;
-        for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex > 0u; RowIndex--)
+        for (uint32_t RowIndex = WriteStartPosition.Row; RowIndex < DiagramHeight; RowIndex++)
         {
             bool HitCharacterFlag;
 
             HitCharacterFlag = CheckForCharacters(Diagram, WriteStartPosition, SelectedCallStub.Name.length(), -2u);
             if (HitCharacterFlag == true)
             {
-                WriteStartPosition.Row--;
+                WriteStartPosition.Row++;
             }
             else
             {
