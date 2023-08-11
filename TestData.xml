@@ -15,6 +15,7 @@
 		<Control Name="IDEF model's text"/>
 		<Output Name="Loaded IDEF diagram object"/>
 		<Mechanism Name="PugiXML"></Mechanism>
+		<Call Name="XYZ"></Call>
 	</Activity>
 	<Activity Number="2" Name="Positions a loaded IDEF diagram object">
 		<Input Name="Loaded IDEF diagram object">

@@ -776,8 +776,8 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
             {
                 ControlStub& FoundControlStub = std::get<ControlStub>(FoundStub);
 
-                BoundaryInputStub.Position.Row = 0u;
-                BoundaryInputStub.Position.Column = FoundControlStub.Position.Column;
+                BoundaryInputStub.Position.Row = FoundControlStub.Position.Row - FoundControlStub.Length;
+                BoundaryInputStub.Position.Column = 0u;
             }
         }
         else
@@ -802,7 +802,7 @@ void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t B
                 InputStub& FoundInputStub = std::get<InputStub>(FoundStub);
                 
                 BoundaryControlStub.Position.Row = 0u;
-                BoundaryControlStub.Position.Column = FoundInputStub.Position.Column - (BoxXGap/2u);
+                BoundaryControlStub.Position.Column = FoundInputStub.Position.Column - FoundInputStub.Length;
             }
             else if (std::holds_alternative<ControlStub>(FoundStub))
             {
