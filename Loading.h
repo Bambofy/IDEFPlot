@@ -1,217 +1,621 @@
 #ifndef LOADING_H
 #define LOADING_H
 
-namespace IDEF
-{
+namespace idef {
 
-struct FilePosition
-{
-    uint32_t Row;
-    uint32_t Column;
+/*
+ * File position
+ */
+struct filepos {
+  /*
+   * Row
+   */
+  uint32_t row;
 
-    bool operator==(const FilePosition& RHS) const
-    {
-        return (Row == RHS.Row) && (Column == RHS.Column);
-    }
+  /*
+   * Column
+   */
+  uint32_t column;
+
+  /*
+   * Equals operator
+   * 
+   * Local variables:
+   *   1. This encoded position (tencpos).
+   *   2. RHS encoded position (rencpos).
+   */
+  bool operator==(const filepos& rhs) const {
+    return (row == rhs.row) && (column == rhs.column);
+  }
 };
 
-struct StubSource
-{
-    std::string StubName;
+/*
+ * Stub source
+ */
+struct stubsource {
+    /*
+     * Stub name
+     */
+    std::string stubname;
 };
 
-struct InputStub
-{
-    std::string Name;
-    FilePosition Position;
-    std::vector<StubSource> Sources;
-    uint32_t Length;
-    bool Headed;
-      
-    bool operator<(const InputStub& RHS) const
-    {
-        uint32_t ThisEncodedPosition;
-        uint32_t RHSEncodedPosition;
+/*
+ * Input stub
+ */
+struct inputstub {
+  /*
+   * Name
+   */
+  std::string name;
 
-        ThisEncodedPosition = Position.Column + (Position.Row * 1000u);
-        RHSEncodedPosition = RHS.Position.Column + (RHS.Position.Row * 1000u);
+  /*
+   * Position
+   */
+  filepos position;
 
-        return ThisEncodedPosition < RHSEncodedPosition;
-    }
+  /*
+   * Sources
+   */
+  std::vector<stubsource> sources;
+
+  /*
+   * Length
+   */
+  uint32_t length;
+    
+  /*
+   * Less-than operator.
+   * 
+   * Local variables:
+   *   1. This encoded position (tencpos).
+   *   2. RHS encoded position (rencpos).
+   */
+  bool operator<(const inputstub& rhs) const {
+    uint32_t tencpos;
+    uint32_t rencpos;
+
+    tencpos = position.column + (position.row * 1000u);
+    rencpos = rhs.position.column + (rhs.position.row * 1000u);
+
+    return tencpos < rencpos;
+  }
 };
 
-struct OutputStub
-{
-    std::string Name;
-    FilePosition Position;
-    std::vector<StubSource> Sources;
-    uint32_t Length;
-    bool Headed;
+/*
+ * Output stub
+ */
+struct outputstub {
+  /*
+   * Name
+   */
+  std::string name;
+  
+  /*
+   * Position
+   */
+  filepos position;
+  
+  /*
+   * Sources
+   */
+  std::vector<stubsource> sources;
 
-    bool operator<(const OutputStub& RHS) const
-    {
-        uint32_t ThisEncodedPosition;
-        uint32_t RHSEncodedPosition;
+  /*
+   * Length
+   */
+  uint32_t length;
 
-        ThisEncodedPosition = Position.Column + (Position.Row * 1000u);
-        RHSEncodedPosition = RHS.Position.Column + (RHS.Position.Row * 1000u);
+  /*
+   * Less-than operator.
+   * 
+   * Local variables:
+   *   1. This encoded position (tencpos).
+   *   2. RHS encoded position (rencpos).
+   */
+  bool operator<(const outputstub& rhs) const {
+      uint32_t tencpos;
+      uint32_t rencpos;
 
-        return ThisEncodedPosition < RHSEncodedPosition;
-    }
+      tencpos = position.column + (position.row * 1000u);
+      rencpos = rhs.position.column + (rhs.position.row * 1000u);
+
+      return tencpos < rencpos;
+  }
 };
 
-struct ControlStub
-{
-    std::string Name;
-    FilePosition Position;
-    std::vector<StubSource> Sources;
-    uint32_t Length;
-    bool Headed;
+/*
+ * Control stub
+ */
+struct controlstub {
+  /*
+   * Name
+   */
+  std::string name;
 
-    bool operator<(const ControlStub& RHS) const
-    {
-        uint32_t ThisEncodedPosition;
-        uint32_t RHSEncodedPosition;
+  /*
+   * Position
+   */
+  filepos position;
 
-        ThisEncodedPosition = Position.Column + (Position.Row * 1000u);
-        RHSEncodedPosition = RHS.Position.Column + (RHS.Position.Row * 1000u);
+  /*
+   * Sources
+   */
+  std::vector<stubsource> sources;
 
-        return ThisEncodedPosition < RHSEncodedPosition;
-    }
+  /*
+   * Length
+   */
+  uint32_t length;
+
+  /*
+   * Less-than operator.
+   * 
+   * Local variables:
+   *   1. This encoded position (tencpos).
+   *   2. RHS encoded position (rencpos).
+   */
+  bool operator<(const controlstub& rhs) const {
+    uint32_t tencpos;
+    uint32_t rencpos;
+
+    tencpos = position.column + (position.row * 1000u);
+    rencpos = rhs.position.column + (rhs.position.row * 1000u);
+
+    return tencpos < rencpos;
+  }
 };
 
-struct MechanismStub
-{
-    std::string Name;
-    FilePosition Position;
-    std::vector<StubSource> Sources;
-    uint32_t Length;
-    bool Headed;
+/*
+ * Mechanism stub
+ */
+struct mechanismstub {
+  /*
+   * Name
+   */
+  std::string name;
+  
+  /*
+   * Position
+   */
+  filepos position;
+  
+  /*
+   * Sources
+   */
+  std::vector<stubsource> sources;
 
-    bool operator<(const MechanismStub& RHS) const
-    {
-        uint32_t ThisEncodedPosition;
-        uint32_t RHSEncodedPosition;
+  /*
+   * Length
+   */
+  uint32_t length;
 
-        ThisEncodedPosition = Position.Column + (Position.Row * 1000u);
-        RHSEncodedPosition = RHS.Position.Column + (RHS.Position.Row * 1000u);
+  /*
+   * Less-than operator.
+   * 
+   * Local variables:
+   *   1. This encoded position (tencpos).
+   *   2. RHS encoded position (rencpos).
+   */
+  bool operator<(const mechanismstub& rhs) const {
+    uint32_t tencpos;
+    uint32_t rencpos;
 
-        return ThisEncodedPosition < RHSEncodedPosition;
-    }
+    tencpos = position.column + (position.row * 1000u);
+    rencpos = rhs.position.column + (rhs.position.row * 1000u);
+
+    return tencpos < rencpos;
+  }
 };
 
-struct CallStub
-{
-    std::string Name;
-    FilePosition Position;
-    std::vector<StubSource> Sources;
-    uint32_t Length;
-    bool Headed;
+/*
+ * Call stub
+ */
+struct callstub {
+  /*
+   * Name
+   */
+  std::string name;
 
-    bool operator<(const CallStub& RHS) const
-    {
-        uint32_t ThisEncodedPosition;
-        uint32_t RHSEncodedPosition;
+  /*
+   * Position
+   */
+  filepos position;
 
-        ThisEncodedPosition = Position.Column + (Position.Row * 1000u);
-        RHSEncodedPosition = RHS.Position.Column + (RHS.Position.Row * 1000u);
+  /*
+   * Sources
+   */
+  std::vector<stubsource> sources;
 
-        return ThisEncodedPosition < RHSEncodedPosition;
-    }
+  /*
+   * Length
+   */
+  uint32_t length;
+
+  /*
+   * Less-than operator.
+   *
+   * 1. This encoded position (tencpos).
+   * 2. Right-hand-side encoded positions (rencpos).
+   */
+  bool operator<(const callstub& rhs) const {
+    uint32_t tencpos;
+    uint32_t rencpos;
+
+    tencpos = position.column + (position.row * 1000u);
+    rencpos = rhs.position.column + (rhs.position.row * 1000u);
+
+    return tencpos < rencpos;
+  }
 };
 
-typedef std::variant<InputStub, OutputStub, ControlStub, MechanismStub, CallStub> Stub;
+/*
+ * Stub
+ */
+typedef std::variant<inputstub, 
+  outputstub, controlstub, mechanismstub, callstub> stub;
 
-struct ActivityBox
-{
-    std::vector<Stub> InputStubs;
-    std::vector<Stub> OutputStubs;
-    std::vector<Stub> ControlStubs;
-    std::vector<Stub> MechanismStubs;
-    std::vector<Stub> CallStubs;
-    std::string Name;
-    FilePosition Center;
-    uint32_t Width;
-    uint32_t Height;
-    uint32_t Padding;
-    std::string NodeNumber;
-    std::string DRE;
+/*
+ * Activity box.
+ */
+struct activitybox {
+  /*
+   * Input stubs.
+   */
+  std::vector<stub> inputstubs;
+  
+  /*
+   * Output stubs.
+   */
+  std::vector<stub> outputstubs;
+  
+  /*
+   * Control stubs.
+   */
+  std::vector<stub> controlstubs;
+  
+  /*
+   * Mechanism stubs.
+   */
+  std::vector<stub> mechanismstubs;
+  
+  /*
+   * Call stubs.
+   */
+  std::vector<stub> callstubs;
+  
+  /*
+   * Name.
+   */
+  std::string name;
+  
+  /*
+   * Center.
+   */
+  filepos center;
+  
+  /*
+   * Width.
+   */
+  uint32_t width;
+
+  /*
+   * Height.
+   */
+  uint32_t height;
+  
+  /*
+   * Padding.
+   */
+  uint32_t padding;
+  
+  /*
+   * Node number.
+   */
+  std::string nodenumber;
+  
+  /*
+   * DRE.
+   */
+  std::string dre;
 };
 
-struct NodeNumberSection 
-{
-    FilePosition TopLeft;
-    std::string Content;
-    uint32_t Width;
-    uint32_t Height;
+/*
+ * Node number section.
+ */
+struct nnumbersection {
+  /*
+   * Top left.
+   */
+  filepos topleft;
+  
+  /*
+   * Content.
+   */
+  std::string content;
+  
+  /*
+   * Width.
+   */
+  uint32_t width;
+  
+  /*
+   * Height.
+   */
+  uint32_t height;
 };
 
-struct TitleSection
-{
-    FilePosition TopLeft;
-    std::string Content;
-    uint32_t Width;
-    uint32_t Height;
+/*
+ * Title section.
+ */
+struct titlesection {
+  /*
+   * Top left.
+   */
+  filepos topleft;
+
+  /*
+   * Content.
+   */
+  std::string content;
+  
+  /*
+   * Width.
+   */ 
+  uint32_t width;
+
+  /*
+   * Height.
+   */  
+  uint32_t height;
 };
 
-struct CNumberSection
-{
-    FilePosition TopLeft;
-    std::string Content;
-    uint32_t Width;
-    uint32_t Height;
+/*
+ * CNumber section.
+ */
+struct cnumsection {
+  /*
+   * Top left.
+   */
+  filepos topleft;
+
+  /*
+   * Content.
+   */
+  std::string content;
+  
+  /*
+   * Width.
+   */ 
+  uint32_t width;
+
+  /*
+   * Height.
+   */  
+  uint32_t height;
 };
 
-typedef std::variant<NodeNumberSection, TitleSection, CNumberSection> DiagramSection;
+/*
+ * Diagram section.
+ */
+typedef std::variant<nnumbersection, 
+    titlesection, cnumsection> diasection;
 
-struct DiagramBar
-{
-    FilePosition TopLeft;
-    uint32_t Height;
-    DiagramSection NodeNumberSection;
-    DiagramSection TitleSection;
-    DiagramSection CNumberSection;
+/*
+ * Diagram bar.
+ */
+struct diagrambar {
+  /*
+   * Top left.
+   */
+  filepos topleft;
+
+  /*
+   * Height.
+   */
+  uint32_t height;
+
+  /*
+   * Node number section.
+   */
+  diasection nnumbersection;
+
+  /*
+   * Title section.
+   */
+  diasection titlesection;
+
+  /*
+   * CNumber Section.
+   */
+  diasection cnumsection;
 };
 
-struct DiagramFrame
-{
-    DiagramBar BottomBar;
+/*
+ * Diagram Frame.
+ */
+struct diagramframe {
+  /*
+   * Bottom bar.
+   */
+  diagrambar bottombar;
 };
 
-struct ActivityDiagram
-{
-    std::string Title;
-    uint32_t Width;
-    uint32_t Height;
-    std::vector<ActivityBox> Boxes;
-    std::vector<Stub> InputBoundaryStubs;
-    std::vector<Stub> OutputBoundaryStubs;
-    std::vector<Stub> ControlBoundaryStubs;
-    std::vector<Stub> MechanismBoundaryStubs;
-    DiagramFrame Frame;
+/*
+ * Activity diagram.
+ *
+ * 1. Input boundary stubs (inbstubs).
+ * 2. Output boundary stubs (outbstubs).
+ * 3. Control boundary stubs (conbstubs).
+ * 4. Mechanism boundary stubs (mecbstubs).
+ */
+struct activitydia {
+  /*
+   * Title.
+   */
+  std::string title;
+
+  /*
+   * Width.
+   */
+  uint32_t width;
+
+  /*
+   * Height.
+   */
+  uint32_t height;
+ 
+  /*
+   * Boxes.
+   */
+  std::vector<activitybox> boxes;
+ 
+  /*
+   * Input boundary stubs.
+   */
+  std::vector<stub> inbstubs;
+
+  /*
+   * Output boundary stubs.
+   */
+  std::vector<stub> outbstubs;
+
+  /*
+   * Control boundary stubs.
+   */
+  std::vector<stub> conbstubs;
+ 
+  /*
+   * Mechanism boundary stubs.
+   */
+  std::vector<stub> mecbstubs;
+  
+  /*
+   * Frame
+   */
+  diagramframe frame;
 };
 
-struct Model
-{
-    std::string Title;
-    std::vector<ActivityDiagram> ActivityDiagrams;
+/*
+ * Model
+ */
+struct model {
+  /*
+   * Title.
+   */
+  std::string title;
+
+  /*
+   * Activity diagrams.
+   */
+  std::vector<activitydia> activitydias;
 };
 
-enum Interface
-{
-    InputInterface,
-    OutputInterface,
-    ControlInterface,
-    MechanismInterface,
-    CallInterface
+/*
+ * Interface
+ */
+enum interface {
+  /*
+   * Input interface.
+   */
+  ininterface,
+
+  /*
+   * Output interface.
+   */
+  outinterface,
+  
+  /*
+   * Control interface.
+   */
+  continterface,
+  
+  /*
+   * Mechanism interface.
+   */
+  mechinterface,
+  
+  /*
+   * Call interface.
+   */
+  callinterface
 };
 
-InputStub LoadInputStub(const pugi::xml_node& InputStubXMLNode, bool Headed);
-OutputStub LoadOutputStub(const pugi::xml_node& OutputStubXMLNode, bool Headed);
-ControlStub LoadControlStub(const pugi::xml_node& ControlStubXMLNode, bool Headed);
-MechanismStub LoadMechanismStub(const pugi::xml_node& MechanismStubXMLNode, bool Headed);
-CallStub LoadCallStub(const pugi::xml_node& CallStubXMLNode, bool Headed);
-ActivityDiagram LoadActivityDiagram(const std::string &FilePath);
+/*
+ * Load input stub
+ *
+ * Parameters:
+ *   1. Input stub xml node (instubnode).
+ *
+ * Local variables:
+ *   1. New stub (nstub).
+ *   2. Stub source node (ssourcenode).
+ *   3. New stub source (nssource).
+ */
+inputstub loadinstub(const pugi::xml_node& instubnode);
+
+/*
+ * Load output stub
+ *
+ * Parameters:
+ *   1. Output stub xml node (outstubnode).
+ *
+ * Local variables:
+ *   1. New stub (nstub).
+ *   2. Stub source node (ssourcenode).
+ *   3. New stub source (nssource).
+ */
+outputstub loadoutstub(const pugi::xml_node& outstubnode);
+
+/*
+ * Load control stub
+ *
+ * Parameters:
+ *   1. Output stub xml node (constubnode).
+ *
+ * Local variables:
+ *   1. New stub (nstub).
+ *   2. Stub source node (ssourcenode).
+ *   3. New stub source (nssource). 
+ */
+controlstub loadconstub(const pugi::xml_node& constubnode);
+
+/*
+ * Load mechanism stub
+ *
+ * Parameters:
+ *   1. Mechanism stub xml node (mechstubnode).
+ *
+ * Local variables:
+ *   1. New stub (nstub).
+ *   2. Stub source node (ssourcenode).
+ *   3. New stub source (nssource). 
+ */
+mechanismstub loadmechstub(const pugi::xml_node& mechstubnode);
+
+/*
+ * Load call stub
+ *
+ * Parameters:
+ *   1. Call stub xml node (cstubnode).
+ *
+ * Local variables:
+ *   1. New stub (nstub).
+ */
+callstub loadcallstub(const pugi::xml_node& cstubnode);
+
+/*
+ * Load activity diagram
+ *
+ * Parameters:
+ *   1. File path (fpath).
+ *
+ * Local variables:
+ *   1. Diagram XML document (diadoc).
+ *   2. Parse result (pres).
+ *   3. Activity diagram node (actdnode).
+ *   4. New diagram (newdia).
+ */
+activitydia loadactivitydia(const pugi::xml_node& activitynode);
 
 }
 

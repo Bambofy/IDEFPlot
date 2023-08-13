@@ -11,884 +11,765 @@
 #include <string>
 #include <vector>
 
-#include "Loading.h"
+#include "loading.h"
 #include "Placing.h"
 #include "Drawing.h"
 #include "Layouting.h"
 
-namespace IDEF
-{
+namespace idef {
 
-void LayoutFrame(ActivityDiagram &Diagram)
-{
-    NodeNumberSection& TargetNodeNumberSection = std::get<NodeNumberSection>(Diagram.Frame.BottomBar.NodeNumberSection);
-    TitleSection& TargetTitleSection = std::get<TitleSection>(Diagram.Frame.BottomBar.TitleSection);
-    CNumberSection& TargetCNumberSection = std::get<CNumberSection>(Diagram.Frame.BottomBar.CNumberSection);
-    
-    Diagram.Frame.BottomBar.Height = 3u;
-    Diagram.Frame.BottomBar.TopLeft.Row = Diagram.Height - Diagram.Frame.BottomBar.Height;
-    Diagram.Frame.BottomBar.TopLeft.Column = 0u;
-    TargetNodeNumberSection.Width = Diagram.Width / 4u;
-    TargetNodeNumberSection.TopLeft.Row = Diagram.Frame.BottomBar.TopLeft.Row;
-    TargetNodeNumberSection.TopLeft.Column = Diagram.Frame.BottomBar.TopLeft.Column;
-    TargetNodeNumberSection.Height = Diagram.Frame.BottomBar.Height;
-    TargetTitleSection.Width = 2u * (Diagram.Width / 4u);
-    TargetTitleSection.TopLeft.Row = Diagram.Frame.BottomBar.TopLeft.Row;
-    TargetTitleSection.TopLeft.Column = TargetNodeNumberSection.TopLeft.Column + TargetNodeNumberSection.Width;
-    TargetTitleSection.Height = Diagram.Frame.BottomBar.Height;
-    TargetCNumberSection.Width = Diagram.Width / 4u;
-    TargetCNumberSection.TopLeft.Row = Diagram.Frame.BottomBar.TopLeft.Row;
-    TargetCNumberSection.TopLeft.Column = TargetTitleSection.TopLeft.Column + TargetTitleSection.Width;
-    TargetCNumberSection.Height = Diagram.Frame.BottomBar.Height;
+void layframe(activitydia& dia) {
+  nnumbersection tgtnnsec;
+  titlesection tgttitlesec;
+  cnumsection tgtcnumsec;
+  
+  tgtnnsec = std::get<nnumbersection>(dia.frame.bottombar.nnumbersection);
+  tgttitlesec = std::get<titlesection>(dia.frame.bottombar.titlesection);
+  tgtcnumsec =  = std::get<cnumsection>(dia.frame.bottombar.cnumsection);
+  dia.frame.bottombar.height = 3u;
+  dia.frame.bottombar.height.row = dia.height - dia.frame.bottombar.height;
+  dia.frame.bottombar.height.column = 0u;
+  tgtnnsec.width = dia.width / 4u;
+  tgtnnsec.height.row = dia.frame.bottombar.height.row;
+  tgtnnsec.height.column = dia.frame.bottombar.height.column;
+  tgtnnsec.height = dia.frame.bottombar.height;
+  tgttitlesec.width = 2u * (dia.width / 4u);
+  tgttitlesec.height.row = dia.frame.bottombar.height.row;
+  tgttitlesec.height.column = tgtnnsec.height.column + tgtnnsec.width;
+  tgttitlesec.height = dia.frame.bottombar.height;
+  tgtcnumsec.width = dia.width / 4u;
+  tgtcnumsec.height.row = dia.frame.bottombar.height.row;
+  tgtcnumsec.height.column = tgttitlesec.height.column + tgttitlesec.width;
+  tgtcnumsec.height = dia.frame.bottombar.height;
+  dia.frame.bottombar.nnumbersection = tgtnnsec;
+  dia.frame.bottombar.titlesection = tgttitlesec;
+  dia.frame.bottombar.cnumsection = tgtcnumsec;
 }
 
-void LayoutBoxes(ActivityDiagram &Diagram, 
-    uint32_t BoxWidth, 
-    uint32_t BoxHeight, 
-    uint32_t BoxXGap,
-    uint32_t BoxYGap)
-{
-    uint32_t NumBoxes;
-    FilePosition Cursor;
-    uint32_t ColumnCenterOffset;
-    uint32_t RowCenterOffset;
-    uint32_t RowHeight;
-    uint32_t ColumnWidth;
-    uint32_t BoxSectionHeight;
-    uint32_t BoxSectionWidth;
+void layboxes(activitydia& dia, uint32_t bwidth, uint32_t bheight, uint32_t xgap,
+  uint32_t ygap) {
+  uint32_t nboxes;
+  filepos curs;
+  uint32_t ccenteroff;
+  uint32_t rcenteroff;
+  uint32_t rheight;
+  uint32_t cwidth;
+  uint32_t bsheight;
+  uint32_t bswidth;
+  
+  nboxes = dia.boxes.size();
+  bsheight = (nboxes * bheight) + ((nboxes-1u) * ygap);
+  bswidth = (nboxes * bwidth) + ((nboxes-1u) * xgap);
+  rheight = bsheight / (1u+nboxes);
+  cwidth = bswidth / (1u+nboxes);
+  ccenteroff = (dia.width / 2u) - (bswidth / 2u);
+  rcenteroff = (dia.height / 2u) - (bsheight / 2u);
+  curs.column = ccenteroff;
+  curs.row = rcenteroff;
+  curs.column += (bwidth/2u);
+  curs.row += (bheight/2u);
+  for (uint32_t bindx = 0u; bindx < nboxes; bindx++)
+  {
+    activitybox sbox;
     
-    NumBoxes = Diagram.Boxes.size();
-    BoxSectionHeight = (NumBoxes * BoxHeight) + ((NumBoxes-1u) * BoxYGap);
-    BoxSectionWidth = (NumBoxes * BoxWidth) + ((NumBoxes-1u) * BoxXGap);
-    RowHeight = BoxSectionHeight / (1u+NumBoxes);
-    ColumnWidth = BoxSectionWidth / (1u+NumBoxes);
-    ColumnCenterOffset = (Diagram.Width / 2u) - (BoxSectionWidth / 2u);
-    RowCenterOffset = (Diagram.Height / 2u) - (BoxSectionHeight / 2u);
-    Cursor.Column = ColumnCenterOffset;
-    Cursor.Row = RowCenterOffset;
-    Cursor.Column += (BoxWidth/2u);
-    Cursor.Row += (BoxHeight/2u);
-    for (uint32_t BoxIndex = 0u; BoxIndex < NumBoxes; BoxIndex++)
+    sbox = dia.boxes[bindx];
+    sbox.width = bwidth;
+    sbox.height = bheight;
+    sbox.center.column = curs.column;
+    sbox.center.row = curs.row;
+    dia.boxes[bindx] = sbox;
+    curs.column += bwidth + xgap;
+    curs.row += bwidth + ygap;
+  }
+}
+
+void layboxstubs(activitydia& dia) {
+  uint32_t nboxes;
+
+  nboxes = dia.boxes.size();
+  for (uint32_t bindx = 0u; bindx < nboxes; bindx++) {
+    activitybox &sbox = dia.boxes[bindx];
+    uint8_t nistubs;
+    uint8_t nostubs;
+    uint8_t nconstubs;
+    uint8_t nmechstubs;
+    uint8_t ncallstubs;
+    uint8_t numidivs;
+    uint8_t idivwidth;
+    uint8_t numodivs;
+    uint8_t odivwidth;
+    uint8_t numcondivs;
+    uint8_t conidivwidth;
+    uint8_t nummechdivs;
+    uint8_t mechdivwidth;
+    uint8_t numcalldivs;
+    uint8_t callidivwidth;
+
+    nistubs = sbox.inputstubs.size();
+    nostubs = sbox.outputstubs.size();
+    nconstubs = sbox.controlstubs.size();
+    nmechstubs = sbox.mechanismstubs.size();
+    ncallstubs = sbox.callstubs.size();
+    numidivs = nistubs + 1u;
+    numodivs = nostubs + 1u;
+    nummechdivs = nmechstubs + 1u;
+    numcondivs = nconstubs + 1u;
+    numcalldivs = ncallstubs + 1u;
+    idivwidth = sbox.height / numidivs;
+    odivwidth = sbox.height / numodivs;
+    condivwidth = sbox.width / numcondivs;
+    mechdivwidth = (sbox.width / 2u) / nummechdivs;
+    calldivwidth = (sbox.width / 2) / numcalldivs;
+    for (uint32_t istubi = 0u; istubi < nistubs; istubi++) {
+      inputstub& selistub = std::get<inputstub>(sbox.inputstubs[istubi]);
+      uint32_t rowo;
+
+      rowo = idivwidth * (1u + istubi);
+      selistub.position.column = sbox.center.column - (sbox.width / 2u);
+      selistub.position.row = sbox.center.row - (sbox.height / 2u);
+      selistub.position.row = selistub.position.row + rowo;
+      selistub.length = 3u + istubi;
+    }
+    for (uint32_t ostubi = 0u; ostubi < nostubs; ostubi++) {
+      outputstub &selostub = std::get<outputstub>(sbox.outputstubs[ostubi]);
+      uint32_t rowo;
+
+      rowo = odivwidth * (1u + ostubi);
+      selostub.position.column = sbox.center.column + (sbox.width / 2u);
+      selostub.position.row = sbox.center.row - (sbox.height / 2u);
+      selostub.position.row = selostub.position.row + rowo;
+      selostub.length = 3u + ostubi;
+    }
+    for (uint32_t constubi = 0u; constubi < nconstubs; constubi++) {
+      controlstub &selconstub = std::get<controlstub>(sbox.controlstubs[constubi]);
+      uint32_t columnoff;
+
+      columnoff = condivwidth * (1u + constubi);
+      selconstub.position.column = sbox.center.column - (sbox.width / 2u);
+      selconstub.position.row = sbox.center.row - (sbox.height / 2u);
+      selconstub.position.column = selconstub.position.column + columnoff;
+      selconstub.length = 3u + constubi;
+    }
+    for (uint32_t mechstubi = 0u; mechstubi < nmechstubs; mechstubi++)
     {
-        ActivityBox& SelectedBox = Diagram.Boxes[BoxIndex];
+      mechanismstub &selmechstub = std::get<mechanismstub>(sbox.mechanismstubs[mechstubi]);
+      uint32_t columnoff;
+
+      columnoff = mechdivwidth * (1u + mechstubi);
+      selmechstub.position.column = sbox.center.column - (sbox.width / 2u);
+      selmechstub.position.row = sbox.center.row + (sbox.height / 2u);
+      selmechstub.position.column = selmechstub.position.column + columnoff;
+      selmechstub.length = 3u + mechstubi;
+    }
+    for (uint32_t callstubi = 0u; callstubi < ncallstubs; callstubi++)
+    {
+      callstub &selcallstub = std::get<callstub>(sbox.callstubs[callstubi]);
+      uint32_t columnoff;
+
+      columnoff = calldivwidth * (1u + callstubi);
+      selcallstub.position.column = sbox.center.column;
+      selcallstub.position.row = sbox.center.row + (sbox.height / 2u);
+      selcallstub.position.column = selcallstub.position.column + columnoff;
+      selcallstub.length = 4u;
+    }
+  }
+}
+
+void finnerstub(const activitydia& dia, const stub& bstub, stub& fstub, 
+  bool& fflag) {
+
+  fflag = false;
+  for (const activitybox& sbox : dia.boxes) {
+    if (std::holds_alternative<inputstub>(bstub)) {
+      const inputstub& binstub = std::get<inputstub>(bstub);
+      
+      for (const stub& selstub : sbox.inputstubs) {
+        const inputstub& selinstub = std::get<inputstub>(selstub);
         
-        SelectedBox.Width = BoxWidth;
-        SelectedBox.Height = BoxHeight;
-        SelectedBox.Center.Column = Cursor.Column;
-        SelectedBox.Center.Row = Cursor.Row;
-        Cursor.Column += BoxWidth + BoxXGap;
-        Cursor.Row += BoxHeight + BoxYGap;
+        if (selinstub.name == binstub.name) {
+          fstub = selinstub;
+          fflag = true;
+        } else {
+          for (const stubsource& stubsource : selinstub.sources) {
+            if (stubsource.stubname == binstub.name) {
+              fstub = selinstub;
+              fflag = true;
+            }
+          }
+        }
+      } 
+      for (const stub& selstub : sbox.controlstubs) {
+        const controlstub& selconstub = std::get<controlstub>(selstub);
+        
+        if (selconstub.name == binstub.name) {
+          fstub = selconstub;
+          fflag = true;
+        } else {
+          for (const stubsource& stubsource : selconstub.sources) {
+            if (stubsource.stubname == binstub.name) {
+              fstub = selconstub;
+              fflag = true;
+            }
+          }
+        }
+      }
+    } else if (std::holds_alternative<controlstub>(bstub)) {
+      const controlstub& bconstub = std::get<controlstub>(bstub);
+      
+      for (const stub& selstub : sbox.inputstubs) {
+        const inputstub& selinstub = std::get<inputstub>(selstub);
+        
+        if (selinstub.name == bconstub.name) {
+          fstub = selinstub;
+          fflag = true;
+        } else {
+          for (const stubsource& selstubsrc : selinstub.sources) {
+            if (selstubsrc.stubname == bconstub.name) {
+              fstub = selinstub;
+              fflag = true;
+            }
+          }
+        }
+      }
+      for (const stub& selstub : sbox.controlstubs) {
+        const controlstub& selconstub = std::get<controlstub>(selstub);
+
+        if (selconstub.name == bconstub.name) {
+          fstub = selconstub;
+          fflag = true;
+        } else {
+          for (const stubsource& selstubsrc : selconstub.sources) {
+            if (selstubsrc.stubname == bconstub.name) {
+              fstub = selconstub;
+              fflag = true;
+            }
+          }
+        }
+      }
+    } else if (std::holds_alternative<outputstub>(bstub)) {
+      const outputstub& boutstub = std::get<outputstub>(bstub);
+      
+      for (const stub& selstub : sbox.a) {
+        const outputstub& selostub = std::get<outputstub>(selstub);
+
+        if (selostub.name == boutstub.name) {
+          fstub = selostub;
+          fflag = true;
+        } else {
+          for (const stubsource& bstubsrc : boutstub.sources)
+          {
+            if (bstubsrc.stubname == selostub.name)
+            {
+              fstub = selostub;
+              fflag = true;
+            }
+          } 
+        }
+      }  
+    } else if (std::holds_alternative<mechanismstub>(bstub)) {
+      const mechanismstub& bmechstub = std::get<mechanismstub>(bstub);
+
+      for (const stub& selstub : sbox.MechanismStubs) {
+        const mechanismstub& bxmechstub = std::get<mechanismstub>(selstub);
+
+        if (bmechstub.name == bxmechstub.name) {
+          fstub = bxmechstub;
+          fflag = true;
+        } else {
+          for (const stubsource& BoxStubSource : bxmechstub.sources) {
+            if (BoxStubSource.stubname == bmechstub.name) {
+              fstub = bxmechstub;
+              fflag = true;
+            }
+          }
+        }
+      }
+    } else if (std::holds_alternative<callstub>(bstub)) {
+      const callstub& bcallstub = std::get<callstub>(bstub);
+
+      for (const stub& selstub : sbox.CallStubs) {
+        const callstub& bxcallstub = std::get<callstub>(selstub);
+
+        if (bcallstub.name == bxcallstub.name) {
+          fstub = bxcallstub;
+          fflag = true;
+        } else {
+          for (const stubsource& bstubsrc : bcallstub.sources) {
+            if (bstubsrc.stubname == bxcallstub.name) {
+              fstub = bxcallstub;
+              fflag = true;
+            }
+          }
+        }
+      }
     }
+    if (fflag == true) {
+      break;
+    }
+  }
 }
 
-void LayoutBoxStubs(ActivityDiagram &Diagram)
-{
-    uint32_t NumBoxes;
+std::vector<activitybox> lconnboxes(activitydia& dia, std::string& tsname) {
+  std::vector<activitybox> connboxes;
 
-    NumBoxes = Diagram.Boxes.size();
-    for (uint32_t BoxIndex = 0u; BoxIndex < NumBoxes; BoxIndex++)
-    {
-        ActivityBox &SelectedBox = Diagram.Boxes[BoxIndex];
-        uint8_t NumInputStubs;
-        uint8_t NumOutputStubs;
-        uint8_t NumControlStubs;
-        uint8_t NumMechanismStubs;
-        uint8_t NumCallStubs;
-        uint8_t InputInterfaceDivisions;
-        uint8_t InputInterfaceDivisionWidth;
-        uint8_t OutputInterfaceDivisions;
-        uint8_t OutputInterfaceDivisionWidth;
-        uint8_t ControlInterfaceDivisions;
-        uint8_t ControlInterfaceDivisionWidth;
-        uint8_t MechanismInterfaceDivisions;
-        uint8_t MechanismInterfaceDivisionWidth;
-        uint8_t CallInterfaceDivisions;
-        uint8_t CallInterfaceDivisionWidth;
+  for (activitybox& sbox : dia.boxes) {}
+    for (stub& sstub : sbox.inputstubs) {
+      inputstub& selinstub = std::get<inputstub>(sstub);
 
-        NumInputStubs = SelectedBox.InputStubs.size();
-        NumOutputStubs = SelectedBox.OutputStubs.size();
-        NumControlStubs = SelectedBox.ControlStubs.size();
-        NumMechanismStubs = SelectedBox.MechanismStubs.size();
-        NumCallStubs = SelectedBox.CallStubs.size();
-        InputInterfaceDivisions = NumInputStubs + 1u;
-        InputInterfaceDivisionWidth = SelectedBox.Height / InputInterfaceDivisions;
-        for (uint32_t InputStubIndex = 0u; InputStubIndex < NumInputStubs; InputStubIndex++)
-        {
-            InputStub& SelectedInputStub = std::get<InputStub>(SelectedBox.InputStubs[InputStubIndex]);
-            uint32_t RowOffset;
-
-            RowOffset = InputInterfaceDivisionWidth * (1u + InputStubIndex);
-            SelectedInputStub.Position.Column = SelectedBox.Center.Column - (SelectedBox.Width / 2u);
-            SelectedInputStub.Position.Row = SelectedBox.Center.Row - (SelectedBox.Height / 2u);
-            SelectedInputStub.Position.Row = SelectedInputStub.Position.Row + RowOffset;
-            SelectedInputStub.Length = 3u + InputStubIndex;
+      if (selinstub.name == tsname) {
+        connboxes.push_back(sbox);
+      } else {
+        for (stubsource& selsource : selinstub.sources) {
+          if (selsource.stubname == tsname) {
+            connboxes.push_back(sbox);
+          }
         }
-        OutputInterfaceDivisions = NumOutputStubs + 1u;
-        OutputInterfaceDivisionWidth = SelectedBox.Height / OutputInterfaceDivisions;
-        for (uint32_t OutputStubIndex = 0u; OutputStubIndex < NumOutputStubs; OutputStubIndex++)
-        {
-            OutputStub &SelectedOutputStub = std::get<OutputStub>(SelectedBox.OutputStubs[OutputStubIndex]);
-            uint32_t RowOffset;
-
-            RowOffset = OutputInterfaceDivisionWidth * (1u + OutputStubIndex);
-            SelectedOutputStub.Position.Column = SelectedBox.Center.Column + (SelectedBox.Width / 2u);
-            SelectedOutputStub.Position.Row = SelectedBox.Center.Row - (SelectedBox.Height / 2u);
-            SelectedOutputStub.Position.Row = SelectedOutputStub.Position.Row + RowOffset;
-            SelectedOutputStub.Length = 3u + OutputStubIndex;
-        }
-        ControlInterfaceDivisions = NumControlStubs + 1u;
-        ControlInterfaceDivisionWidth = SelectedBox.Width / ControlInterfaceDivisions;
-        for (uint32_t ControlStubIndex = 0u; ControlStubIndex < NumControlStubs; ControlStubIndex++)
-        {
-            ControlStub &SelectedControlStub = std::get<ControlStub>(SelectedBox.ControlStubs[ControlStubIndex]);
-            uint32_t ColumnOffset;
-
-            ColumnOffset = ControlInterfaceDivisionWidth * (1u + ControlStubIndex);
-            SelectedControlStub.Position.Column = SelectedBox.Center.Column - (SelectedBox.Width / 2u);
-            SelectedControlStub.Position.Row = SelectedBox.Center.Row - (SelectedBox.Height / 2u);
-            SelectedControlStub.Position.Column = SelectedControlStub.Position.Column + ColumnOffset;
-            SelectedControlStub.Length = 3u + ControlStubIndex;
-        }
-        MechanismInterfaceDivisions = NumMechanismStubs + 1u;
-        MechanismInterfaceDivisionWidth = (SelectedBox.Width / 2u) / MechanismInterfaceDivisions;
-        for (uint32_t MechanismStubIndex = 0u; MechanismStubIndex < NumMechanismStubs; MechanismStubIndex++)
-        {
-            MechanismStub &SelectedMechanismStub = std::get<MechanismStub>(SelectedBox.MechanismStubs[MechanismStubIndex]);
-            uint32_t ColumnOffset;
-
-            ColumnOffset = MechanismInterfaceDivisionWidth * (1u + MechanismStubIndex);
-            SelectedMechanismStub.Position.Column = SelectedBox.Center.Column - (SelectedBox.Width / 2u);
-            SelectedMechanismStub.Position.Row = SelectedBox.Center.Row + (SelectedBox.Height / 2u);
-            SelectedMechanismStub.Position.Column = SelectedMechanismStub.Position.Column + ColumnOffset;
-            SelectedMechanismStub.Length = 3u + MechanismStubIndex;
-        }
-        CallInterfaceDivisions = NumCallStubs + 1u;
-        CallInterfaceDivisionWidth = (SelectedBox.Width / 2) / CallInterfaceDivisions;
-        for (uint32_t CallStubIndex = 0u; CallStubIndex < NumCallStubs; CallStubIndex++)
-        {
-            CallStub &SelectedCallStub = std::get<CallStub>(SelectedBox.CallStubs[CallStubIndex]);
-            uint32_t ColumnOffset;
-
-            ColumnOffset = CallInterfaceDivisionWidth * (1u + CallStubIndex);
-            SelectedCallStub.Position.Column = SelectedBox.Center.Column;
-            SelectedCallStub.Position.Row = SelectedBox.Center.Row + (SelectedBox.Height / 2u);
-            SelectedCallStub.Position.Column = SelectedCallStub.Position.Column + ColumnOffset;
-            SelectedCallStub.Length = 4u;
-        }
+      }
     }
+    for (stub& sstub : sbox.outputstubs) {
+      outputstub& selostub = std::get<outputstub>(sstub);
+
+      if (selostub.name == tsname) {
+        connboxes.push_back(sbox);
+      } else {
+        for (stubsource& selsource : selostub.sources) {
+          if (selsource.stubname == tsname) {
+            connboxes.push_back(sbox);
+          }
+        }
+      }
+    }
+    for (stub& sstub : sbox.controlstubs) {
+      controlstub& selconstub = std::get<controlstub>(sstub);
+
+      if (selconstub.name == tsname) {
+        connboxes.push_back(sbox);
+      } else {
+        for (stubsource& selsource : selconstub.sources) {
+          if (selsource.stubname == tsname) {
+            connboxes.push_back(sbox);
+          }
+        }
+      }
+    }
+    for (stub& sstub : sbox.mechanismstubs) {
+      mechanismstub& selmstub = std::get<mechanismstub>(sstub);
+
+      if (selmstub.name == tsname) {
+        connboxes.push_back(sbox);
+      } else {
+        for (stubsource& selsource : selmstub.sources) {
+          if (selsource.stubname == tsname) {
+            connboxes.push_back(sbox);
+          }
+        }
+      }
+    }
+    for (stub& sstub : sbox.callstubs) {
+      callstub& selcallstub = std::get<callstub>(sstub);
+
+      if (selcallstub.name == tsname) {
+        connboxes.push_back(sbox);
+      } else {
+        for (stubsource& selsource : selcallstub.sources) {
+          if (selsource.stubname == tsname) {
+            connboxes.push_back(sbox);
+          }
+        }
+      }
+    }
+  }
+
+  return connboxes;
 }
 
-void FindInnerStub(const ActivityDiagram& Diagram, const Stub& BoundaryStub, Stub& FoundStub, bool& FoundFlag)
+bool checksoverlap(stub fstub, stub sstub)
 {
-    FoundFlag = false;
-    for (const ActivityBox& SelectedBox : Diagram.Boxes)
-    {
-        if (std::holds_alternative<InputStub>(BoundaryStub))
-        {
-            const InputStub& BoundaryInputStub = std::get<InputStub>(BoundaryStub);
-            
-            for (const Stub& SelectedStub : SelectedBox.InputStubs)
-            {
-                const InputStub& SelectedInputStub = std::get<InputStub>(SelectedStub);
-                
-                if (SelectedInputStub.Name == BoundaryInputStub.Name)
-                {
-                    FoundStub = SelectedInputStub;
-                    FoundFlag = true;
-                }
-                else
-                {
-                    for (const StubSource& StubSource : SelectedInputStub.Sources)
-                    {
-                        if (StubSource.StubName == BoundaryInputStub.Name)
-                        {
-                            FoundStub = SelectedInputStub;
-                            FoundFlag = true;
-                        }
-                    }
-                }
-            } 
-            for (const Stub& SelectedStub : SelectedBox.ControlStubs)
-            {
-                const ControlStub& SelectedControlStub = std::get<ControlStub>(SelectedStub);
-                
-                if (SelectedControlStub.Name == BoundaryInputStub.Name)
-                {
-                    FoundStub = SelectedControlStub;
-                    FoundFlag = true;
-                }
-                else
-                {
-                    for (const StubSource& StubSource : SelectedControlStub.Sources)
-                    {
-                        if (StubSource.StubName == BoundaryInputStub.Name)
-                        {
-                            FoundStub = SelectedControlStub;
-                            FoundFlag = true;
-                        }
-                    }
-                }
+    bool ov;
+
+    ov = false;
+    if (std::holds_alternative<inputstub>(fstub)) {
+        inputstub firstistub;
+
+        firstistub = std::get<inputstub>(fstub);
+        if (std::holds_alternative<inputstub>(sstub)) {
+            inputstub secondistub;
+
+            secondistub = std::get<inputstub>(sstub);
+            if (firstistub.position.row == secondistub.position.row) {
+                ov = true;
+            } else if (firstistub.position.row == (secondistub.position.row - 1u)) {
+                ov = true;
+            } else if (firstistub.position.row == (secondistub.position.row + 1u)) {
+                ov = true;
             }
         }
-        else if (std::holds_alternative<ControlStub>(BoundaryStub))
-        {
-            const ControlStub& BoundaryControlStub = std::get<ControlStub>(BoundaryStub);
-            
-            for (const Stub& SelectedStub : SelectedBox.InputStubs)
-            {
-                const InputStub& SelectedInputStub = std::get<InputStub>(SelectedStub);
-                
-                if (SelectedInputStub.Name == BoundaryControlStub.Name)
-                {
-                    FoundStub = SelectedInputStub;
-                    FoundFlag = true;
-                }
-                else
-                {
-                    for (const StubSource& SelectedStubSource : SelectedInputStub.Sources)
-                    {
-                        if (SelectedStubSource.StubName == BoundaryControlStub.Name)
-                        {
-                            FoundStub = SelectedInputStub;
-                            FoundFlag = true;
-                        }
-                    }
-                }
-            }
-            for (const Stub& SelectedStub : SelectedBox.ControlStubs)
-            {
-                const ControlStub& SelectedControlStub = std::get<ControlStub>(SelectedStub);
+    } else if (std::holds_alternative<outputstub>(fstub)) {
+        outputstub firstostub;
 
-                if (SelectedControlStub.Name == BoundaryControlStub.Name)
-                {
-                    FoundStub = SelectedControlStub;
-                    FoundFlag = true;
-                }
-                else
-                {
-                    for (const StubSource& SelectedStubSource : SelectedControlStub.Sources)
-                    {
-                        if (SelectedStubSource.StubName == BoundaryControlStub.Name)
-                        {
-                            FoundStub = SelectedControlStub;
-                            FoundFlag = true;
-                        }
-                    }
-                }
+        firstostub = std::get<outputstub>(fstub);
+        if (std::holds_alternative<outputstub>(sstub)) {
+            outputstub secondostub;
+
+            secondostub = std::get<outputstub>(sstub);
+            if (firstostub.position.row == secondostub.position.row) {
+                ov = true;
+            } else if (firstostub.position.row == (secondostub.position.row - 1u)) {
+                ov = true;
+            } else if (firstostub.position.row == (secondostub.position.row + 1u)) {
+                ov = true;
             }
         }
-        else if (std::holds_alternative<OutputStub>(BoundaryStub))
-        {
-            const OutputStub& BoundaryOutputStub = std::get<OutputStub>(BoundaryStub);
-            
-            for (const Stub& SelectedStub : SelectedBox.OutputStubs)
-            {
-                const OutputStub& SelectedOutputStub = std::get<OutputStub>(SelectedStub);
+    } else if (std::holds_alternative<controlstub>(fstub)) {
+        controlstub firstconstub;
 
-                if (SelectedOutputStub.Name == BoundaryOutputStub.Name)
-                {
-                    FoundStub = SelectedOutputStub;
-                    FoundFlag = true;
-                }
-                else
-                {
-                    for (const StubSource& BoundaryStubSource : BoundaryOutputStub.Sources)
-                    {
-                        if (BoundaryStubSource.StubName == SelectedOutputStub.Name)
-                        {
-                            FoundStub = SelectedOutputStub;
-                            FoundFlag = true;
-                        }
-                    } 
-                }
-            }    
-        }
-        else if (std::holds_alternative<MechanismStub>(BoundaryStub))
-        {
-            const MechanismStub& BoundaryMechanismStub = std::get<MechanismStub>(BoundaryStub);
+        firstconstub = std::get<controlstub>(fstub);
+        if (std::holds_alternative<controlstub>(sstub)) {
+            controlstub secondconstub;
 
-            for (const Stub& SelectedStub : SelectedBox.MechanismStubs)
-            {
-                const MechanismStub& BoxMechanismStub = std::get<MechanismStub>(SelectedStub);
-
-                if (BoundaryMechanismStub.Name == BoxMechanismStub.Name)
-                {
-                    FoundStub = BoxMechanismStub;
-                    FoundFlag = true;
-                }
-                else
-                {
-                    for (const StubSource& BoxStubSource : BoxMechanismStub.Sources)
-                    {
-                        if (BoxStubSource.StubName == BoundaryMechanismStub.Name)
-                        {
-                            FoundStub = BoxMechanismStub;
-                            FoundFlag = true;
-                        }
-                    }
-                }
+            secondconstub = std::get<controlstub>(sstub);
+            if (firstconstub.position.column == secondconstub.position.column) {
+                ov = true;
+            } else if (firstconstub.position.column == (secondconstub.position.column - 1u)) {
+                ov = true;
+            } else if (firstconstub.position.column == (secondconstub.position.column + 1u)) {
+                ov = true;
             }
-        }
-        else if (std::holds_alternative<CallStub>(BoundaryStub))
-        {
-            const CallStub& BoundaryCallStub = std::get<CallStub>(BoundaryStub);
-
-            for (const Stub& SelectedStub : SelectedBox.CallStubs)
-            {
-                const CallStub& BoxCallStub = std::get<CallStub>(SelectedStub);
-
-                if (BoundaryCallStub.Name == BoxCallStub.Name)
-                {
-                    FoundStub = BoxCallStub;
-                    FoundFlag = true;
-                }
-                else
-                {
-                    for (const StubSource& BoundaryStubSource : BoundaryCallStub.Sources)
-                    {
-                        if (BoundaryStubSource.StubName == BoxCallStub.Name)
-                        {
-                            FoundStub = BoxCallStub;
-                            FoundFlag = true;
-                        }
-                    }
-                }
-            }
-        }
-        if (FoundFlag == true)
-        {
-            break;
         }
     }
+    else if (std::holds_alternative<mechanismstub>(fstub)) {
+        mechanismstub firstmechstub;
+
+        firstmechstub = std::get<mechanismstub>(fstub);
+        if (std::holds_alternative<mechanismstub>(sstub)) {
+            mechanismstub secondmechstub;
+
+            secondmechstub = std::get<mechanismstub>(sstub);
+            if (firstmechstub.position.column == 
+              secondmechstub.position.column) {
+                ov = true;
+            } else if (firstmechstub.position.column == 
+              (secondmechstub.position.column - 1u)) {
+                ov = true;
+            } else if (firstmechstub.position.column == 
+              (secondmechstub.position.column + 1u)) {
+                ov = true;
+            }
+        }
+    }
+    else if (std::holds_alternative<callstub>(fstub))
+    {
+        callstub firstcstub;
+
+        firstcstub = std::get<callstub>(fstub);
+        if (std::holds_alternative<callstub>(sstub)) {
+            callstub secondcstub;
+
+            secondcstub = std::get<callstub>(sstub);
+            if (FirstCallStub.position.column == secondcstub.position.column) {
+                ov = true;
+            } else if (FirstCallStub.position.column == (secondcstub.position.column - 1u)) {
+                ov = true;
+            } else if (FirstCallStub.position.column == (secondcstub.position.column + 1u)) {
+                ov = true;
+            }
+        }
+    }
+
+    return ov;
 }
 
-std::vector<ActivityBox> LocateConnectedBoxes(ActivityDiagram& Diagram, std::string& TargetStubName)
-{
-    std::vector<ActivityBox> ConnectedBoxes;
-
-    for (ActivityBox& SelectedBox : Diagram.Boxes)
-    {
-        for (Stub& SelectedStub : SelectedBox.InputStubs)
-        {
-            InputStub& SelectedInputStub = std::get<InputStub>(SelectedStub);
-
-            if (SelectedInputStub.Name == TargetStubName)
-            {
-                ConnectedBoxes.push_back(SelectedBox);
-            }
-            else
-            {
-                for (StubSource& SelectedSource : SelectedInputStub.Sources)
-                {
-                    if (SelectedSource.StubName == TargetStubName)
-                    {
-                        ConnectedBoxes.push_back(SelectedBox);
-                    }
-                }
-            }
-        }
-        for (Stub& SelectedStub : SelectedBox.OutputStubs)
-        {
-            OutputStub& SelectedOutputStub = std::get<OutputStub>(SelectedStub);
-
-            if (SelectedOutputStub.Name == TargetStubName)
-            {
-                ConnectedBoxes.push_back(SelectedBox);
-            }
-            else
-            {
-                for (StubSource& SelectedSource : SelectedOutputStub.Sources)
-                {
-                    if (SelectedSource.StubName == TargetStubName)
-                    {
-                        ConnectedBoxes.push_back(SelectedBox);
-                    }
-                }
-            }
-        }
-        for (Stub& SelectedStub : SelectedBox.ControlStubs)
-        {
-            ControlStub& SelectedControlStub = std::get<ControlStub>(SelectedStub);
-
-            if (SelectedControlStub.Name == TargetStubName)
-            {
-                ConnectedBoxes.push_back(SelectedBox);
-            }
-            else
-            {
-                for (StubSource& SelectedSource : SelectedControlStub.Sources)
-                {
-                    if (SelectedSource.StubName == TargetStubName)
-                    {
-                        ConnectedBoxes.push_back(SelectedBox);
-                    }
-                }
-            }
-        }
-        for (Stub& SelectedStub : SelectedBox.MechanismStubs)
-        {
-            MechanismStub& SelectedMechanismStub = std::get<MechanismStub>(SelectedStub);
-
-            if (SelectedMechanismStub.Name == TargetStubName)
-            {
-                ConnectedBoxes.push_back(SelectedBox);
-            }
-            else
-            {
-                for (StubSource& SelectedSource : SelectedMechanismStub.Sources)
-                {
-                    if (SelectedSource.StubName == TargetStubName)
-                    {
-                        ConnectedBoxes.push_back(SelectedBox);
-                    }
-                }
-            }
-        }
-        for (Stub& SelectedStub : SelectedBox.CallStubs)
-        {
-            CallStub& SelectedCallStub = std::get<CallStub>(SelectedStub);
-
-            if (SelectedCallStub.Name == TargetStubName)
-            {
-                ConnectedBoxes.push_back(SelectedBox);
-            }
-            else
-            {
-                for (StubSource& SelectedSource : SelectedCallStub.Sources)
-                {
-                    if (SelectedSource.StubName == TargetStubName)
-                    {
-                        ConnectedBoxes.push_back(SelectedBox);
-                    }
-                }
-            }
-        }
-    }
-
-    return ConnectedBoxes;
-}
-
-bool CheckStubOverlap(Stub FirstStub, Stub SecondStub)
-{
-    bool Overlaps;
-
-    Overlaps = false;
-    if (std::holds_alternative<InputStub>(FirstStub))
-    {
-        InputStub FirstInputStub;
-
-        FirstInputStub = std::get<InputStub>(FirstStub);
-        if (std::holds_alternative<InputStub>(SecondStub))
-        {
-            InputStub SecondInputStub;
-
-            SecondInputStub = std::get<InputStub>(SecondStub);
-            if (FirstInputStub.Position.Row == SecondInputStub.Position.Row)
-            {
-                Overlaps = true;
-            }
-            else if (FirstInputStub.Position.Row == (SecondInputStub.Position.Row - 1u))
-            {
-                Overlaps = true;
-            }
-            else if (FirstInputStub.Position.Row == (SecondInputStub.Position.Row + 1u))
-            {
-                Overlaps = true;
-            }
-        }
-    }
-    else if (std::holds_alternative<OutputStub>(FirstStub))
-    {
-        OutputStub FirstOutputStub;
-
-        FirstOutputStub = std::get<OutputStub>(FirstStub);
-        if (std::holds_alternative<OutputStub>(SecondStub))
-        {
-            OutputStub SecondOutputStub;
-
-            SecondOutputStub = std::get<OutputStub>(SecondStub);
-            if (FirstOutputStub.Position.Row == SecondOutputStub.Position.Row)
-            {
-                Overlaps = true;
-            }
-            else if (FirstOutputStub.Position.Row == (SecondOutputStub.Position.Row - 1u))
-            {
-                Overlaps = true;
-            }
-            else if (FirstOutputStub.Position.Row == (SecondOutputStub.Position.Row + 1u))
-            {
-                Overlaps = true;
-            }
-        }
-    }
-    else if (std::holds_alternative<ControlStub>(FirstStub))
-    {
-        ControlStub FirstControlStub;
-
-        FirstControlStub = std::get<ControlStub>(FirstStub);
-        if (std::holds_alternative<ControlStub>(SecondStub))
-        {
-            ControlStub SecondControlStub;
-
-            SecondControlStub = std::get<ControlStub>(SecondStub);
-            if (FirstControlStub.Position.Column == SecondControlStub.Position.Column)
-            {
-                Overlaps = true;
-            }
-            else if (FirstControlStub.Position.Column == (SecondControlStub.Position.Column - 1u))
-            {
-                Overlaps = true;
-            }
-            else if (FirstControlStub.Position.Column == (SecondControlStub.Position.Column + 1u))
-            {
-                Overlaps = true;
-            }
-        }
-    }
-    else if (std::holds_alternative<MechanismStub>(FirstStub))
-    {
-        MechanismStub FirstMechanismStub;
-
-        FirstMechanismStub = std::get<MechanismStub>(FirstStub);
-        if (std::holds_alternative<MechanismStub>(SecondStub))
-        {
-            MechanismStub SecondMechanismStub;
-
-            SecondMechanismStub = std::get<MechanismStub>(SecondStub);
-            if (FirstMechanismStub.Position.Column == SecondMechanismStub.Position.Column)
-            {
-                Overlaps = true;
-            }
-            else if (FirstMechanismStub.Position.Column == (SecondMechanismStub.Position.Column - 1u))
-            {
-                Overlaps = true;
-            }
-            else if (FirstMechanismStub.Position.Column == (SecondMechanismStub.Position.Column + 1u))
-            {
-                Overlaps = true;
-            }
-        }
-    }
-    else if (std::holds_alternative<CallStub>(FirstStub))
-    {
-        CallStub FirstCallStub;
-
-        FirstCallStub = std::get<CallStub>(FirstStub);
-        if (std::holds_alternative<CallStub>(SecondStub))
-        {
-            CallStub SecondCallStub;
-
-            SecondCallStub = std::get<CallStub>(SecondStub);
-            if (FirstCallStub.Position.Column == SecondCallStub.Position.Column)
-            {
-                Overlaps = true;
-            }
-            else if (FirstCallStub.Position.Column == (SecondCallStub.Position.Column - 1u))
-            {
-                Overlaps = true;
-            }
-            else if (FirstCallStub.Position.Column == (SecondCallStub.Position.Column + 1u))
-            {
-                Overlaps = true;
-            }
-        }
-    }
-
-    return Overlaps;
-}
-
-void ShiftInputStubs(ActivityDiagram& Diagram)
-{
+void sinstubs(activitydia& dia) {
     uint32_t NumInputStubs;
 
-    NumInputStubs = Diagram.InputBoundaryStubs.size();
+    NumInputStubs = dia.InputBoundaryStubs.size();
     for (uint32_t InputStubIndex = 0u; InputStubIndex < NumInputStubs; InputStubIndex++)
     {
         for (uint32_t OtherInputStubIndex = 0u; OtherInputStubIndex < NumInputStubs; OtherInputStubIndex++)
         {
             if (InputStubIndex != OtherInputStubIndex)
             {
-                InputStub FirstStub;
-                InputStub SecondStub;
+                inputstub fstub;
+                inputstub sstub;
 
-                FirstStub = std::get<InputStub>(Diagram.InputBoundaryStubs[InputStubIndex]);
-                SecondStub = std::get<InputStub>(Diagram.InputBoundaryStubs[OtherInputStubIndex]);
-                for (uint32_t RowOffset = FirstStub.Position.Row; RowOffset > 0u; RowOffset--)
+                fstub = std::get<inputstub>(dia.InputBoundaryStubs[InputStubIndex]);
+                sstub = std::get<inputstub>(dia.InputBoundaryStubs[OtherInputStubIndex]);
+                for (uint32_t RowOffset = fstub.position.row; RowOffset > 0u; RowOffset--)
                 {
-                    if (CheckStubOverlap(FirstStub, SecondStub))
+                    if (CheckStubOverlap(fstub, sstub))
                     {
-                        FirstStub.Position.Row--;
+                        fstub.position.row--;
                     }
                 }
-                if (CheckStubOverlap(FirstStub, SecondStub))
+                if (CheckStubOverlap(fstub, sstub))
                 {
                     throw std::runtime_error("Could not shift input boundary stubs.");
                 }
-                Diagram.InputBoundaryStubs[InputStubIndex] = FirstStub;
+                dia.InputBoundaryStubs[InputStubIndex] = fstub;
             }
         }
     }
 }
 
-void ShiftOutputStubs(ActivityDiagram& Diagram)
+void soutstubs(activitydia& dia)
 {
-    uint32_t NumOutputStubs;
+    uint32_t nostubs;
 
-    NumOutputStubs = Diagram.OutputBoundaryStubs.size();
-    for (uint32_t OutputStubIndex = 0u; OutputStubIndex < NumOutputStubs; OutputStubIndex++)
+    nostubs = dia.OutputBoundaryStubs.size();
+    for (uint32_t OutputStubIndex = 0u; OutputStubIndex < nostubs; OutputStubIndex++)
     {
-        for (uint32_t OtherOutputStubIndex = 0u; OtherOutputStubIndex < NumOutputStubs; OtherOutputStubIndex++)
+        for (uint32_t OtherOutputStubIndex = 0u; OtherOutputStubIndex < nostubs; OtherOutputStubIndex++)
         {
             if (OutputStubIndex != OtherOutputStubIndex)
             {
-                OutputStub FirstStub;
-                OutputStub SecondStub;
+                outputstub FirstStub;
+                outputstub SecondStub;
 
-                FirstStub = std::get<OutputStub>(Diagram.OutputBoundaryStubs[OutputStubIndex]);
-                SecondStub = std::get<OutputStub>(Diagram.OutputBoundaryStubs[OtherOutputStubIndex]);
-                for (uint32_t RowOffset = FirstStub.Position.Row; RowOffset > 0u; RowOffset--)
+                FirstStub = std::get<outputstub>(dia.OutputBoundaryStubs[OutputStubIndex]);
+                SecondStub = std::get<outputstub>(dia.OutputBoundaryStubs[OtherOutputStubIndex]);
+                for (uint32_t RowOffset = FirstStub.position.row; RowOffset > 0u; RowOffset--)
                 {
                     if (CheckStubOverlap(FirstStub, SecondStub))
                     {
-                        FirstStub.Position.Row--;
+                        FirstStub.position.row--;
                     }
                 }
                 if (CheckStubOverlap(FirstStub, SecondStub))
                 {
                     throw std::runtime_error("Could not shift output boundary stubs.");
                 }
-                Diagram.OutputBoundaryStubs[OutputStubIndex] = FirstStub;
+                dia.OutputBoundaryStubs[OutputStubIndex] = FirstStub;
             }
         }
     }
 }
 
-void ShiftControlStubs(ActivityDiagram& Diagram)
+void sconstubs(activitydia& dia)
 {
     uint32_t NumControlStubs;
 
-    NumControlStubs = Diagram.ControlBoundaryStubs.size();
+    NumControlStubs = dia.ControlBoundaryStubs.size();
     for (uint32_t ControlStubIndex = 0u; ControlStubIndex < NumControlStubs; ControlStubIndex++)
     {
         for (uint32_t OtherControlStubIndex = 0u; OtherControlStubIndex < NumControlStubs; OtherControlStubIndex++)
         {
             if (ControlStubIndex != OtherControlStubIndex)
             {
-                ControlStub FirstStub;
-                ControlStub SecondStub;
+                controlstub FirstStub;
+                controlstub SecondStub;
 
-                FirstStub = std::get<ControlStub>(Diagram.ControlBoundaryStubs[ControlStubIndex]);
-                SecondStub = std::get<ControlStub>(Diagram.ControlBoundaryStubs[OtherControlStubIndex]);
-                for (uint32_t ColumnOffset = FirstStub.Position.Column; ColumnOffset < Diagram.Width; ColumnOffset++)
+                FirstStub = std::get<controlstub>(dia.ControlBoundaryStubs[ControlStubIndex]);
+                SecondStub = std::get<controlstub>(dia.ControlBoundaryStubs[OtherControlStubIndex]);
+                for (uint32_t columnOffset = FirstStub.position.column; columnOffset < dia.width; columnOffset++)
                 {
                     if (CheckStubOverlap(FirstStub, SecondStub))
                     {
-                        FirstStub.Position.Column++;
+                        FirstStub.position.column++;
                     }
                 }
                 if (CheckStubOverlap(FirstStub, SecondStub))
                 {
                     throw std::runtime_error("Could not shift control boundary stubs.");
                 }
-                Diagram.ControlBoundaryStubs[ControlStubIndex] = FirstStub;
+                dia.ControlBoundaryStubs[ControlStubIndex] = FirstStub;
             }
         }
     }
 }
 
-void ShiftMechanismStubs(ActivityDiagram& Diagram)
+void smechstubs(activitydia& dia)
 {
     uint32_t NumMechanismStubs;
 
-    NumMechanismStubs = Diagram.MechanismBoundaryStubs.size();
+    NumMechanismStubs = dia.MechanismBoundaryStubs.size();
     for (uint32_t MechanismStubIndex = 0u; MechanismStubIndex < NumMechanismStubs; MechanismStubIndex++)
     {
         for (uint32_t OtherMechanismStubIndex = 0u; OtherMechanismStubIndex < NumMechanismStubs; OtherMechanismStubIndex++)
         {
             if (MechanismStubIndex != OtherMechanismStubIndex)
             {
-                MechanismStub FirstStub;
-                MechanismStub SecondStub;
+                mechanismstub FirstStub;
+                mechanismstub SecondStub;
 
-                FirstStub = std::get<MechanismStub>(Diagram.MechanismBoundaryStubs[MechanismStubIndex]);
-                SecondStub = std::get<MechanismStub>(Diagram.MechanismBoundaryStubs[OtherMechanismStubIndex]);
-                for (uint32_t MechanismOffset = FirstStub.Position.Column; MechanismOffset < Diagram.Width; MechanismOffset++)
+                FirstStub = std::get<mechanismstub>(dia.MechanismBoundaryStubs[MechanismStubIndex]);
+                SecondStub = std::get<mechanismstub>(dia.MechanismBoundaryStubs[OtherMechanismStubIndex]);
+                for (uint32_t MechanismOffset = FirstStub.position.column; MechanismOffset < dia.width; MechanismOffset++)
                 {
                     if (CheckStubOverlap(FirstStub, SecondStub))
                     {
-                        FirstStub.Position.Column++;
+                        FirstStub.position.column++;
                     }
                 }
                 if (CheckStubOverlap(FirstStub, SecondStub))
                 {
                     throw std::runtime_error("Could not shift mechanism boundary stubs.");
                 }
-                Diagram.MechanismBoundaryStubs[MechanismStubIndex] = FirstStub;
+                dia.MechanismBoundaryStubs[MechanismStubIndex] = FirstStub;
             }
         }
     }
 }
 
-void ShiftBoundaryStubs(ActivityDiagram &Diagram)
+void shiftbstubs(activitydia &dia)
 {
-    ShiftInputStubs(Diagram);
-    ShiftOutputStubs(Diagram);
-    ShiftControlStubs(Diagram);
-    ShiftMechanismStubs(Diagram);
+    ShiftInputStubs(dia);
+    ShiftOutputStubs(dia);
+    ShiftControlStubs(dia);
+    ShiftMechanismStubs(dia);
 }
 
-void LayoutBoundaryStubs(ActivityDiagram &Diagram, uint32_t BoxWidth, uint32_t BoxHeight, uint32_t BoxXGap, uint32_t BoxYGap)
+void laybstubs(activitydia &dia, uint32_t Boxwidth, uint32_t Boxheight, uint32_t BoxXGap, uint32_t BoxYGap)
 {
-    uint32_t BoxSectionHeight;
-    uint32_t BoxSectionWidth;
-    uint32_t RowHeight;
-    uint32_t ColumnWidth;
+    uint32_t BoxSectionheight;
+    uint32_t BoxSectionwidth;
+    uint32_t Rowheight;
+    uint32_t columnwidth;
     uint32_t NumBoxes;
     uint32_t StubIndex;
-    uint32_t ColumnCenterOffset;
+    uint32_t columnCenterOffset;
     uint32_t RowCenterOffset;
     
-    NumBoxes = Diagram.Boxes.size();
-    BoxSectionHeight = (NumBoxes * BoxHeight) + ((NumBoxes - 1u) * BoxYGap);
-    BoxSectionWidth = (NumBoxes * BoxWidth) + ((NumBoxes - 1u) * BoxXGap);
-    RowHeight = BoxSectionHeight / (1u + NumBoxes);
-    ColumnWidth = BoxSectionWidth / (1u + NumBoxes);
-    ColumnCenterOffset = (Diagram.Width / 2u) - (BoxSectionWidth / 2u);
-    RowCenterOffset = (Diagram.Height / 2u) - (BoxSectionHeight / 2u);
+    NumBoxes = dia.boxes.size();
+    BoxSectionheight = (NumBoxes * Boxheight) + ((NumBoxes - 1u) * BoxYGap);
+    BoxSectionwidth = (NumBoxes * Boxwidth) + ((NumBoxes - 1u) * BoxXGap);
+    Rowheight = BoxSectionheight / (1u + NumBoxes);
+    columnwidth = BoxSectionwidth / (1u + NumBoxes);
+    columnCenterOffset = (dia.width / 2u) - (BoxSectionwidth / 2u);
+    RowCenterOffset = (dia.height / 2u) - (BoxSectionheight / 2u);
     StubIndex = 0u;
-    for (Stub& BoundaryStub : Diagram.InputBoundaryStubs)
+    for (stub& BoundaryStub : dia.InputBoundaryStubs)
     {
-        Stub FoundStub;
+        stub FoundStub;
         bool FoundFlag;
-        InputStub& BoundaryInputStub = std::get<InputStub>(BoundaryStub);
+        inputstub& BoundaryInputStub = std::get<inputstub>(BoundaryStub);
 
-        FindInnerStub(Diagram, BoundaryStub, FoundStub, FoundFlag);
+        FindInnerStub(dia, BoundaryStub, FoundStub, FoundFlag);
         if (FoundFlag)
         {
-            if (std::holds_alternative<InputStub>(FoundStub))
+            if (std::holds_alternative<inputstub>(FoundStub))
             {
-                InputStub& FoundInputStub = std::get<InputStub>(FoundStub);
+                inputstub& FoundInputStub = std::get<inputstub>(FoundStub);
 
-                BoundaryInputStub.Position.Row = FoundInputStub.Position.Row;
-                BoundaryInputStub.Position.Column = 0u;
+                BoundaryInputStub.position.row = FoundInputStub.position.row;
+                BoundaryInputStub.position.column = 0u;
             }
-            else if (std::holds_alternative<ControlStub>(FoundStub))
+            else if (std::holds_alternative<controlstub>(FoundStub))
             {
-                ControlStub& FoundControlStub = std::get<ControlStub>(FoundStub);
+                controlstub& FoundControlStub = std::get<controlstub>(FoundStub);
 
-                BoundaryInputStub.Position.Row = FoundControlStub.Position.Row - FoundControlStub.Length;
-                BoundaryInputStub.Position.Column = 0u;
+                BoundaryInputStub.position.row = FoundControlStub.position.row - FoundControlStub.length;
+                BoundaryInputStub.position.column = 0u;
             }
         }
         else
         {
-            BoundaryInputStub.Position.Column = 0u;
-            BoundaryInputStub.Position.Row = (1u+StubIndex) * RowHeight;
+            BoundaryInputStub.position.column = 0u;
+            BoundaryInputStub.position.row = (1u+StubIndex) * Rowheight;
         }
         StubIndex++;
     }
     StubIndex = 0u;
-    for (Stub& BoundaryStub : Diagram.ControlBoundaryStubs)
+    for (stub& BoundaryStub : dia.ControlBoundaryStubs)
     {
-        Stub FoundStub;
+        stub FoundStub;
         bool FoundFlag;
-        ControlStub& BoundaryControlStub = std::get<ControlStub>(BoundaryStub);
+        controlstub& BoundaryControlStub = std::get<controlstub>(BoundaryStub);
 
-        FindInnerStub(Diagram, BoundaryStub, FoundStub, FoundFlag);
+        FindInnerStub(dia, BoundaryStub, FoundStub, FoundFlag);
         if (FoundFlag)
         {
-            if (std::holds_alternative<InputStub>(FoundStub))
+            if (std::holds_alternative<inputstub>(FoundStub))
             {
-                InputStub& FoundInputStub = std::get<InputStub>(FoundStub);
+                inputstub& FoundInputStub = std::get<inputstub>(FoundStub);
                 
-                BoundaryControlStub.Position.Row = 0u;
-                BoundaryControlStub.Position.Column = FoundInputStub.Position.Column - FoundInputStub.Length;
+                BoundaryControlStub.position.row = 0u;
+                BoundaryControlStub.position.column = FoundInputStub.position.column - FoundInputStub.length;
             }
-            else if (std::holds_alternative<ControlStub>(FoundStub))
+            else if (std::holds_alternative<controlstub>(FoundStub))
             {
-                ControlStub& FoundControlStub = std::get<ControlStub>(FoundStub);
+                controlstub& FoundControlStub = std::get<controlstub>(FoundStub);
 
-                BoundaryControlStub.Position.Row = 0u;
-                BoundaryControlStub.Position.Column = FoundControlStub.Position.Column;
+                BoundaryControlStub.position.row = 0u;
+                BoundaryControlStub.position.column = FoundControlStub.position.column;
             }
         }
         else
         {
-            BoundaryControlStub.Position.Column = (1u+StubIndex) * ColumnWidth;
-            BoundaryControlStub.Position.Row = 0u;
+            BoundaryControlStub.position.column = (1u+StubIndex) * columnwidth;
+            BoundaryControlStub.position.row = 0u;
         }
         StubIndex++;
     }
     StubIndex = 0u;
-    for (Stub& BoundaryStub : Diagram.OutputBoundaryStubs)
+    for (stub& BoundaryStub : dia.OutputBoundaryStubs)
     {
-        Stub FoundStub;
+        stub FoundStub;
         bool FoundFlag;
-        OutputStub& BoundaryOutputStub = std::get<OutputStub>(BoundaryStub);
+        outputstub& BoundaryOutputStub = std::get<outputstub>(BoundaryStub);
 
-        FindInnerStub(Diagram, BoundaryStub, FoundStub, FoundFlag);
+        FindInnerStub(dia, BoundaryStub, FoundStub, FoundFlag);
         if (FoundFlag)
         {
-            if (std::holds_alternative<OutputStub>(FoundStub))
+            if (std::holds_alternative<outputstub>(FoundStub))
             {
-                OutputStub& FoundOutputStub = std::get<OutputStub>(FoundStub);
+                outputstub& FoundOutputStub = std::get<outputstub>(FoundStub);
                 
-                BoundaryOutputStub.Position.Row = FoundOutputStub.Position.Row;
-                BoundaryOutputStub.Position.Column = Diagram.Width - 1u;
+                BoundaryOutputStub.position.row = FoundOutputStub.position.row;
+                BoundaryOutputStub.position.column = dia.width - 1u;
             }
         }
         else
         {
-            BoundaryOutputStub.Position.Column = Diagram.Width - 1u;
-            BoundaryOutputStub.Position.Row = (1u+StubIndex) * RowHeight;
+            BoundaryOutputStub.position.column = dia.width - 1u;
+            BoundaryOutputStub.position.row = (1u+StubIndex) * Rowheight;
         }
         StubIndex++;
     }
     StubIndex = 0u;
-    for (Stub& BoundaryStub : Diagram.MechanismBoundaryStubs)
+    for (stub& BoundaryStub : dia.MechanismBoundaryStubs)
     {
-        Stub FoundStub;
+        stub FoundStub;
         bool FoundFlag;
-        MechanismStub& BoundaryMechanismStub = std::get<MechanismStub>(BoundaryStub);
+        mechanismstub& BoundaryMechanismStub = std::get<mechanismstub>(BoundaryStub);
 
-        FindInnerStub(Diagram, BoundaryStub, FoundStub, FoundFlag);
+        FindInnerStub(dia, BoundaryStub, FoundStub, FoundFlag);
         if (FoundFlag)
         {
-            if (std::holds_alternative<MechanismStub>(FoundStub))
+            if (std::holds_alternative<mechanismstub>(FoundStub))
             {
-                MechanismStub& FoundMechanismStub = std::get<MechanismStub>(FoundStub);
+                mechanismstub& FoundMechanismStub = std::get<mechanismstub>(FoundStub);
                 
-                BoundaryMechanismStub.Position.Row = Diagram.Height - 1u - Diagram.Frame.BottomBar.Height;
-                BoundaryMechanismStub.Position.Column = FoundMechanismStub.Position.Column;
+                BoundaryMechanismStub.position.row = dia.height - 1u - dia.frame.bottombar.height;
+                BoundaryMechanismStub.position.column = FoundMechanismStub.position.column;
             }
         }
         else
         {
-            BoundaryMechanismStub.Position.Column = (1u+StubIndex) * ColumnWidth;
-            BoundaryMechanismStub.Position.Row = Diagram.Height - 1u - Diagram.Frame.BottomBar.Height;
+            BoundaryMechanismStub.position.column = (1u+StubIndex) * columnwidth;
+            BoundaryMechanismStub.position.row = dia.height - 1u - dia.frame.bottombar.height;
         }
         StubIndex++;
     }
 }
 
-void ChangeBoundaryStubLengths(ActivityDiagram& Diagram)
+void cbstublens(activitydia& dia)
 {
     uint32_t NumControlStubs;
-    uint32_t NumOutputStubs;
+    uint32_t nostubs;
     uint32_t NumMechanismStubs;
     uint32_t NumInputStubs;
 
-    NumInputStubs = Diagram.InputBoundaryStubs.size();
-    NumOutputStubs = Diagram.OutputBoundaryStubs.size();
-    NumControlStubs = Diagram.ControlBoundaryStubs.size();
-    NumMechanismStubs = Diagram.MechanismBoundaryStubs.size();
+    NumInputStubs = dia.InputBoundaryStubs.size();
+    nostubs = dia.OutputBoundaryStubs.size();
+    NumControlStubs = dia.ControlBoundaryStubs.size();
+    NumMechanismStubs = dia.MechanismBoundaryStubs.size();
     for (uint32_t I = 0u; I < NumInputStubs; I++)
     {
-        InputStub InputBoundaryStub;
+        inputstub InputBoundaryStub;
         uint32_t StubsAbove;
 
         StubsAbove = 0u;
-        InputBoundaryStub = std::get<InputStub>(Diagram.InputBoundaryStubs[I]);
+        InputBoundaryStub = std::get<inputstub>(dia.InputBoundaryStubs[I]);
         for (uint32_t K = 0u; K < NumInputStubs; K++)
         {
             if (I == K)
@@ -897,26 +778,26 @@ void ChangeBoundaryStubLengths(ActivityDiagram& Diagram)
             }
             else
             {
-                InputStub OtherInputBoundaryStub;
+                inputstub OtherInputBoundaryStub;
 
-                OtherInputBoundaryStub = std::get<InputStub>(Diagram.InputBoundaryStubs[K]);
-                if (OtherInputBoundaryStub.Position.Row < InputBoundaryStub.Position.Row)
+                OtherInputBoundaryStub = std::get<inputstub>(dia.InputBoundaryStubs[K]);
+                if (OtherInputBoundaryStub.position.row < InputBoundaryStub.position.row)
                 {
                     StubsAbove++;
                 }
             }
         }
-        InputBoundaryStub.Length = 3u + StubsAbove;
-        Diagram.InputBoundaryStubs[I] = InputBoundaryStub;
+        InputBoundaryStub.length = 3u + StubsAbove;
+        dia.InputBoundaryStubs[I] = InputBoundaryStub;
     }
-    for (uint32_t I = 0u; I < NumOutputStubs; I++)
+    for (uint32_t I = 0u; I < nostubs; I++)
     {
-        OutputStub OutputBoundaryStub;
+        outputstub OutputBoundaryStub;
         uint32_t StubsAbove;
 
         StubsAbove = 0u;
-        OutputBoundaryStub = std::get<OutputStub>(Diagram.OutputBoundaryStubs[I]);
-        for (uint32_t K = 0u; K < NumOutputStubs; K++)
+        OutputBoundaryStub = std::get<outputstub>(dia.OutputBoundaryStubs[I]);
+        for (uint32_t K = 0u; K < nostubs; K++)
         {
             if (I == K)
             {
@@ -924,25 +805,25 @@ void ChangeBoundaryStubLengths(ActivityDiagram& Diagram)
             }
             else
             {
-                OutputStub OtherOutputBoundaryStub;
+                outputstub OtherOutputBoundaryStub;
 
-                OtherOutputBoundaryStub = std::get<OutputStub>(Diagram.OutputBoundaryStubs[K]);
-                if (OtherOutputBoundaryStub.Position.Row < OutputBoundaryStub.Position.Row)
+                OtherOutputBoundaryStub = std::get<outputstub>(dia.OutputBoundaryStubs[K]);
+                if (OtherOutputBoundaryStub.position.row < OutputBoundaryStub.position.row)
                 {
                     StubsAbove++;
                 }
             }
         }
-        OutputBoundaryStub.Length = 3u + StubsAbove;
-        Diagram.OutputBoundaryStubs[I] = OutputBoundaryStub;
+        OutputBoundaryStub.length = 3u + StubsAbove;
+        dia.OutputBoundaryStubs[I] = OutputBoundaryStub;
     }
     for (uint32_t I = 0u; I < NumControlStubs; I++)
     {
-        ControlStub ControlBoundaryStub;
+        controlstub ControlBoundaryStub;
         uint32_t StubsLeftwards;
 
         StubsLeftwards = 0u;
-        ControlBoundaryStub = std::get<ControlStub>(Diagram.ControlBoundaryStubs[I]);
+        ControlBoundaryStub = std::get<controlstub>(dia.ControlBoundaryStubs[I]);
         for (uint32_t K = 0u; K < NumControlStubs; K++)
         {
             if (I == K)
@@ -951,25 +832,25 @@ void ChangeBoundaryStubLengths(ActivityDiagram& Diagram)
             }
             else
             {
-                ControlStub OtherControlBoundaryStub;
+                controlstub OtherControlBoundaryStub;
 
-                OtherControlBoundaryStub = std::get<ControlStub>(Diagram.ControlBoundaryStubs[K]);
-                if (OtherControlBoundaryStub.Position.Column < ControlBoundaryStub.Position.Column)
+                OtherControlBoundaryStub = std::get<controlstub>(dia.ControlBoundaryStubs[K]);
+                if (OtherControlBoundaryStub.position.column < ControlBoundaryStub.position.column)
                 {
                     StubsLeftwards++;
                 }
             }
         }
-        ControlBoundaryStub.Length = 3u + StubsLeftwards;
-        Diagram.ControlBoundaryStubs[I] = ControlBoundaryStub;
+        ControlBoundaryStub.length = 3u + StubsLeftwards;
+        dia.ControlBoundaryStubs[I] = ControlBoundaryStub;
     }
     for (uint32_t I = 0u; I < NumMechanismStubs; I++)
     {
-        MechanismStub MechanismBoundaryStub;
+        mechanismstub MechanismBoundaryStub;
         uint32_t StubsLeftwards;
 
         StubsLeftwards = 0u;
-        MechanismBoundaryStub = std::get<MechanismStub>(Diagram.MechanismBoundaryStubs[I]);
+        MechanismBoundaryStub = std::get<mechanismstub>(dia.MechanismBoundaryStubs[I]);
         for (uint32_t K = 0u; K < NumMechanismStubs; K++)
         {
             if (I == K)
@@ -978,36 +859,31 @@ void ChangeBoundaryStubLengths(ActivityDiagram& Diagram)
             }
             else
             {
-                MechanismStub OtherMechanismBoundaryStub;
+                mechanismstub OtherMechanismBoundaryStub;
 
-                OtherMechanismBoundaryStub = std::get<MechanismStub>(Diagram.MechanismBoundaryStubs[K]);
-                if (OtherMechanismBoundaryStub.Position.Column < MechanismBoundaryStub.Position.Column)
+                OtherMechanismBoundaryStub = std::get<mechanismstub>(dia.MechanismBoundaryStubs[K]);
+                if (OtherMechanismBoundaryStub.position.column < MechanismBoundaryStub.position.column)
                 {
                     StubsLeftwards++;
                 }
             }
         }
-        MechanismBoundaryStub.Length = 3u + StubsLeftwards;
-        Diagram.MechanismBoundaryStubs[I] = MechanismBoundaryStub;
+        MechanismBoundaryStub.length = 3u + StubsLeftwards;
+        dia.MechanismBoundaryStubs[I] = MechanismBoundaryStub;
     }
 }
 
-void LayoutActivityDiagram(ActivityDiagram &LoadedDiagram, 
-    uint32_t Width, 
-    uint32_t Height, 
-    uint32_t BoxWidth, 
-    uint32_t BoxHeight, 
-    uint32_t BoxXGap, 
-    uint32_t BoxYGap)
+void layactivitydia(activitydia& dia, uint32_t dwidth, uint32_t dheight, 
+    uint32_t bwidth, uint32_t bheight, uint32_t xgap, uint32_t ygap)
 {
-    LoadedDiagram.Width = Width;
-    LoadedDiagram.Height = Height;
-    LayoutFrame(LoadedDiagram);
-    LayoutBoxes(LoadedDiagram, BoxWidth, BoxHeight, BoxXGap, BoxYGap);
-    LayoutBoxStubs(LoadedDiagram);
-    LayoutBoundaryStubs(LoadedDiagram, BoxWidth, BoxHeight, BoxXGap, BoxYGap);
-    ChangeBoundaryStubLengths(LoadedDiagram);
-    ShiftBoundaryStubs(LoadedDiagram);
+    dia.width = dwidth;
+    dia.height = dheight;
+    layframe(dia);
+    layboxes(dia, bwidth, bheight, xgap, ygap);
+    layboxstubs(dia);
+    laybstubs(dia, bwidth, bheight, xgap, ygap);
+    cbstublens(dia);
+    ShiftBoundaryStubs(dia);
 }
 
 }

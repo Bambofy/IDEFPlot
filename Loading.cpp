@@ -15,221 +15,183 @@
 #include "Drawing.h"
 #include "Layouting.h"
 
-namespace IDEF
-{
+namespace idef {
 
-InputStub LoadInputStub(const pugi::xml_node& InputStubXMLNode, bool Headed)
-{
-    InputStub NewStub;
-    
-    NewStub.Name = InputStubXMLNode.attribute("Name").as_string();
-    for (const pugi::xml_node &StubSourceXMLNode : InputStubXMLNode.children())
-    {
-        StubSource NewStubSource;
+inputstub loadinstub(const pugi::xml_node& instubnode) {
+  inputstub nstub;
+  
+  nstub.name = instubnode.attribute("Name").as_string();
+  for (const pugi::xml_node &ssourcenode : instubnode.children()) {
+    stubsource nssource;
 
-        NewStubSource.StubName = StubSourceXMLNode.attribute("Name").as_string();
-        NewStub.Sources.push_back(NewStubSource);
-    }
-    NewStub.Position.Row = 0u;
-    NewStub.Position.Column = 0u;
-    NewStub.Length = 0u;
-    NewStub.Headed = Headed;
+    nssource.stubname = ssourcenode.attribute("Name").as_string();
+    nstub.sources.push_back(nssource);
+  }
+  nstub.position.row = 0u;
+  nstub.position.column = 0u;
+  nstub.length = 0u;
 
-    return NewStub;   
+  return nstub;
 }
 
-OutputStub LoadOutputStub(const pugi::xml_node& OutputStubXMLNode, bool Headed)
-{
-    OutputStub NewStub;
+outputstub loadoutstub(const pugi::xml_node& outstubnode) {
+  outputstub nstub;
 
-    NewStub.Name = OutputStubXMLNode.attribute("Name").as_string();
-    for (const pugi::xml_node &StubSourceXMLNode : OutputStubXMLNode.children())
-    {
-        StubSource NewStubSource;
+  nstub.name = outstubnode.attribute("Name").as_string();
+  for (const pugi::xml_node &ssourcenode : outstubnode.children()) {
+    stubsource nssource;
 
-        NewStubSource.StubName = StubSourceXMLNode.attribute("Name").as_string();
-        NewStub.Sources.push_back(NewStubSource);
-    }
-    NewStub.Position.Row = 0u;
-    NewStub.Position.Column = 0u;
-    NewStub.Length = 0u;
-    NewStub.Headed = Headed;
+    nssource.stubname = ssourcenode.attribute("Name").as_string();
+    nstub.Sources.push_back(nssource);
+  }
+  nstub.position.row = 0u;
+  nstub.position.column = 0u;
+  nstub.length = 0u;
 
-    return NewStub;   
+  return nstub;   
 }
 
-ControlStub LoadControlStub(const pugi::xml_node& ControlStubXMLNode, bool Headed)
-{
-    ControlStub NewStub;
+controlstub loadconstub(const pugi::xml_node& constubnode) {
+  controlstub nstub;
 
-    NewStub.Name = ControlStubXMLNode.attribute("Name").as_string();
-    for (const pugi::xml_node &StubSourceXMLNode : ControlStubXMLNode.children())
-    {
-        StubSource NewStubSource;
+  nstub.name = constubnode.attribute("Name").as_string();
+  for (const pugi::xml_node &ssourcenode : constubnode.children()) {
+    stubsource nssource;
 
-        NewStubSource.StubName = StubSourceXMLNode.attribute("Name").as_string();
-        NewStub.Sources.push_back(NewStubSource);
-    }
-    NewStub.Position.Row = 0u;
-    NewStub.Position.Column = 0u;
-    NewStub.Length = 0u;
-    NewStub.Headed = Headed;
+    nssource.stubsource = ssourcenode.attribute("Name").as_string();
+    nstub.sources.push_back(nssource);
+  }
+  nstub.position.row = 0u;
+  nstub.position.column = 0u;
+  nstub.length = 0u;
 
-    return NewStub;   
+  return nstub;   
 }
 
-MechanismStub LoadMechanismStub(const pugi::xml_node& MechanismStubXMLNode, bool Headed)
-{
-    MechanismStub NewStub;
+mechanismstub loadmechstub(const pugi::xml_node& mechstubnode) {
+  mechanismstub nstub;
  
-    NewStub.Name = MechanismStubXMLNode.attribute("Name").as_string();
-    for (const pugi::xml_node &StubSourceXMLNode : MechanismStubXMLNode.children())
-    {
-        StubSource NewStubSource;
+  nstub.name = mechstubnode.attribute("Name").as_string();
+  for (const pugi::xml_node &ssourcenode: mechstubnode.children()) {
+    stubsource nssource;
 
-        NewStubSource.StubName = StubSourceXMLNode.attribute("Name").as_string();
-        NewStub.Sources.push_back(NewStubSource);
-    }
-    NewStub.Position.Row = 0u;
-    NewStub.Position.Column = 0u;
-    NewStub.Length = 0u;
-    NewStub.Headed = Headed;
+    nssource.stubnode = ssourcenode.attribute("Name").as_string();
+    nstub.sources.push_back(nssource);
+  }
+  nstub.position.row = 0u;
+  nstub.position.column = 0u;
+  nstub.length = 0u;
 
-    return NewStub;   
+  return nstub;   
 }
 
-CallStub LoadCallStub(const pugi::xml_node& CallStubXMLNode, bool Headed)
-{
-    CallStub NewStub;
+callstub loadcallstub(const pugi::xml_node& cstubnode) {
+  callstub nstub;
 
-    NewStub.Position.Row = 0u;
-    NewStub.Position.Column = 0u;
-    NewStub.Length = 0u;
-    NewStub.Headed = Headed;
+  nstub.postion.row = 0u;
+  nstub.position.column = 0u;
+  nstub.length = 0u;
 
-    return NewStub;   
+  return nstub;   
 }
 
-ActivityBox LoadActivity(const pugi::xml_node &ActivityNode)
-{
-    ActivityBox NewActivityBox;
+activitybox loadactivitydia(const pugi::xml_node& activitynode) {
+  activitybox nactbox;
 
-    NewActivityBox.Name = ActivityNode.attribute("Name").as_string();
-    NewActivityBox.NodeNumber = ActivityNode.attribute("Number").as_string();
-    NewActivityBox.DRE = ActivityNode.attribute("DRE").as_string();
-    NewActivityBox.Width = 0u;
-    NewActivityBox.Height = 0u;
-    NewActivityBox.Center.Row = 0u;
-    NewActivityBox.Center.Column = 0u;
-    NewActivityBox.Padding = 3u;
-    for (const pugi::xml_node &XMLStub : ActivityNode.children())
-    {
-        Stub NewStub;
+  nactbox.name = activitynode.attribute("Name").as_string();
+  nactbox.nodenumber = activitynode.attribute("Number").as_string();
+  nactbox.dre = activitynode.attribute("DRE").as_string();
+  nactbox.width = 0u;
+  nactbox.height = 0u;
+  nactbox.center.row = 0u;
+  nactbox.center.column = 0u;
+  nactbox.padding = 3u;
+  for (const pugi::xml_node &xmlstub : activitynode.children()) {
+    stub nstub;
 
-        if (strcmp(XMLStub.name(), "Input") == 0)
-        {
-            NewStub = LoadInputStub(XMLStub, true);
-            NewActivityBox.InputStubs.push_back(NewStub);
-        }
-        else if (strcmp(XMLStub.name(), "Output") == 0)
-        {
-            NewStub = LoadOutputStub(XMLStub, false);
-            NewActivityBox.OutputStubs.push_back(NewStub);
-        }
-        else if (strcmp(XMLStub.name(), "Control") == 0)
-        {
-            NewStub = LoadControlStub(XMLStub, true);
-            NewActivityBox.ControlStubs.push_back(NewStub);
-        }
-        else if (strcmp(XMLStub.name(), "Mechanism") == 0)
-        {
-            NewStub = LoadMechanismStub(XMLStub, true);
-            NewActivityBox.MechanismStubs.push_back(NewStub);
-        }
-        else if (strcmp(XMLStub.name(), "Call") == 0)
-        {
-            NewStub = LoadCallStub(XMLStub, false);
-            NewActivityBox.CallStubs.push_back(NewStub);
-        }
-        else
-        {
-            throw std::runtime_error("Unknown activity stub kind");
-        }
+    if (strcmp(xmlstub.name(), "Input") == 0){
+      nstub = loadinstub(xmlstub, true);
+      nactbox.inputstubs.push_back(nstub);
+    } else if (strcmp(xmlstub.name(), "Output") == 0) {
+      nstub = loadoutstub(xmlstub, false);
+      nactbox.outputstubs.push_back(nstub);
+    } else if (strcmp(xmlstub.name(), "Control") == 0) {
+      nstub = loadconstub(xmlstub, true);
+      nactbox.controlstubs.push_back(nstub);
+    } else if (strcmp(xmlstub.name(), "Mechanism") == 0) {
+      nstub = loadmechstub(xmlstub, true);
+      nactbox.mechanismstubs.push_back(nstub);
+    } else if (strcmp(xmlstub.name(), "Call") == 0) {
+      nstub = loadcallstub(xmlstub, false);
+      nactbox.callstubs.push_back(nstub);
+    } else {
+      throw std::runtime_error("Unknown activity stub kind");
     }
+  }
 
-    return NewActivityBox;
+  return nactbox;
 }
 
-ActivityDiagram LoadActivityDiagram(const std::string &FilePath)
-{
-    pugi::xml_document DiagramXMLDocument;
-    pugi::xml_parse_result ParseResult;
-    pugi::xml_node ActivityDiagramNode;
-    ActivityDiagram NewDiagram;
+activitydia LoadActivityDiagram(const std::string &fpath) {
+  pugi::xml_document diadoc;
+  pugi::xml_parse_result presult;
+  pugi::xml_node actdnode;
+  activitydia newdia;
+  nnumbersection tgtnnumsection;
+  titlesection tgttsection;
+  cnumsection tgtcnumsection;
 
-    ParseResult = DiagramXMLDocument.load_file(FilePath.c_str());
-    ActivityDiagramNode = DiagramXMLDocument.child("Diagram");
-    NewDiagram.Frame.BottomBar.NodeNumberSection = NodeNumberSection();
-    NewDiagram.Frame.BottomBar.TitleSection = TitleSection();
-    NewDiagram.Frame.BottomBar.CNumberSection = CNumberSection();
-    NodeNumberSection& TargetNodeNumberSection = std::get<NodeNumberSection>(NewDiagram.Frame.BottomBar.NodeNumberSection);
-    TitleSection& TargetTitleSection = std::get<TitleSection>(NewDiagram.Frame.BottomBar.TitleSection);
-    CNumberSection& TargetCNumberSection = std::get<CNumberSection>(NewDiagram.Frame.BottomBar.CNumberSection);
-    NewDiagram.Frame.BottomBar.Height = 4u;
-    TargetNodeNumberSection.Content = ActivityDiagramNode.attribute("Number").as_string();
-    TargetNodeNumberSection.TopLeft.Row = 0u;
-    TargetNodeNumberSection.TopLeft.Column = 0u;
-    TargetTitleSection.Content = ActivityDiagramNode.attribute("Title").as_string();
-    TargetTitleSection.TopLeft.Row = 0u;
-    TargetTitleSection.TopLeft.Column = 0u;
-    TargetCNumberSection.Content = ActivityDiagramNode.attribute("CNumber").as_string();
-    TargetCNumberSection.TopLeft.Row = 0u;
-    TargetCNumberSection.TopLeft.Column = 0u;
-    NewDiagram.Width = 0u;
-    NewDiagram.Height = 0u;
-    for (const pugi::xml_node &ChildXMLNode : ActivityDiagramNode.children())
-    {
-        Stub NewStub;
+  pres = diadoc.load_file(fpath.c_str());
+  actdnode = diadoc.child("Diagram");
+  newdia.frame.bottombar.nnumbersection = nnumbersection();
+  newdia.frame.bottombar.titlesection = titlesection();
+  newdia.frame.bottombar.cnumsection = cnumsection();
+  tgtnnumsection = std::get<nnumbersection>(newdia.frame.bottombar.nnumbersection);
+  tgttsection = std::get<titlesection>(newdia.frame.bottombar.titlesection);
+  tgtcnumsection = std::get<cnumsection>(newdia.frame.bottombar.cnumsection);
+  newdia.frame.bottombar.height = 4u;
+  tgtnnumsection.content = actdnode.attribute("Number").as_string();
+  tgtnnumsection.topleft.row = 0u;
+  tgtnnumsection.topleft.column = 0u;
+  tgttsection.content = actdnode.attribute("Title").as_string();
+  tgttsection.topleft.row = 0u;
+  tgttsection.topleft.column = 0u;
+  tgtcnumsection.content = actdnode.attribute("CNumber").as_string();
+  tgtcnumsection.topleft.row = 0u;
+  tgtcnumsection.topleft.column = 0u;
+  newdia.width = 0u;
+  newdia.height = 0u;
+  for (const pugi::xml_node &childnode : actdnode.children()) {
+    stub nstub;
 
-        if (strcmp(ChildXMLNode.name(), "Input") == 0)
-        {
-            NewStub = LoadInputStub(ChildXMLNode, false);
-            NewDiagram.InputBoundaryStubs.push_back(NewStub);
-        }
-        else if (strcmp(ChildXMLNode.name(), "Output") == 0)
-        {
-            NewStub = LoadOutputStub(ChildXMLNode, true);
-            NewDiagram.OutputBoundaryStubs.push_back(NewStub);
-        }
-        else if (strcmp(ChildXMLNode.name(), "Control") == 0)
-        {
-            NewStub = LoadControlStub(ChildXMLNode, false);
-            NewDiagram.ControlBoundaryStubs.push_back(NewStub);
-        }
-        else if (strcmp(ChildXMLNode.name(), "Mechanism") == 0)
-        {
-            NewStub = LoadMechanismStub(ChildXMLNode, false);
-            NewDiagram.MechanismBoundaryStubs.push_back(NewStub);
-        }
-        else if (strcmp(ChildXMLNode.name(), "Activity") == 0)
-        {
-            ActivityBox NewActivityBox;
+    if (strcmp(childnode.name(), "Input") == 0) {
+      nstub = loadinstub(childnode, false);
+      newdia.inbstubs.push_back(nstub);
+    } else if (strcmp(childnode.name(), "Output") == 0) {
+      nstub = loadoutstub(childnode, true);
+      newdia.outbstubs.push_back(nstub);
+    } else if (strcmp(childnode.name(), "Control") == 0) {
+      nstub = loadconstub(childnode, false);
+      newdia.conbstubs.push_back(nstub);
+    } else if (strcmp(childnode.name(), "Mechanism") == 0) {
+      nstub = loadmecstub(childnode, false);
+      newdia.mechbstubs.push_back(nstub);
+    } else if (strcmp(childnode.name(), "Activity") == 0) {
+      activitybox newabox;
 
-            NewActivityBox = LoadActivity(ChildXMLNode);
-            NewDiagram.Boxes.push_back(NewActivityBox);
-        }
-        else
-        {
-            std::string ErrorMessage;
+      newabox = LoadActivity(childnode);
+      newdia.boxes.push_back(newabox);
+    } else {
+      std::string emsg;
 
-            ErrorMessage = "Unknown XML activity diagram child node kind: ";
-            ErrorMessage += ChildXMLNode.name();
+      emsg = "Unknown XML activity diagram child node kind: ";
+      emsg += childnode.name();
 
-            throw std::runtime_error(ErrorMessage);
-        }
+      throw std::runtime_error(emsg);
     }
+  }
 
-    return NewDiagram;
+  return newdia;
 }
 
 }

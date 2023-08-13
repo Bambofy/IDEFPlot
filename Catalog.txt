@@ -1,0 +1,273 @@
+Catalog
+13th August 2023 R. Bamford
+
+1.  Layouting
+
+1.1. Data
+
+1.2. Functions
+
+1.2.1. Layout frame (layframe)
+  Lays out the frame which surrounds the diagram.
+
+Parameters:
+  1. Diagram (dia).
+
+Local variables:
+  1. Target node number section (tgtnnsec).
+  2. Target title section (tgttitlesec).
+  3. Target cnumber section (tgtcnumsec).
+
+1.2.2. Layout boxes (layboxes)
+  Lays out the boxes onto the diagram.
+
+Parameters:
+  1. Diagram (dia).
+  2. Box width (bwidth).
+  3. Box height (bheight).
+  4. Box x gap (xgap).
+  5. Box y gap (ygap).
+
+Local variables:
+  1. Number of boxes (nboxes).
+  2. Cursor (curs).
+  3. Column center offset (ccenteroff).
+  4. Row center offset (rcenteroff).
+  5. Row height (rheight).
+  6. Column width (cwidth).
+  7. Box section height (bsheight).
+  8. Box section width (bswidth).
+  9. Box index (bindx).
+  10. Selected box (sbox).
+
+1.2.3. Layout box stubs (layboxstubs)
+  Lays out the stubs in the right positions for each box on the diagram.
+
+Parameters:
+  1. Diagram (dia).
+
+Local variables:
+  1. Number of boxes (nboxes).
+  2. Box index (bindx).
+  3. Number of input stubs (nistubs).
+  4. Number of output stubs (nostubs).
+  5. Number of control stubs (nconstubs).
+  6. Number of mechanism stubs (nmechstubs).
+  7. Number of call stubs (ncallstubs).
+  8. Number of input interface divisions (numidivs).
+  9. Input interface division width (idivwidth).
+  10. Number of output interface divisions (numodivs).
+  11. Output interface division width (odivwidth).
+  12. Number of control interface divisions (numcondivs).
+  13. Control interface division width (conidivwidth).
+  14. Number of mechanism interface divisions (nummechdivs).
+  15. Mechanism interface division width (mechdivwidth).
+  16. Number of call interface division (numcalldivs).
+  17. Call interface division width (calldivwidth).
+  18. Selected box (sbox).
+  19. Input stub index (istubi).
+  20. Row offset (rowo).
+  21. Selected input stub (selistub).
+  22. Output stub index (ostubi).
+  23. Selected output stub (selostub).
+  24. Control stub index (constubi).
+  25. Selected control stub (selconstub).
+  26. Column offset (columnoff).
+  27. Mechanism stub index (mechstubi).
+  28. Selected mechanism stub (selmechstub).
+  29. Call stub index (callstubi).
+  30. Selected call stub (selcallstub).
+
+1.2.4. Find inner stub (finnerstub)
+  Locates the stubs inside of the diagram which match the given boundary stub.
+
+Parameters:
+  1. Diagram (dia).
+  2. Boundary stub (bstub).
+  3. Found stub (fstub).
+  4. Found flag (fflag).
+
+Local variables:
+  1. Selected box (sbox).
+  2. Boundary input stub (binstub).
+  3. Selected input stub (selinstub).
+  4. Selected stub (selstub).
+  5. Selected control stub (selconstub).
+  6. Boundary control stub (bconstub).
+  7. Selected stub source (selstubsrc).
+  8. Boundary output stub (boutstub).
+  9. Selected output stub (selostub).
+  10. Boundary stub source (bstubsrc).
+  11. Boundary mechanism stub (bmechstub).
+  12. Box mechanism stub (bxmechstub).
+  13. Box stub source (bxssource).
+  14. Boundary call stub (bcallstub).
+  15. Box call stub (bxcallstub).
+
+1.2.5. Locate connected boxes (lconnboxes)
+  Locates all of the boxes on the diagram which have a  stub of the given name.
+
+Parameters:
+  1. Diagram (dia).
+  2. Target stub name (tsname).
+
+Local variables:
+  1. Connected boxes (connboxes).
+  2. Selected box (sbox).
+  3. Selected stub (sstub).
+  4. Selected input stub (selinstub).
+  5. Selected source (selsource).
+  6. Selected output stub (selostub).
+  7. Selected control stub (selconstub).
+  8. Selected mechanism stub (selmstub).
+  9. Selected call stub (selcallstub).
+  
+1.2.6. Check stubs overlap (checksoverlap)
+  Checks if the two given stubs overlap.
+
+Parameters:
+  1. First stub (fstub).
+  2. Second stub (sstub).
+
+Local variables:
+  1. Overlaps (ov).
+  2. First input stub (firstistub).
+  3. Second input stub (secondistub).
+  4. First output stub (firstostub).
+  5. Second output stub (secondostub).
+  6. First control stub (firstconstub).
+  7. Second control stub (secondconstub).
+  8. First mechanism stub (firstmechstub).
+  9. Second mechanism stub (secondmechstub).
+  10. First call stub (firstcstub).
+  11. Second call stub (secondcstub).
+
+1.2.7. Shift input stubs
+1.2.8. Shift output stubs
+1.2.9. Shift mechanism stubs
+1.2.10. Shift boundary stubs
+1.2.11. Layout boundary stubs
+1.2.12. Change boundary stub lengths
+1.2.13. Layout activity diagram
+
+
+
+/*
+ * Layout box stubs.
+ *
+ * Parameters:
+  1. Diagram (dia).
+ *
+ * Local Variables:
+
+ */
+void layboxstubs(activitydia& dia);
+
+/*
+ * Find inner stub.
+ *
+ * Parameters:
+  1. Diagram (dia).
+  2. Boundary stub (bstub).
+  3. Found stub (fstub).
+  4. Found flag (fflag).
+ */
+void finnerstub(const activitydia& dia, const stub& bstub, stub& fstub, 
+	bool& fflag);
+
+/*
+ * Locate connected boxes.
+ *
+ * Parameters:
+  1. Activity diagram (dia).
+  2. Target stub name (tsname).
+ */
+std::vector<activitybox> lconnboxes(activitydia& dia, std::string& tsname);
+
+/*
+ * Check stubs overlap.
+ *
+ * Parameters:
+  1. First stub (fstub).
+  2. Second stub (stub).
+ */
+bool checksoverlap(stub fstub, stub sstub);
+
+/*
+ * Shift input stubs.
+ *
+ * Parameters:
+  1. Diagram (dia).
+ */
+void sinstubs(activitydia& dia);
+
+/*
+ * Shift output stubs.
+ *
+ * Parameters:
+  1. Diagram (dia).
+ */
+void soutstubs(activitydia& dia);
+
+/*
+ * Shift control stubs.
+ *
+ * Parameters:
+  1. Diagram (dia).
+ */
+void sconstubs(activitydia& dia);
+
+/*
+ * Shift mechanism stubs.
+ *
+ * Parameters:
+  1. Diagram (dia).
+ */
+void smechstubs(activitydia& dia);
+
+/*
+ * Shift boundary stubs.
+ *
+ * Parameters:
+  1. Diagram (dia).
+ */
+void shiftbstubs(activitydia& dia);
+
+/*
+ * Change boundary stub lengths.
+ *
+ * Parameters:
+  1. Diagram (dia). 
+ */
+void cbstublens(ActivityDiagram& dia);
+
+/*
+ * Layout boundary stubs.
+ *
+ * Parameters:
+  1. Diagram (dia).
+  2. Box width (bwidth).
+  3. Box height (bheight).
+  4. Box x gap (xgap).
+  5. Box y gap (ygap).
+ */
+void laybstubs(activitydia& dia, uint32_t bwidth, uint32_t bheight, uint32_t xgap,
+ uint32_t ygap);
+
+/*
+ * Layout activity diagram.
+ *
+ * Parameters:
+  1. Diagram (dia).
+  2. Diagram width (dwidth).
+  3. Diagram height (dheight).
+  4. Box width (bwidth).
+  5. Box height (bheight).
+  6. Box x gap (xgap).
+  7. Box y gap (ygap).
+ */
+void layactivitydia(activitydia& dia, uint32_t dwidth, uint32_t dheight, 
+	uint32_t bwidth, uint32_t bheight, uint32_t xgap, uint32_t ygap); 
+}
+
+#endif
