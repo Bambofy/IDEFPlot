@@ -1,44 +1,65 @@
-Catalog
-13th August 2023 R. Bamford
+<html>
+<head>
+  <title>Catalog</title>
+</head>
+<body>
+  <h1>Catalog</h1>
+  <p>14th of August 2023 R. Bamford</p>
+  <h2>1. Layouting</h2>
+  <h2>1.1. Data</h2>
+  <h2>1.2. Functions</h2>
+  <h2>1.2.1. Layout frame (layframe)</h2>
+  <p>Lays out the frame which surrounds the diagram.</p>
+  <p>Parameters:</p>
+  <ol>
+    <li>Diagram (dia).</li>
+  </ol>
+  <p>Local variables:</p>
+  <ol>
+    <li>Target node number section (tgtnnsec).</li>
+    <li>Target title section (tgttitlesec).</li>
+    <li>Target cnumber section (tgtcnumsec).</li>
+  </ol>
+  <h2>1.2.2. Layout boxes (layboxes)</h2>
+  <p>Lays out the boxes onto the diagram.</p>
+  <p>Parameters:</p>
+  <ol>
+    <li>Diagram (dia).</li>
+    <li>Box width (bwidth).</li>
+    <li>Box height (bheight).</li>
+    <li>Box x gap (xgap).</li>
+    <li>Box y gap (ygap).</li>
+  </ol>
+  <p>Local variables:</p>
+  <ol>
+    <li>Number of boxes (nboxes).</li>
+    <li>Cursor (curs).</li>
+    <li>Column center offset (ccenteroff).</li>
+    <li>Row center offset (rcenteroff).</li>
+    <li>Row height (rheight).</li>
+    <li>Column width (cwidth).</li>
+    <li>Box section height (bsheight).</li>
+    <li>Box section width (bswidth).</li>
+    <li>Box index (bindx).</li>
+    <li>Selected box (sbos).</li>
+  </ol>
+  <h2>1.2.3. Layout box stubs (layboxstubs)</h2>
+  <p>Lays out the stubs in the right positions for each box on the 
+  diagram</p>
+  <p>Parameters:</p>
+  <ol>
+    <li>Diagram (dia).</li>
+  </ol>
+  <p>Local variables:</p>
+  <ol>
+    <li>Number of boxes (nboxes).</li>
+    <li>Box index (bindx).</li>
+    <li>Number of input stubs (nistubs).</li>
+    <li>Number of outut stubs (nostubs).</li>
+  </ol>
+</body>
 
-1.  Layouting
-
-1.1. Data
-
-1.2. Functions
-
-1.2.1. Layout frame (layframe)
-  Lays out the frame which surrounds the diagram.
-
-Parameters:
-  1. Diagram (dia).
-
-Local variables:
-  1. Target node number section (tgtnnsec).
-  2. Target title section (tgttitlesec).
-  3. Target cnumber section (tgtcnumsec).
-
-1.2.2. Layout boxes (layboxes)
-  Lays out the boxes onto the diagram.
-
-Parameters:
-  1. Diagram (dia).
-  2. Box width (bwidth).
-  3. Box height (bheight).
-  4. Box x gap (xgap).
-  5. Box y gap (ygap).
-
-Local variables:
-  1. Number of boxes (nboxes).
-  2. Cursor (curs).
-  3. Column center offset (ccenteroff).
-  4. Row center offset (rcenteroff).
-  5. Row height (rheight).
-  6. Column width (cwidth).
-  7. Box section height (bsheight).
-  8. Box section width (bswidth).
-  9. Box index (bindx).
-  10. Selected box (sbox).
+</html>
 
 1.2.3. Layout box stubs (layboxstubs)
   Lays out the stubs in the right positions for each box on the diagram.
