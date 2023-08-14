@@ -1,25 +1,25 @@
+#include "Loading.h"
+#include "Drawing.h"
+#include "Layouting.h"
+#include "Placing.h"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
 #include <fstream>
 #include <iostream>
-#include <variant>
 #include <libavoid/libavoid.h>
 #include <map>
 #include <pugixml.hpp>
 #include <stdexcept>
 #include <string>
+#include <variant>
 #include <vector>
-#include "Loading.h"
-#include "Placing.h"
-#include "Drawing.h"
-#include "Layouting.h"
 
 namespace idef {
 
-inputstub loadinstub(const pugi::xml_node& instubnode) {
+inputstub loadinstub(const pugi::xml_node &instubnode) {
   inputstub nstub;
-  
+
   nstub.name = instubnode.attribute("Name").as_string();
   for (const pugi::xml_node &ssourcenode : instubnode.children()) {
     stubsource nssource;
@@ -34,7 +34,7 @@ inputstub loadinstub(const pugi::xml_node& instubnode) {
   return nstub;
 }
 
-outputstub loadoutstub(const pugi::xml_node& outstubnode) {
+outputstub loadoutstub(const pugi::xml_node &outstubnode) {
   outputstub nstub;
 
   nstub.name = outstubnode.attribute("Name").as_string();
@@ -48,10 +48,10 @@ outputstub loadoutstub(const pugi::xml_node& outstubnode) {
   nstub.position.column = 0u;
   nstub.length = 0u;
 
-  return nstub;   
+  return nstub;
 }
 
-controlstub loadconstub(const pugi::xml_node& constubnode) {
+controlstub loadconstub(const pugi::xml_node &constubnode) {
   controlstub nstub;
 
   nstub.name = constubnode.attribute("Name").as_string();
@@ -65,14 +65,14 @@ controlstub loadconstub(const pugi::xml_node& constubnode) {
   nstub.position.column = 0u;
   nstub.length = 0u;
 
-  return nstub;   
+  return nstub;
 }
 
-mechanismstub loadmechstub(const pugi::xml_node& mechstubnode) {
+mechanismstub loadmechstub(const pugi::xml_node &mechstubnode) {
   mechanismstub nstub;
- 
+
   nstub.name = mechstubnode.attribute("Name").as_string();
-  for (const pugi::xml_node &ssourcenode: mechstubnode.children()) {
+  for (const pugi::xml_node &ssourcenode : mechstubnode.children()) {
     stubsource nssource;
 
     nssource.stubnode = ssourcenode.attribute("Name").as_string();
@@ -82,20 +82,20 @@ mechanismstub loadmechstub(const pugi::xml_node& mechstubnode) {
   nstub.position.column = 0u;
   nstub.length = 0u;
 
-  return nstub;   
+  return nstub;
 }
 
-callstub loadcallstub(const pugi::xml_node& cstubnode) {
+callstub loadcallstub(const pugi::xml_node &cstubnode) {
   callstub nstub;
 
   nstub.postion.row = 0u;
   nstub.position.column = 0u;
   nstub.length = 0u;
 
-  return nstub;   
+  return nstub;
 }
 
-activitybox loadactivitydia(const pugi::xml_node& activitynode) {
+activitybox loadactivitydia(const pugi::xml_node &activitynode) {
   activitybox nactbox;
 
   nactbox.name = activitynode.attribute("Name").as_string();
@@ -109,7 +109,7 @@ activitybox loadactivitydia(const pugi::xml_node& activitynode) {
   for (const pugi::xml_node &xmlstub : activitynode.children()) {
     stub nstub;
 
-    if (strcmp(xmlstub.name(), "Input") == 0){
+    if (strcmp(xmlstub.name(), "Input") == 0) {
       nstub = loadinstub(xmlstub, true);
       nactbox.inputstubs.push_back(nstub);
     } else if (strcmp(xmlstub.name(), "Output") == 0) {
@@ -146,7 +146,8 @@ activitydia LoadActivityDiagram(const std::string &fpath) {
   newdia.frame.bottombar.nnumbersection = nnumbersection();
   newdia.frame.bottombar.titlesection = titlesection();
   newdia.frame.bottombar.cnumsection = cnumsection();
-  tgtnnumsection = std::get<nnumbersection>(newdia.frame.bottombar.nnumbersection);
+  tgtnnumsection =
+      std::get<nnumbersection>(newdia.frame.bottombar.nnumbersection);
   tgttsection = std::get<titlesection>(newdia.frame.bottombar.titlesection);
   tgtcnumsection = std::get<cnumsection>(newdia.frame.bottombar.cnumsection);
   newdia.frame.bottombar.height = 4u;
@@ -194,4 +195,4 @@ activitydia LoadActivityDiagram(const std::string &fpath) {
   return newdia;
 }
 
-}
+} // namespace idef
