@@ -383,8 +383,7 @@ std::vector<activitybox> lconnboxes(activitydia& dia, std::string& tsname) {
   return connboxes;
 }
 
-bool checksoverlap(stub fstub, stub sstub)
-{
+bool checksoverlap(stub fstub, stub sstub) {
     bool ov;
 
     ov = false;
@@ -436,8 +435,7 @@ bool checksoverlap(stub fstub, stub sstub)
                 ov = true;
             }
         }
-    }
-    else if (std::holds_alternative<mechanismstub>(fstub)) {
+    } else if (std::holds_alternative<mechanismstub>(fstub)) {
         mechanismstub firstmechstub;
 
         firstmechstub = std::get<mechanismstub>(fstub);
@@ -456,9 +454,7 @@ bool checksoverlap(stub fstub, stub sstub)
                 ov = true;
             }
         }
-    }
-    else if (std::holds_alternative<callstub>(fstub))
-    {
+    } else if (std::holds_alternative<callstub>(fstub)) {
         callstub firstcstub;
 
         firstcstub = std::get<callstub>(fstub);
@@ -480,65 +476,59 @@ bool checksoverlap(stub fstub, stub sstub)
 }
 
 void sinstubs(activitydia& dia) {
-    uint32_t NumInputStubs;
+    uint32_t ninstubs;
 
-    NumInputStubs = dia.InputBoundaryStubs.size();
-    for (uint32_t InputStubIndex = 0u; InputStubIndex < NumInputStubs; InputStubIndex++)
-    {
-        for (uint32_t OtherInputStubIndex = 0u; OtherInputStubIndex < NumInputStubs; OtherInputStubIndex++)
-        {
-            if (InputStubIndex != OtherInputStubIndex)
-            {
+    ninstubs = dia.inbstubs.size();
+    for (uint32_t instubi = 0u; instubi < ninstubs; instubi++) {
+        for (uint32_t oinstubi = 0u; oinstubi < ninstubs; oinstubi++) {
+            if (instubi != oinstubi) {
                 inputstub fstub;
                 inputstub sstub;
 
-                fstub = std::get<inputstub>(dia.InputBoundaryStubs[InputStubIndex]);
-                sstub = std::get<inputstub>(dia.InputBoundaryStubs[OtherInputStubIndex]);
-                for (uint32_t RowOffset = fstub.position.row; RowOffset > 0u; RowOffset--)
-                {
-                    if (CheckStubOverlap(fstub, sstub))
-                    {
+                fstub = std::get<inputstub>(dia.inbstubs[instubi]);
+                sstub = std::get<inputstub>(dia.inbstubs[oinstubi]);
+                for (uint32_t roff = fstub.position.row; roff > 0u; roff--) {
+                    if (checksoverlap(fstub, sstub)) {
                         fstub.position.row--;
                     }
                 }
-                if (CheckStubOverlap(fstub, sstub))
-                {
+                if (checksoverlap(fstub, sstub)) {
                     throw std::runtime_error("Could not shift input boundary stubs.");
                 }
-                dia.InputBoundaryStubs[InputStubIndex] = fstub;
+                dia.inbstubs[instubi] = fstub;
             }
         }
     }
 }
 
-void soutstubs(activitydia& dia)
-{
+void soutstubs(activitydia& dia) {
     uint32_t nostubs;
+    uint32_t outstubi;
+    uint32_t ooutstubi;
 
-    nostubs = dia.OutputBoundaryStubs.size();
-    for (uint32_t OutputStubIndex = 0u; OutputStubIndex < nostubs; OutputStubIndex++)
-    {
-        for (uint32_t OtherOutputStubIndex = 0u; OtherOutputStubIndex < nostubs; OtherOutputStubIndex++)
-        {
-            if (OutputStubIndex != OtherOutputStubIndex)
-            {
-                outputstub FirstStub;
-                outputstub SecondStub;
+    nostubs = dia.outbstubs.size();
+    for (outstubi = 0u; outstubi < nostubs; outstubi++) {
+        for (ooutstubi = 0u; ooutstubi < nostubs; ooutstubi++) {
+            if (outstubi != ooutstubi) {
+                outputstub fstub;
+                outputstub sstub;
+                uint32_t roff;
 
-                FirstStub = std::get<outputstub>(dia.OutputBoundaryStubs[OutputStubIndex]);
-                SecondStub = std::get<outputstub>(dia.OutputBoundaryStubs[OtherOutputStubIndex]);
-                for (uint32_t RowOffset = FirstStub.position.row; RowOffset > 0u; RowOffset--)
-                {
-                    if (CheckStubOverlap(FirstStub, SecondStub))
+                fstub = std::get<outputstub>(dia.outbstubs[outstubi]);
+                sstub = std::get<outputstub>(dia.outbstubs[ooutstubi]);
+                for (roff = fstub.position.row; 
+                     roff > 0u; 
+                     roff--) {
+                    if (checksoverlap(fstub, sstub))
                     {
-                        FirstStub.position.row--;
+                        fstub.position.row--;
                     }
                 }
-                if (CheckStubOverlap(FirstStub, SecondStub))
+                if (checksoverlap(fstub, sstub))
                 {
                     throw std::runtime_error("Could not shift output boundary stubs.");
                 }
-                dia.OutputBoundaryStubs[OutputStubIndex] = FirstStub;
+                dia.outbstubs[outstubi] = FirstStub;
             }
         }
     }
@@ -757,20 +747,20 @@ void cbstublens(activitydia& dia)
     uint32_t NumControlStubs;
     uint32_t nostubs;
     uint32_t NumMechanismStubs;
-    uint32_t NumInputStubs;
+    uint32_t ninstubs;
 
-    NumInputStubs = dia.InputBoundaryStubs.size();
+    ninstubs = dia.InputBoundaryStubs.size();
     nostubs = dia.OutputBoundaryStubs.size();
     NumControlStubs = dia.ControlBoundaryStubs.size();
     NumMechanismStubs = dia.MechanismBoundaryStubs.size();
-    for (uint32_t I = 0u; I < NumInputStubs; I++)
+    for (uint32_t I = 0u; I < ninstubs; I++)
     {
         inputstub InputBoundaryStub;
         uint32_t StubsAbove;
 
         StubsAbove = 0u;
         InputBoundaryStub = std::get<inputstub>(dia.InputBoundaryStubs[I]);
-        for (uint32_t K = 0u; K < NumInputStubs; K++)
+        for (uint32_t K = 0u; K < ninstubs; K++)
         {
             if (I == K)
             {

@@ -2,293 +2,274 @@
 <head>
   <title>Catalog</title>
 </head>
+
 <body>
-  <h1>Catalog</h1>
-  <p>14th of August 2023 R. Bamford</p>
-  <h2>1. Layouting</h2>
-  <h2>1.1. Data</h2>
-  <h2>1.2. Functions</h2>
-  <h2>1.2.1. Layout frame (layframe)</h2>
-  <p>Lays out the frame which surrounds the diagram.</p>
-  <p>Parameters:</p>
-  <ol>
-    <li>Diagram (dia).</li>
-  </ol>
-  <p>Local variables:</p>
-  <ol>
-    <li>Target node number section (tgtnnsec).</li>
-    <li>Target title section (tgttitlesec).</li>
-    <li>Target cnumber section (tgtcnumsec).</li>
-  </ol>
-  <h2>1.2.2. Layout boxes (layboxes)</h2>
-  <p>Lays out the boxes onto the diagram.</p>
-  <p>Parameters:</p>
-  <ol>
-    <li>Diagram (dia).</li>
-    <li>Box width (bwidth).</li>
-    <li>Box height (bheight).</li>
-    <li>Box x gap (xgap).</li>
-    <li>Box y gap (ygap).</li>
-  </ol>
-  <p>Local variables:</p>
-  <ol>
-    <li>Number of boxes (nboxes).</li>
-    <li>Cursor (curs).</li>
-    <li>Column center offset (ccenteroff).</li>
-    <li>Row center offset (rcenteroff).</li>
-    <li>Row height (rheight).</li>
-    <li>Column width (cwidth).</li>
-    <li>Box section height (bsheight).</li>
-    <li>Box section width (bswidth).</li>
-    <li>Box index (bindx).</li>
-    <li>Selected box (sbos).</li>
-  </ol>
-  <h2>1.2.3. Layout box stubs (layboxstubs)</h2>
-  <p>Lays out the stubs in the right positions for each box on the 
-  diagram</p>
-  <p>Parameters:</p>
-  <ol>
-    <li>Diagram (dia).</li>
-  </ol>
-  <p>Local variables:</p>
-  <ol>
-    <li>Number of boxes (nboxes).</li>
-    <li>Box index (bindx).</li>
-    <li>Number of input stubs (nistubs).</li>
-    <li>Number of outut stubs (nostubs).</li>
-  </ol>
+<h1>Catalog</h1>
+<p>14th of August 2023 R. Bamford</p>
+<h2>Table of Contents</h2>
+<ol>
+  <li>
+    Layouting
+    <ol>
+      <li><a href="#">Layout frame (layframe)</a></li>
+    </ol>
+  </li>
+  <li>Layout boxes (layboxes)</li>
+</ol>
+<h3>1. Layouting</h3>
+<h4>1.1. Layout frame (layframe)</h4>
+<p>Lays out the frame which surrounds the diagram.</p>
+<p>Parameters:
+<ol>
+  <li>Diagram (dia).</li>
+</ol>
+<p>Local variables:
+<ol>
+  <li>Target node number section (tgtnnsec).</li>
+  <li>Target title section (tgttitlesec).</li>
+  <li>Target cnumber section (tgtcnumsec).</li>
+</ol>
+</p>
+<h4>1.2. Layout boxes (layboxes)</h4>
+<p>Lays out the boxes onto the diagram.</p>
+<p>Parameters:
+<ol>
+  <li>Diagram (dia).</li>
+  <li>Box width (bwidth).</li>
+  <li>Box height (bheight).</li>
+  <li>Box x gap (xgap).</li>
+  <li>Box y gap (ygap).</li>
+</ol>
+</p>
+<p>Local variables:
+<ol>
+  <li>Number of boxes (nboxes).</li>
+  <li>Cursor (curs).</li>
+  <li>Column center offset (ccenteroff).</li>
+  <li>Row center offset (rcenteroff).</li>
+  <li>Row height (rheight).</li>
+  <li>Column width (cwidth).</li>
+  <li>Box section height (bsheight).</li>
+  <li>Box section width (bswidth).</li>
+  <li>Box index (bindx).</li>
+  <li>Selected box (sbos).</li>
+</ol>
+</p>
+<h4>1.3. Layout box stubs (layboxstubs)</h4>
+<p>Lays out the stubs in the right positions for each box on the 
+diagram</p>
+<p>Parameters:
+<ol>
+  <li>Diagram (dia).</li>
+</ol>
+</p>
+<p>Local variables:
+<ol>
+  <li>Number of boxes (nboxes).</li>
+  <li>Box index (bindx).</li>
+  <li>Number of input stubs (nistubs).</li>
+  <li>Number of outut stubs (nostubs).</li>
+  <li>Number of control stubs (nconstubs).</li>
+  <li>Number of mechanism stubs (nmechstubs).</li>
+	<li>Number of call stubs (ncallstubs).</li>
+	<li>Number of input interface divisions (numidivs).</li>
+	<li>Input interface division width (idivwidth).</li>
+	<li>Number of output interface divisions (numodivs).</li>
+	<li>Output interface division width (odivwidth).</li>
+	<li>Number of control interface divisions (numcondivs).</li>
+	<li>Control interface division width (conidivwidth).</li>
+	<li>Number of mechanism interface divisions (nummechdivs).</li>
+	<li>Mechanism interface division width (mechdivwidth).</li>
+	<li>Number of call interface division (numcalldivs).</li>
+	<li>Call interface division width (calldivwidth).</li>
+	<li>Selected box (sbox).</li>
+	<li>Input stub index (istubi).</li>
+	<li>Row offset (rowo).</li>
+	<li>Selected input stub (selistub).</li>
+	<li>Output stub index (ostubi).</li>
+	<li>Selected output stub (selostub).</li>
+	<li>Control stub index (constubi).</li>
+	<li>Selected control stub (selconstub).</li>
+	<li>Column offset (columnoff).</li>
+	<li>Mechanism stub index (mechstubi).</li>
+	<li>Selected mechanism stub (selmechstub).</li>
+	<li>Call stub index (callstubi).</li>
+	<li>Selected call stub (selcallstub).</li>
+</ol>
+</p>
+<h4>1.2.4. Find inner stub (finnerstub)</h4>
+<p>Locates the stubs inside of the diagram which match the given boundary stub.</p>
+<p>
+Parameters:
+<ol>
+  <li>Diagram (dia).</li>
+  <li>Boundary stub (bstub).</li>
+  <li>Found stub (fstub).</li>
+  <li>Found flag (fflag).</li>
+</ol>
+</p>
+<p>Local variables:
+<ol>
+	<li>Selected box (sbox).</li>
+	<li>Boundary input stub (binstub).</li>
+	<li>Selected input stub (selinstub).</li>
+	<li>Selected stub (selstub).</li>
+	<li>Selected control stub (selconstub).</li>
+	<li>Boundary control stub (bconstub).</li>
+	<li>Selected stub source (selstubsrc).</li>
+	<li>Boundary output stub (boutstub).</li>
+	<li>Selected output stub (selostub).</li>
+	<li>Boundary stub source (bstubsrc).</li>
+	<li>Boundary mechanism stub (bmechstub).</li>
+	<li>Box mechanism stub (bxmechstub).</li>
+	<li>Box stub source (bxssource).</li>
+	<li>Boundary call stub (bcallstub).</li>
+	<li>Box call stub (bxcallstub).</li>
+</ol>
+</p>
+<h4>1.2.5. Locate connected boxes (lconnboxes)</h4>
+<p>Locates all of the boxes on the diagram which have a  stub of the given name.</p>
+<p>
+Parameters:
+<ol>
+	<li>Diagram (dia).</li>
+	<li>Target stub name (tsname).</li>
+</ol>
+</p>
+<p>Local variables:
+<ol>
+	<li>Connected boxes (connboxes).</li>
+	<li>Selected box (sbox).</li>
+	<li>Selected stub (sstub).</li>
+	<li>Selected input stub (selinstub).</li>
+	<li>Selected source (selsource).</li>
+	<li>Selected output stub (selostub).</li>
+	<li>Selected control stub (selconstub).</li>
+	<li>Selected mechanism stub (selmstub).</li>
+	<li>Selected call stub (selcallstub).</li>
+</ol>
+</p>
+<h4>1.2.6. Check stubs overlap (checksoverlap)</h4>
+<p>Checks if the two given stubs overlap.</p>
+<p>
+Parameters:
+<ol>
+	<li>First stub (fstub).</li>
+	<li>Second stub (sstub).</li>
+</ol>
+</p>
+<p>Local variables:
+<ol>
+	<li>Overlaps (ov).</li>
+	<li>First input stub (firstistub).</li>
+	<li>Second input stub (secondistub).</li>
+	<li>First output stub (firstostub).</li>
+	<li>Second output stub (secondostub).</li>
+	<li>First control stub (firstconstub).</li>
+	<li>Second control stub (secondconstub).</li>
+	<li>First mechanism stub (firstmechstub).</li>
+	<li>Second mechanism stub (secondmechstub).</li>
+	<li>First call stub (firstcstub).</li>
+	<li>Second call stub (secondcstub).</li>
+</ol>
+</p>
+<h4>1.2.7. Shift input stubs (sinstubs)</h4>
+<p>Shifts the input boundary stubs so they do not overlap.</p>
+<p>
+Parameters:
+<ol>
+	<li>Diagram (dia).</li>
+</ol>
+</p>
+<p>
+Local variables:
+<ol>
+	<li>Number of input stubs (ninstubs).</li>
+	<li>Input stub index (instubi).</li>
+	<li>Other input stub index (oinstubi)</li>
+	<li>Row offset (roff).</li>
+	<li>First stub (fstub).</li>
+	<li>Second stub (sstub).</li>
+</ol>
+</p>
+<h4>1.2.8. Shift output stubs (soutstubs)</h4>
+<p>Shifts the output boundary stubs so they do not overlap.</p>
+<p>
+Parameters:
+<ol>
+  <li>Diagram (dia).</li>
+</ol>
+</p>
+<p>
+Local variables:
+<ol>
+  <li>Number of output stubs (nostubs).</li>
+  <li>Output stub index (outstubi).</li>
+  <li>Other output stub index (ooutstubi).</li>
+  <li>First stub (fstub).</li>
+  <li>Second stub (sstub).</li>
+  <li>Row offset (roff).</li>
+</ol>
+</p>
+<h4>1.2.9. Shift mechanism stubs</h4>
+<p></p>
+<p>
+Parameters:
+<ol>
+</ol>
+</p>
+<p>
+Local variables:
+<ol>
+</ol>
+</p>
+<h4>1.2.10. Shift boundary stubs</h4>
+<p></p>
+<p>
+Parameters:
+<ol>
+</ol>
+</p>
+<p>
+Local variables:
+<ol>
+</ol>
+</p>
+<h4>1.2.11. Layout boundary stubs</h4>
+<p></p>
+<p>
+Parameters:
+<ol>
+</ol>
+</p>
+<p>
+Local variables:
+<ol>
+</ol>
+</p>
+<h4>1.2.12. Change boundary stub lengths</h4>
+<p></p>
+<p>
+Parameters:
+<ol>
+</ol>
+</p>
+<p>
+Local variables:
+<ol>
+</ol>
+</p>
+<h4>1.2.13. Layout activity diagram</h4>
+<p></p>
+<p>
+Parameters:
+<ol>
+</ol>
+</p>
+<p>
+Local variables:
+<ol>
+</ol>
+</p>
 </body>
-
 </html>
-
-1.2.3. Layout box stubs (layboxstubs)
-  Lays out the stubs in the right positions for each box on the diagram.
-
-Parameters:
-  1. Diagram (dia).
-
-Local variables:
-  1. Number of boxes (nboxes).
-  2. Box index (bindx).
-  3. Number of input stubs (nistubs).
-  4. Number of output stubs (nostubs).
-  5. Number of control stubs (nconstubs).
-  6. Number of mechanism stubs (nmechstubs).
-  7. Number of call stubs (ncallstubs).
-  8. Number of input interface divisions (numidivs).
-  9. Input interface division width (idivwidth).
-  10. Number of output interface divisions (numodivs).
-  11. Output interface division width (odivwidth).
-  12. Number of control interface divisions (numcondivs).
-  13. Control interface division width (conidivwidth).
-  14. Number of mechanism interface divisions (nummechdivs).
-  15. Mechanism interface division width (mechdivwidth).
-  16. Number of call interface division (numcalldivs).
-  17. Call interface division width (calldivwidth).
-  18. Selected box (sbox).
-  19. Input stub index (istubi).
-  20. Row offset (rowo).
-  21. Selected input stub (selistub).
-  22. Output stub index (ostubi).
-  23. Selected output stub (selostub).
-  24. Control stub index (constubi).
-  25. Selected control stub (selconstub).
-  26. Column offset (columnoff).
-  27. Mechanism stub index (mechstubi).
-  28. Selected mechanism stub (selmechstub).
-  29. Call stub index (callstubi).
-  30. Selected call stub (selcallstub).
-
-1.2.4. Find inner stub (finnerstub)
-  Locates the stubs inside of the diagram which match the given boundary stub.
-
-Parameters:
-  1. Diagram (dia).
-  2. Boundary stub (bstub).
-  3. Found stub (fstub).
-  4. Found flag (fflag).
-
-Local variables:
-  1. Selected box (sbox).
-  2. Boundary input stub (binstub).
-  3. Selected input stub (selinstub).
-  4. Selected stub (selstub).
-  5. Selected control stub (selconstub).
-  6. Boundary control stub (bconstub).
-  7. Selected stub source (selstubsrc).
-  8. Boundary output stub (boutstub).
-  9. Selected output stub (selostub).
-  10. Boundary stub source (bstubsrc).
-  11. Boundary mechanism stub (bmechstub).
-  12. Box mechanism stub (bxmechstub).
-  13. Box stub source (bxssource).
-  14. Boundary call stub (bcallstub).
-  15. Box call stub (bxcallstub).
-
-1.2.5. Locate connected boxes (lconnboxes)
-  Locates all of the boxes on the diagram which have a  stub of the given name.
-
-Parameters:
-  1. Diagram (dia).
-  2. Target stub name (tsname).
-
-Local variables:
-  1. Connected boxes (connboxes).
-  2. Selected box (sbox).
-  3. Selected stub (sstub).
-  4. Selected input stub (selinstub).
-  5. Selected source (selsource).
-  6. Selected output stub (selostub).
-  7. Selected control stub (selconstub).
-  8. Selected mechanism stub (selmstub).
-  9. Selected call stub (selcallstub).
-  
-1.2.6. Check stubs overlap (checksoverlap)
-  Checks if the two given stubs overlap.
-
-Parameters:
-  1. First stub (fstub).
-  2. Second stub (sstub).
-
-Local variables:
-  1. Overlaps (ov).
-  2. First input stub (firstistub).
-  3. Second input stub (secondistub).
-  4. First output stub (firstostub).
-  5. Second output stub (secondostub).
-  6. First control stub (firstconstub).
-  7. Second control stub (secondconstub).
-  8. First mechanism stub (firstmechstub).
-  9. Second mechanism stub (secondmechstub).
-  10. First call stub (firstcstub).
-  11. Second call stub (secondcstub).
-
-1.2.7. Shift input stubs
-1.2.8. Shift output stubs
-1.2.9. Shift mechanism stubs
-1.2.10. Shift boundary stubs
-1.2.11. Layout boundary stubs
-1.2.12. Change boundary stub lengths
-1.2.13. Layout activity diagram
-
-
-
-/*
- * Layout box stubs.
- *
- * Parameters:
-  1. Diagram (dia).
- *
- * Local Variables:
-
- */
-void layboxstubs(activitydia& dia);
-
-/*
- * Find inner stub.
- *
- * Parameters:
-  1. Diagram (dia).
-  2. Boundary stub (bstub).
-  3. Found stub (fstub).
-  4. Found flag (fflag).
- */
-void finnerstub(const activitydia& dia, const stub& bstub, stub& fstub, 
-	bool& fflag);
-
-/*
- * Locate connected boxes.
- *
- * Parameters:
-  1. Activity diagram (dia).
-  2. Target stub name (tsname).
- */
-std::vector<activitybox> lconnboxes(activitydia& dia, std::string& tsname);
-
-/*
- * Check stubs overlap.
- *
- * Parameters:
-  1. First stub (fstub).
-  2. Second stub (stub).
- */
-bool checksoverlap(stub fstub, stub sstub);
-
-/*
- * Shift input stubs.
- *
- * Parameters:
-  1. Diagram (dia).
- */
-void sinstubs(activitydia& dia);
-
-/*
- * Shift output stubs.
- *
- * Parameters:
-  1. Diagram (dia).
- */
-void soutstubs(activitydia& dia);
-
-/*
- * Shift control stubs.
- *
- * Parameters:
-  1. Diagram (dia).
- */
-void sconstubs(activitydia& dia);
-
-/*
- * Shift mechanism stubs.
- *
- * Parameters:
-  1. Diagram (dia).
- */
-void smechstubs(activitydia& dia);
-
-/*
- * Shift boundary stubs.
- *
- * Parameters:
-  1. Diagram (dia).
- */
-void shiftbstubs(activitydia& dia);
-
-/*
- * Change boundary stub lengths.
- *
- * Parameters:
-  1. Diagram (dia). 
- */
-void cbstublens(ActivityDiagram& dia);
-
-/*
- * Layout boundary stubs.
- *
- * Parameters:
-  1. Diagram (dia).
-  2. Box width (bwidth).
-  3. Box height (bheight).
-  4. Box x gap (xgap).
-  5. Box y gap (ygap).
- */
-void laybstubs(activitydia& dia, uint32_t bwidth, uint32_t bheight, uint32_t xgap,
- uint32_t ygap);
-
-/*
- * Layout activity diagram.
- *
- * Parameters:
-  1. Diagram (dia).
-  2. Diagram width (dwidth).
-  3. Diagram height (dheight).
-  4. Box width (bwidth).
-  5. Box height (bheight).
-  6. Box x gap (xgap).
-  7. Box y gap (ygap).
- */
-void layactivitydia(activitydia& dia, uint32_t dwidth, uint32_t dheight, 
-	uint32_t bwidth, uint32_t bheight, uint32_t xgap, uint32_t ygap); 
-}
-
-#endif
