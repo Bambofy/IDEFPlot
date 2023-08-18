@@ -190,10 +190,10 @@ void PlaceObstacles(const ActivityDiagram &LayedoutDiagram,
         BoxTopLeft.Row = SelectedBox.Center.Row - (SelectedBox.Height / 2u);
         BoxBottomRight.Column = SelectedBox.Center.Column + (SelectedBox.Width / 2u);
         BoxBottomRight.Row = SelectedBox.Center.Row + (SelectedBox.Height / 2u);
-        BoxTopLeftAvoid.x = BoxTopLeft.Column;
-        BoxTopLeftAvoid.y = LayedoutDiagram.Height - BoxTopLeft.Row;
-        BoxBottomRightAvoid.x = BoxBottomRight.Column;
-        BoxBottomRightAvoid.y = LayedoutDiagram.Height - BoxBottomRight.Row;
+        BoxTopLeftAvoid.x = BoxTopLeft.Column - 1u;
+        BoxTopLeftAvoid.y = (LayedoutDiagram.Height - BoxTopLeft.Row) + 1u;
+        BoxBottomRightAvoid.x = BoxBottomRight.Column + 1u;
+        BoxBottomRightAvoid.y = (LayedoutDiagram.Height - BoxBottomRight.Row) - 1u;
         NewRect = Avoid::Rectangle(BoxTopLeftAvoid, BoxBottomRightAvoid);
         Rectangles.push_back(NewRect);
     }
