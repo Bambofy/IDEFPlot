@@ -9,12 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Compile pugi
-      run: make PugiXMLTarget CC=g++ 
-    - name: Compile lib avoid
-      run: make LibAvoidTarget CC=g++
-    - name: Compile IDEFPlot target
-      run: make IDEFPlotTarget CC=g++
+    - name: Change permissions
+      run: chmod +x Build.sh
+    - name: Compile
+      run: ./Build.sh g++
     - name: Upload build output
       uses: actions/upload-artifact@v3
       with:
